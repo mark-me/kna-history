@@ -19,11 +19,26 @@ services:
     restart: always
     command: --transaction-isolation=READ-COMMITTED --log-bin=binlog --binlog-format=ROW
     volumes:
-      - /data/mariadb:/var/lib/mysql
+      - db:/var/lib/mysql
     environment:
-      - MYSQL_ROOT_PASSWORD=kna-toneel
-      - MYSQL_PASSWORD=kna-toneel
-      - MYSQL_DATABASE=kna
-      - MYSQL_USER=kna
+      - TZ=Europe/Amsterdam
+      - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
+      - MARIADB_DATABASE=${MARIADB_DATABASE}
+      - MARIADB_USER=${MARIADB_USER}
+      - MARIADB_PASSWORD=${MARIADB_PASSWORD}
       - PUID=1000
       - PGID=1000
+
+volumes:
+  resources:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${DIR_RESOURCES}
+      o: "bind,rw"
+  db:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${DIR_MARIADB}
+      o: "bind,rw"
