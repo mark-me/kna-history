@@ -1,0 +1,29 @@
+---
+version: "3.8"
+services:
+  hello_world:
+      image: hello-world
+  duckdns:
+      image: ghcr.io/linuxserver/duckdns:version-369fbd5c
+      container_name: duckdns
+      environment:
+        - PUID=1000
+        - PGID=1000
+        - TZ=Europe/Amsterdam
+        - SUBDOMAINS=kna-historie
+        - TOKEN=11afd534-1ff8-4779-989d-1bf4f25561f3
+        - LOG_FILE=false #optional
+  mariadb:
+    image: mariadb:10.11.6
+    container_name: mariadb
+    restart: always
+    command: --transaction-isolation=READ-COMMITTED --log-bin=binlog --binlog-format=ROW
+    volumes:
+      - /data/mariadb:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=kna-toneel
+      - MYSQL_PASSWORD=kna-toneel
+      - MYSQL_DATABASE=kna
+      - MYSQL_USER=kna
+      - PUID=1000
+      - PGID=1000
