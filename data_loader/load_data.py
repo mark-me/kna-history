@@ -11,7 +11,7 @@ df_leden = pd.read_excel("data_loader/kna_database.xlsx", sheet_name="Leden")
 df_leden.to_sql("lid", con=engine, if_exists="replace", index=False)
 
 df_uitvoering = pd.read_excel("data_loader/kna_database.xlsx", sheet_name="Uitvoering")
-df_uitvoering["ref_uitvoering"] = df_uitvoering["titel"] + df_uitvoering["jaar"].astype(str)
+df_uitvoering.rename(columns={"uitvoering": "ref_uitvoering"}, inplace=True)
 df_uitvoering.to_sql("uitvoering", con=engine, if_exists="replace", index=False)
 
 df_rollen = pd.read_excel("data_loader/kna_database.xlsx", sheet_name="Rollen")
