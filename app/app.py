@@ -59,19 +59,32 @@ def lid_fotos(lid: str):
         con=engine,
     )
     df_fotos["jaar"] = df_fotos["jaar"].astype("Int64")
-    fotos = df_fotos.to_dict(orient="records")
-    fotos = [
-        dict(
-            foto,
-            path=encode(
-                os.path.join("/data/kna_resources/" + foto["folder"], foto["bestand"])
-            ),
-        )
-        for foto in fotos
-    ]
+    lst_fotos = []  # Initialize the result list
+    grouped_jaar = df_fotos.groupby("jaar")  # Group by 'jaar'
+    # Iterate over each jaar
+    for group_jaar, df_jaar in grouped_jaar:
+        lst_titel = []
+        # Group by 'titel' within each jaar
+        grouped_titel = df_jaar.groupby("titel")
+        # Iterate over each subgroup
+        for group_titel, df_titel in grouped_titel:
+            data_list = df_titel.to_dict("records")
+            data_list = [
+                dict(
+                    data,
+                    path=encode(
+                        os.path.join(
+                            f"/data/resources/{data['folder']}/thumbnails", data["bestand"]
+                        )
+                    ),
+                )
+                for data in data_list
+            ]
+            lst_titel.append({"uitvoering": group_titel, "fotos": data_list})
+        lst_fotos.append({"jaar": group_jaar, "uitvoering": lst_titel})
     lid = {"naam": lid}
     logger.info(f"Loggin")
-    return render_template("lid_fotos.html", lid=lid, fotos=fotos)
+    return render_template("lid_fotos.html", lid=lid, fotos=lst_fotos)
 
 
 @app.route("/lid_fotos/cdn/<path:filepath>")
@@ -80,6 +93,10 @@ def download_file(filepath):
     logger.info(f"Directory: {dir} - File: {filename}")
     return send_from_directory(dir, filename, as_attachment=False)
 
+@app.route("/about")
+def about():
+    """About page"""
+    return render_template('about.html', title='Over')
 
 if __name__ == "__main__":
     app.run(debug=True, port=88)

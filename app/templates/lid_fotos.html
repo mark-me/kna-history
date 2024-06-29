@@ -1,23 +1,43 @@
 {% extends "layout.html" %}
+    <!-- Vergroten thumbnails -->
+    <script type="text/javascript" src="static/script.js"></script>
 {% block content %}
 <h2>Foto's van  {{ lid.naam }}</h2>
   <div class="overlay"><img src="blah" id="top" hidden=True>
     <span id="close" hidden=True onclick=do_close()><b><u>CLOSE(X)</u></b></span>
   </div>
   <div class="row">
-    {% for foto in fotos %}
-      <div class="col-md-6 mb-4">
+  </div>
+    {% for jaar in fotos %}
+    <h3>{{jaar.jaar}}</h3>
+    <div class="row">
+    </div>
+    <div id="accordionUitvoering">
+      {% for uitvoering in jaar.uitvoering %}
+      <div class="row">
+      </div>
         <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">{{ foto.titel }}</h5>
-            <hr class="my-2">
-            <img src='cdn/{{ foto.path }}' height=200 width=200 onclick="clicked_img(this)" >
-            <p class="float-right text-muted">Jaar: {{ foto.jaar }}</p>
-            <p class="float-right text-muted">Jaar: {{ foto.path2 }}</p>
-            <div class="clearfix"></div>
+          <div class="card-header" id="heading{{uitvoering.uitvoering}}">
+            <h5 class="mb-0">
+              <button class="btn btn-link" data-toggle="collapse" data-target="#collapse{{uitvoering.uitvoering}}" aria-expanded="false" aria-controls="collapse{{uitvoering.uitvoering}}">
+                {{uitvoering.uitvoering}}
+              </button>
+            </h5>
+          </div>
+          <div id="collapse{{uitvoering.uitvoering}}" class="collapse show" aria-labelledby="heading{{uitvoering.uitvoering}}" data-parent="#accordion{{uitvoering.uitvoering}}">
+            {% for foto in uitvoering.fotos %}
+            <!--- <div class="card-body"> --->
+            <img src='cdn/{{ foto.path }}' onclick="clicked_img(this)" >
+              <!--- <div class="clearfix"></div> --->
+            <!--- </div> --->
+            {% endfor %}
           </div>
         </div>
+        </div>
       </div>
+      {% endfor %}
+    </div>
+    </div>
     {% endfor %}
   </div>
 {% endblock content %}
