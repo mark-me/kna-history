@@ -69,15 +69,6 @@ def lid_fotos(lid: str):
         )
         for foto in fotos
     ]
-    fotos = [
-        dict(
-            foto,
-            path2=os.path.join(
-                "/data/kna_resources/" + foto["folder"], foto["bestand"]
-            ),
-        )
-        for foto in fotos
-    ]
     lid = {"naam": lid}
     logger.info(f"Loggin")
     return render_template("lid_fotos.html", lid=lid, fotos=fotos)
