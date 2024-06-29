@@ -1,8 +1,16 @@
 ---
 version: "3.8"
 services:
-  hello_world:
-      image: hello-world
+  kna-historie:
+    image: ghcr.io/mark-me/kna-history:v0.0.1
+    container_name: kna-historie
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Amsterdam
+    ports:
+      - 80:5000
+    volumes:
+      - resources:/data/resources
   duckdns:
       image: ghcr.io/linuxserver/duckdns:version-369fbd5c
       container_name: duckdns
