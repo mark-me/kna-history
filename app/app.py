@@ -47,6 +47,18 @@ def view_leden():
     df_lid["Geboortedatum"] = df_lid["Geboortedatum"].dt.date
     df_lid["Startjaar"] = df_lid["Startjaar"].astype("Int64")
     leden = df_lid.to_dict(orient="records")
+    leden = [
+                dict(
+                    data,
+                    profielfoto=encode(
+                        os.path.join(
+                            f"/data/resources/Leden",
+                            data["id_lid"] + ".png",
+                        )
+                    ),
+                )
+                for data in leden
+            ]
     # reports = sorted(reports, key=lambda x: x['last_modified'], reverse=True)
     return render_template("leden.html", leden=leden)
 
@@ -74,7 +86,8 @@ def lid_fotos(lid: str):
                     data,
                     path=encode(
                         os.path.join(
-                            f"/data/resources/{data['folder']}/thumbnails", data["bestand"]
+                            f"/data/resources/{data['folder']}/thumbnails",
+                            data["bestand"],
                         )
                     ),
                 )
@@ -88,15 +101,18 @@ def lid_fotos(lid: str):
 
 
 @app.route("/lid_fotos/cdn/<path:filepath>")
+@app.route("/leden/cdn/<path:filepath>")
 def download_file(filepath):
     dir, filename = os.path.split(decode(filepath))
     logger.info(f"Directory: {dir} - File: {filename}")
     return send_from_directory(dir, filename, as_attachment=False)
 
+
 @app.route("/about")
 def about():
     """About page"""
-    return render_template('about.html', title='Over')
+    return render_template("about.html", title="Over")
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=88)
