@@ -3,6 +3,8 @@ version: "3.8"
 services:
   kna-historie:
     image: ghcr.io/mark-me/kna-history:v0.0.1
+    # build:
+    #   context: ./nginx
     container_name: kna-historie
     restart: unless-stopped
     environment:

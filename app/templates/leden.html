@@ -11,7 +11,8 @@
             <h5 class="card-title">{{ lid.id_lid }}</h5>
             <hr class="my-2">
             <p class="float-right text-muted">Lid sinds: {{ lid.Startjaar }}</p>
-            <img src="cdn/{{ lid.profielfoto }}" >
+            <img src="cdn/{{ lid.profielfoto }}" width="150" height="150">
+            <hr class="my-2">
             <div class="clearfix"></div>
               <a href="lid_fotos/{{ lid.id_lid }}" class="btn btn-primary" view>Foto's</a>
               <a href="report_download/{{ lid.id_lid }}" class="btn btn-primary" download>Uitvoeringen</a>

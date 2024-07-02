@@ -4,6 +4,7 @@ from sys import stdout
 import os
 
 from flask import Flask, render_template, send_from_directory
+import numpy as np
 import pandas as pd
 from sqlalchemy import create_engine
 
@@ -46,22 +47,66 @@ def view_leden():
     df_lid = pd.read_sql_table(table_name="lid", con=engine)
     df_lid["Geboortedatum"] = df_lid["Geboortedatum"].dt.date
     df_lid["Startjaar"] = df_lid["Startjaar"].astype("Int64")
-    leden = df_lid.to_dict(orient="records")
-    leden = [
+    df_lid['dir_photo'] = "/data/resources/Leden/" + df_lid["id_lid"] + ".png"
+    df_lid['photo_exists'] = df_lid['dir_photo'].astype(str).map(os.path.exists)
+    df_lid['dir_photo'] = np.where(df_lid['photo_exists'], "/data/resources/Leden", "static/images")
+    df_lid['file_photo'] = np.where(df_lid['photo_exists'], df_lid["id_lid"] + ".png", "member_photo_default2.png")
+    lst_leden = df_lid.to_dict(orient="records")
+    lst_leden = [
                 dict(
                     data,
                     profielfoto=encode(
                         os.path.join(
-                            f"/data/resources/Leden",
-                            data["id_lid"] + ".png",
+                            data["dir_photo"],
+                            data["file_photo"],
                         )
                     ),
                 )
-                for data in leden
+                for data in lst_leden #if data["photo_exists"]
             ]
+    logger.info(lst_leden)
     # reports = sorted(reports, key=lambda x: x['last_modified'], reverse=True)
-    return render_template("leden.html", leden=leden)
+    return render_template("leden.html", leden=lst_leden)
 
+@app.route("/voorstellingen")
+def view_voorstellingen():
+    """Page for viewing uitvoeringen"""
+    sql_statement = """
+    SELECT
+        uitvoering.titel,
+        uitvoering.jaar,
+        uitvoering.folder,
+        file.type_media,
+        MIN(file.bestand) AS file_photo
+    FROM uitvoering
+    LEFT JOIN file
+    ON uitvoering.ref_uitvoering = file.ref_uitvoering
+    WHERE uitvoering.`type` = 'Uitvoering' AND
+        (file.type_media = 'foto' OR file.type_media IS NULL)
+    GROUP BY
+        uitvoering.titel,
+        uitvoering.jaar,
+        uitvoering.folder,
+        file.type_media
+    """
+    df_voorstelling = pd.read_sql(sql=sql_statement, con=engine)
+    df_voorstelling["jaar"] = df_voorstelling["jaar"].astype("Int64")
+    logger.info(df_voorstelling.head())
+    lst_voorstelling = df_voorstelling.to_dict(orient="records")
+    lst_voorstelling = [
+                dict(
+                    data,
+                    foto=encode(
+                        os.path.join(
+                            "/data/resources/" + data['folder'] + "/thumbnails",
+                            data["file_photo"],
+                        )
+                    ),
+                )
+                for data in lst_voorstelling
+            ]
+    logger.info(lst_voorstelling)
+    return render_template("voorstellingen.html", voorstellingen=lst_voorstelling)
 
 @app.route("/lid_fotos/<lid>")
 def lid_fotos(lid: str):
@@ -96,12 +141,16 @@ def lid_fotos(lid: str):
             lst_titel.append({"uitvoering": group_titel, "fotos": data_list})
         lst_fotos.append({"jaar": group_jaar, "uitvoering": lst_titel})
     lid = {"naam": lid}
-    logger.info(f"Loggin")
     return render_template("lid_fotos.html", lid=lid, fotos=lst_fotos)
 
 
+@app.route("/cdn/<path:filepath>")
+def lid_foto(filepath):
+    dir, filename = os.path.split(decode(filepath))
+    logger.info(f"Directory: {dir} - File: {filename}")
+    return send_from_directory(dir, filename, as_attachment=False)
+
 @app.route("/lid_fotos/cdn/<path:filepath>")
-@app.route("/leden/cdn/<path:filepath>")
 def download_file(filepath):
     dir, filename = os.path.split(decode(filepath))
     logger.info(f"Directory: {dir} - File: {filename}")
