@@ -9,12 +9,11 @@
         <div class="card">
           <div class="card-body">
             <h5 class="card-title">{{ voorstelling.titel }}</h5>
-            <hr class="my-2">
-            <p class="float-right text-muted">Lid sinds: {{ voorstelling.jaar }}</p>
-            <img src="cdn/{{ voorstelling.foto }}" width="200" height="200">
+            <p class="float-right text-muted">Uitgevoerd in {{ voorstelling.jaar }}</p>
+            <!--- > <img src="cdn/{{ voorstelling.foto }}" width="200" height="200"> <--->
             <hr class="my-2">
             <div class="clearfix"></div>
-              <a href="cdn/{{ voorstelling.foto }}" class="btn btn-primary" view>Media</a>
+            <a href="voorstelling_fotos/{{ voorstelling.ref_uitvoering }}" class="btn btn-primary" view>Media</a>
           </div>
         </div>
       </div>

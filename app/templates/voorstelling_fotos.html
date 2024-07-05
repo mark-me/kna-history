@@ -1,17 +1,19 @@
 {% extends "layout.html" %}
+    <!-- Vergroten thumbnails -->
+    <script type="text/javascript" src="static/script.js"></script>
 {% block content %}
-<h2>Foto's van  {{ lid.naam }}</h2>
+<h2>Foto's van  {{ uitvoering }}</h2>
   <div class="overlay"><img src="blah" id="top" hidden=True>
     <span id="close" hidden=True onclick=do_close()><b><u>CLOSE(X)</u></b></span>
   </div>
   <div class="row">
   </div>
-    {% for jaar in fotos %}
+    {% for type_media in fotos %}
     <h3>{{jaar.jaar}}</h3>
     <div class="row">
     </div>
     <div id="accordionUitvoering">
-      {% for uitvoering in jaar.uitvoering %}
+      {% for type_media in jaar.uitvoering %}
       <div class="row">
       </div>
         <div class="card">
@@ -25,7 +27,7 @@
           <div id="collapse{{uitvoering.uitvoering}}" class="collapse show" aria-labelledby="heading{{uitvoering.uitvoering}}" data-parent="#accordion{{uitvoering.uitvoering}}">
             {% for foto in uitvoering.fotos %}
             <!--- <div class="card-body"> --->
-              <a href="/foto/{{ foto.path_photo }}"><img src='cdn/{{ foto.path_thumbnail }}' onclick="clicked_img(this)" ></a>
+            <img src='cdn/{{ foto.path }}' onclick="clicked_img(this)" >
               <!--- <div class="clearfix"></div> --->
             <!--- </div> --->
             {% endfor %}

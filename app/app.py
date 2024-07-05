@@ -40,6 +40,9 @@ def home():
     """Home page"""
     return render_template("home.html")
 
+@app.route("/foto/<foto>")
+def show_photo(foto:str):
+    return render_template("foto.html", foto=foto)
 
 @app.route("/leden")
 def view_leden():
@@ -47,26 +50,33 @@ def view_leden():
     df_lid = pd.read_sql_table(table_name="lid", con=engine)
     df_lid["Geboortedatum"] = df_lid["Geboortedatum"].dt.date
     df_lid["Startjaar"] = df_lid["Startjaar"].astype("Int64")
-    df_lid['dir_photo'] = "/data/resources/Leden/" + df_lid["id_lid"] + ".png"
-    df_lid['photo_exists'] = df_lid['dir_photo'].astype(str).map(os.path.exists)
-    df_lid['dir_photo'] = np.where(df_lid['photo_exists'], "/data/resources/Leden", "static/images")
-    df_lid['file_photo'] = np.where(df_lid['photo_exists'], df_lid["id_lid"] + ".png", "member_photo_default2.png")
+    df_lid["dir_photo"] = (
+        "/data/resources/Leden/thumbnails/" + df_lid["id_lid"] + ".png"
+    )
+    df_lid["photo_exists"] = df_lid["dir_photo"].astype(str).map(os.path.exists)
+    df_lid["dir_photo"] = np.where(
+        df_lid["photo_exists"], "/data/resources/Leden/thumbnails", "static/images"
+    )
+    df_lid["file_photo"] = np.where(
+        df_lid["photo_exists"], df_lid["id_lid"] + ".png", "member_photo_default2.png"
+    )
     lst_leden = df_lid.to_dict(orient="records")
     lst_leden = [
-                dict(
-                    data,
-                    profielfoto=encode(
-                        os.path.join(
-                            data["dir_photo"],
-                            data["file_photo"],
-                        )
-                    ),
+        dict(
+            data,
+            profielfoto=encode(
+                os.path.join(
+                    data["dir_photo"],
+                    data["file_photo"],
                 )
-                for data in lst_leden #if data["photo_exists"]
-            ]
+            ),
+        )
+        for data in lst_leden  # if data["photo_exists"]
+    ]
     logger.info(lst_leden)
     # reports = sorted(reports, key=lambda x: x['last_modified'], reverse=True)
     return render_template("leden.html", leden=lst_leden)
+
 
 @app.route("/voorstellingen")
 def view_voorstellingen():
@@ -93,7 +103,7 @@ def view_voorstellingen():
     df_voorstelling["jaar"] = df_voorstelling["jaar"].astype("Int64")
     logger.info(df_voorstelling.head())
     lst_voorstelling = df_voorstelling.to_dict(orient="records")
-    lst_voorstelling = [
+    """lst_voorstelling = [
                 dict(
                     data,
                     foto=encode(
@@ -104,15 +114,23 @@ def view_voorstellingen():
                     ),
                 )
                 for data in lst_voorstelling
-            ]
+            ] """
     logger.info(lst_voorstelling)
     return render_template("voorstellingen.html", voorstellingen=lst_voorstelling)
+
 
 @app.route("/lid_fotos/<lid>")
 def lid_fotos(lid: str):
     """Page for member photos"""
+    sql_statement = f"""
+    SELECT *
+    FROM file_leden
+    INNER JOIN uitvoering
+        ON uitvoering.ref_uitvoering = file_leden.ref_uitvoering
+    WHERE lid='{lid}'
+    """
     df_fotos = pd.read_sql(
-        sql=f"SELECT * FROM file INNER JOIN uitvoering ON uitvoering.ref_uitvoering = file.ref_uitvoering WHERE lid='{lid}'",
+        sql=sql_statement,
         con=engine,
     )
     df_fotos["jaar"] = df_fotos["jaar"].astype("Int64")
@@ -129,9 +147,21 @@ def lid_fotos(lid: str):
             data_list = [
                 dict(
                     data,
-                    path=encode(
+                    path_thumbnail=encode(
                         os.path.join(
                             f"/data/resources/{data['folder']}/thumbnails",
+                            data["bestand"],
+                        )
+                    ),
+                )
+                for data in data_list
+            ]
+            data_list = [
+                dict(
+                    data,
+                    path_photo=encode(
+                        os.path.join(
+                            f"/data/resources/{data['folder']}",
                             data["bestand"],
                         )
                     ),
@@ -144,8 +174,37 @@ def lid_fotos(lid: str):
     return render_template("lid_fotos.html", lid=lid, fotos=lst_fotos)
 
 
+@app.route("/voorstelling_fotos/<voorstelling>")
+def voorstelling_fotos(voorstelling: str):
+    """Page for member photos"""
+    sql_statement = f"""
+    SELECT *
+    FROM file
+    WHERE ref_uitvoering='{voorstelling}'
+    """
+    df_fotos = pd.read_sql(sql=sql_statement, con=engine)
+    lst_photos = []  # Initialize the result list
+    grouped_media_type = df_fotos.groupby("media_type")
+    # Iterate over each jaar
+    for group_media_type, df_media in grouped_media_type:
+        data_list = df_media.to_dict("records")
+        # Iterate over each subgroup
+        lst_photos.append({"media_type": group_media_type, "bestanden": data_list})
+
+    print(lst_photos)
+    return render_template(
+        "voorstelling_fotos.html", voorstelling=voorstelling, fotos=lst_photos
+    )
+
+
 @app.route("/cdn/<path:filepath>")
 def lid_foto(filepath):
+    dir, filename = os.path.split(decode(filepath))
+    logger.info(f"Directory: {dir} - File: {filename}")
+    return send_from_directory(dir, filename, as_attachment=False)
+
+@app.route("/foto/cdn/<path:filepath>")
+def show_image(filepath):
     dir, filename = os.path.split(decode(filepath))
     logger.info(f"Directory: {dir} - File: {filename}")
     return send_from_directory(dir, filename, as_attachment=False)

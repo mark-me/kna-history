@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% block content%}
+<div class="row">
+    <div class="col-md-12">
+        <h2><a href="javascript:window.history.back();" class="btn btn-primary" view>Terug</a>&ensp;Foto</h2>
+        <div class="card">
+            <div class="card-body">
+                <p>
+                    <img src='cdn/{{ foto }}' width="100%" heigh="100%" class="object-fit-xxl-contain border rounded">
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
