@@ -83,21 +83,22 @@ def view_voorstellingen():
     """Page for viewing uitvoeringen"""
     sql_statement = """
     SELECT
-        uitvoering.titel,
-        uitvoering.jaar,
-        uitvoering.folder,
-        file.type_media,
-        MIN(file.bestand) AS file_photo
-    FROM uitvoering
-    LEFT JOIN file
-    ON uitvoering.ref_uitvoering = file.ref_uitvoering
-    WHERE uitvoering.`type` = 'Uitvoering' AND
-        (file.type_media = 'foto' OR file.type_media IS NULL)
-    GROUP BY
-        uitvoering.titel,
-        uitvoering.jaar,
-        uitvoering.folder,
-        file.type_media
+        u.titel,
+        u.jaar ,
+        u.ref_uitvoering ,
+        u.datum_van ,
+        u.datum_tot ,
+        u.folder ,
+        u.`type` ,
+        u.auteur ,
+        r.id_lid,
+        r.rol,
+        r.rol_bijnaam
+    FROM
+        uitvoering u
+    INNER JOIN rol r
+    ON
+        r.ref_uitvoering = u.ref_uitvoering
     """
     df_voorstelling = pd.read_sql(sql=sql_statement, con=engine)
     df_voorstelling["jaar"] = df_voorstelling["jaar"].astype("Int64")
@@ -195,7 +196,6 @@ def voorstelling_fotos(voorstelling: str):
     return render_template(
         "voorstelling_fotos.html", voorstelling=voorstelling, fotos=lst_photos
     )
-
 
 @app.route("/cdn/<path:filepath>")
 def lid_foto(filepath):
