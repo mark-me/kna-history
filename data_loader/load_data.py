@@ -8,7 +8,10 @@ from PIL import Image
 
 engine = create_engine("mysql+mysqldb://root:kna-toneel@127.0.0.1:3306/kna")
 
-df_leden = pd.read_excel("data_loader/kna_database.xlsx", sheet_name="Leden")
+data_root = "/data/kna_resources/"
+file_db = data_root + "kna_database.xlsx"
+
+df_leden = pd.read_excel(file_db, sheet_name="Leden")
 # Achternaam sortering, verwijderen tussenvoegsels
 df_leden["achternaam_sort"] = ""
 tussenvoegsels = ["van der", "van den", "van de", "van", "de"]
@@ -30,17 +33,17 @@ for index, row in df_leden.iterrows():
         df_leden.loc[index, "achternaam_sort"] = df_leden.loc[index, "Achternaam"]
 df_leden.to_sql("lid", con=engine, if_exists="replace", index=False)
 
-df_uitvoering = pd.read_excel("data_loader/kna_database.xlsx", sheet_name="Uitvoering")
+df_uitvoering = pd.read_excel(file_db, sheet_name="Uitvoering")
 df_uitvoering.rename(columns={"uitvoering": "ref_uitvoering"}, inplace=True)
 df_uitvoering.to_sql("uitvoering", con=engine, if_exists="replace", index=False)
 
-df_rollen = pd.read_excel("data_loader/kna_database.xlsx", sheet_name="Rollen")
+df_rollen = pd.read_excel(file_db, sheet_name="Rollen")
 df_rollen.to_sql("rol", con=engine, if_exists="replace", index=False)
 
-df_media_type = pd.read_excel("data_loader/kna_database.xlsx", sheet_name="Type_Media")
+df_media_type = pd.read_excel(file_db, sheet_name="Type_Media")
 df_media_type.to_sql("media_type", con=engine, if_exists="replace", index=False)
 
-df_files = pd.read_excel("data_loader/kna_database.xlsx", sheet_name="Bestand")
+df_files = pd.read_excel(file_db, sheet_name="Bestand")
 
 df_files_leden = df_files.melt(
     id_vars=["ref_uitvoering", "bestand", "type_media"],
