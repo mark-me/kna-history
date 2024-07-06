@@ -9,8 +9,6 @@ from PIL import Image
 engine = create_engine("mysql+mysqldb://root:kna-toneel@127.0.0.1:3306/kna")
 
 df_leden = pd.read_excel("data_loader/kna_database.xlsx", sheet_name="Leden")
-df_leden.to_sql("lid", con=engine, if_exists="replace", index=False)
-
 # Achternaam sortering, verwijderen tussenvoegsels
 df_leden["achternaam_sort"] = ""
 tussenvoegsels = ["van der", "van den", "van de", "van", "de"]
@@ -19,6 +17,7 @@ for index, row in df_leden.iterrows():
     i = 0
     while i < len(tussenvoegsels) and not found:
         if pd.isnull(row["Achternaam"]):
+            df_leden.loc[index, "achternaam_sort"] = "zzzzzzzz"
             break
         if tussenvoegsels[i] in row["Achternaam"][: len(tussenvoegsels[i])]:
             achternaam_sort = row["Achternaam"].replace(tussenvoegsels[i] + " ", "")
@@ -29,7 +28,7 @@ for index, row in df_leden.iterrows():
         i = i + 1
     if not found:
         df_leden.loc[index, "achternaam_sort"] = df_leden.loc[index, "Achternaam"]
-
+df_leden.to_sql("lid", con=engine, if_exists="replace", index=False)
 
 df_uitvoering = pd.read_excel("data_loader/kna_database.xlsx", sheet_name="Uitvoering")
 df_uitvoering.rename(columns={"uitvoering": "ref_uitvoering"}, inplace=True)
@@ -56,7 +55,6 @@ df_files = df_files[df_files.columns.drop(list(df_files.filter(regex="lid_")))]
 df_files.to_sql("file", con=engine, if_exists="replace", index=False)
 
 ## Creating thumbnails
-
 for root, dirs, files in os.walk("/data/kna_resources"):
     if "thumbnails" not in root:
         Path(root + "/thumbnails").mkdir(parents=True, exist_ok=True)
