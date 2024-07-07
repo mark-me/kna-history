@@ -1,42 +1,26 @@
 {% extends "layout.html" %}
-    <!-- Vergroten thumbnails -->
-    <script type="text/javascript" src="static/script.js"></script>
 {% block content %}
-<h2>Foto's van  {{ uitvoering }}</h2>
-  <div class="overlay"><img src="blah" id="top" hidden=True>
-    <span id="close" hidden=True onclick=do_close()><b><u>CLOSE(X)</u></b></span>
-  </div>
-  <div class="row">
-  </div>
+<h2>Media van {{ voorstelling }}</h2>
+  <div id="accordionMediaType">
     {% for type_media in fotos %}
-    <h3>{{jaar.jaar}}</h3>
     <div class="row">
     </div>
-    <div id="accordionUitvoering">
-      {% for type_media in jaar.uitvoering %}
-      <div class="row">
+    <div class="card">
+      <div class="card-header" id="heading{{type_media.type_media}}">
+        <h5 class="mb-0">
+          <button class="btn btn-link" data-toggle="collapse" data-target="#collapse{{type_media.type_media}}" aria-expanded="false" aria-controls="collapse{{type_media.type_media}}">
+            {{type_media.type_media}}
+          </button>
+        </h5>
       </div>
-        <div class="card">
-          <div class="card-header" id="heading{{uitvoering.uitvoering}}">
-            <h5 class="mb-0">
-              <button class="btn btn-link" data-toggle="collapse" data-target="#collapse{{uitvoering.uitvoering}}" aria-expanded="false" aria-controls="collapse{{uitvoering.uitvoering}}">
-                {{uitvoering.uitvoering}}
-              </button>
-            </h5>
-          </div>
-          <div id="collapse{{uitvoering.uitvoering}}" class="collapse show" aria-labelledby="heading{{uitvoering.uitvoering}}" data-parent="#accordion{{uitvoering.uitvoering}}">
-            {% for foto in uitvoering.fotos %}
-            <!--- <div class="card-body"> --->
-            <img src='cdn/{{ foto.path }}' onclick="clicked_img(this)" >
-              <!--- <div class="clearfix"></div> --->
-            <!--- </div> --->
-            {% endfor %}
-          </div>
-        </div>
-        </div>
+      <div id="collapse{{type_media.type_media}}" class="collapse show" aria-labelledby="heading{{type_media.type_media}}" data-parent="#accordion{{type_media.type_media}}">
+        {% for bestand in type_media.bestanden %}
+          <!--- <div class="card-body"> --->
+          <a href="/foto/{{ bestand.path_photo }}"><img src="/cdn/{{ bestand.path_thumbnail }}"></a>
+          <!--- <div class="clearfix"></div> --->
+          <!--- </div> --->
+        {% endfor %}
       </div>
-      {% endfor %}
-    </div>
     </div>
     {% endfor %}
   </div>

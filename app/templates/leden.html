@@ -1,24 +1,41 @@
-{% extends "layout.html" %}
+{% extends 'layout.html' %}
 {% block content %}
-<h2>Leden en anderen</h2>
+  <h2>Leden en anderen</h2>
 
-    <p>Leden en anderen die ooit iets hebben bijgedragen aan KNA Hillegom</p>
+  <p>Leden en anderen die ooit iets hebben bijgedragen aan KNA Hillegom</p>
   <div class="row">
     {% for lid in leden %}
       <div class="col-md-6 mb-4">
         <div class="card">
+          <br />
+          <div class="container">
+            <div class="row">
+              <div class="col-6">
+                <h5 class="card-title">{{ lid.id_lid }}</h5>
+              </div>
+              <div class="col-6">
+                <a class="float-right text-muted">Lid sinds: {{ lid.Startjaar }}&ensp;</a>
+              </div>
+            </div>
+          </div>
           <div class="card-body">
-            <h5 class="card-title">{{ lid.id_lid }}</h5>
-            <hr class="my-2">
-            <p class="float-right text-muted">Lid sinds: {{ lid.Startjaar }}</p>
-            <img src="cdn/{{ lid.profielfoto }}" width="150" height="150">
-            <hr class="my-2">
-            <div class="clearfix"></div>
-              <a href="lid_fotos/{{ lid.id_lid }}" class="btn btn-primary" view>Foto's</a>
-              <a href="lid_voorstellingen/{{ lid.id_lid }}" class="btn btn-primary" download>Uitvoeringen</a>
+            <div class="container">
+              <div class="row justify-content-start">
+                <div class="col-5">
+                  <img src="cdn/{{ lid.profielfoto }}" class="float-left" width="150" height="150" />
+                </div>
+                <div class="col-7 ms-auto">
+                  {% for uitvoering in lid.uitvoeringen %}
+                    <a href="voorstelling_fotos/{{ uitvoering.ref_uitvoering }}">{{ uitvoering.ref_uitvoering }}</a><br />
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+            <hr class="my-2" />
+            <a href="lid_fotos/{{ lid.id_lid }}" class="btn btn-primary" view>Media</a>
           </div>
         </div>
       </div>
     {% endfor %}
   </div>
-{% endblock content %}
+{% endblock %}
