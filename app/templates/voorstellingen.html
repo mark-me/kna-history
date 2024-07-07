@@ -1,16 +1,26 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>Leden en anderen</h2>
-
-    <p>Alle voorstellingen</p>
+<h2>Voorstellingen</h2>
   <div class="row">
     {% for voorstelling in voorstellingen %}
       <div class="col-md-6 mb-3 mb-4">
         <div class="card">
+          <br />
+          <div class="container">
+            <div class="row">
+              <div class="col-6">
+                <h5 class="card-title">{{ voorstelling.titel }}</h5>
+              </div>
+              <div class="col-6">
+                <a class="float-right text-muted">{{ voorstelling.jaar }}&ensp;</a>
+              </div>
+            </div>
+          </div>
           <div class="card-body">
-            <h5 class="card-title">{{ voorstelling.titel }}</h5>
-            <p class="float-right text-muted">Uitgevoerd in {{ voorstelling.jaar }}</p>
-            <!--- > <img src="cdn/{{ voorstelling.foto }}" width="200" height="200"> <--->
+            <img src="cdn/{{ voorstelling.poster.path_thumbnail }}" class="float-right" width="200" />
+            {% for rol in voorstelling.rollen %}
+              {{ rol.id_lid }} - {{ rol.rol }} <br />
+            {% endfor %}
             <hr class="my-2">
             <div class="clearfix"></div>
             <a href="voorstelling_fotos/{{ voorstelling.ref_uitvoering }}" class="btn btn-primary" view>Media</a>

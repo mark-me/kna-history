@@ -89,37 +89,60 @@ class KnaDB:
 
     def voorstellingen(self) -> list:
         sql_statement = """
-        SELECT
-            u.titel,
-            u.jaar,
-            u.ref_uitvoering,
-            u.datum_van,
-            u.datum_tot,
-            u.folder,
-            u.`type`,
-            u.auteur,
-            r.id_lid
-        FROM
-            uitvoering u
-        INNER JOIN rol r
-        ON
-            r.ref_uitvoering = u.ref_uitvoering
+        SELECT *
+        FROM uitvoering u
+        WHERE `type` = 'Uitvoering'
+        ORDER BY jaar DESC
         """
         df_voorstelling = pd.read_sql(sql=sql_statement, con=self.engine)
         df_voorstelling["jaar"] = df_voorstelling["jaar"].astype("Int64")
+        sql_statement = "SELECT * FROM file WHERE type_media = 'poster'"
+        df_poster = pd.read_sql(sql=sql_statement, con=self.engine)
+        sql_statement = """
+        SELECT
+            r.ref_uitvoering,
+            r.id_lid,
+            r.rol,
+            r.rol_bijnaam,
+            l.achternaam_sort
+        FROM rol r
+        INNER JOIN lid l
+        ON l.id_lid = r.id_lid
+        WHERE l.gdpr_permission = 1
+        ORDER BY l.achternaam_sort
+        """
+        df_rol = pd.read_sql(sql=sql_statement, con=self.engine)
         lst_voorstelling = df_voorstelling.to_dict(orient="records")
-        """lst_voorstelling = [
-                    dict(
-                        data,
-                        foto=encode(
-                            os.path.join(
-                                "/data/resources/" + data['folder'] + "/thumbnails",
-                                data["file_photo"],
-                            )
-                        ),
+        i = 0
+        while i < len(lst_voorstelling):
+            dict_poster = df_poster.loc[
+                df_poster["ref_uitvoering"] == lst_voorstelling[i]["ref_uitvoering"]
+            ].to_dict("records")
+            dict_poster = [
+                dict(
+                    data,
+                    path_thumbnail=self.encode(
+                        os.path.join(
+                            f"/data/resources/{lst_voorstelling[i]['folder']}/thumbnails",
+                            data["bestand"],
+                        )
+                    ),
+                )
+                for data in dict_poster
+            ]
+            if len(dict_poster) > 0:
+                lst_voorstelling[i]["poster"] = dict_poster[0]
+            else:
+                lst_voorstelling[i]["poster"] = {
+                    "path_thumbnail": self.encode(
+                        os.path.join("static/images", "media_type_poster.png")
                     )
-                    for data in lst_voorstelling
-                ] """
+                }
+            dict_rollen = df_rol.loc[
+                df_rol["ref_uitvoering"] == lst_voorstelling[i]["ref_uitvoering"]
+            ].to_dict("records")
+            lst_voorstelling[i]["rollen"] = dict_rollen
+            i = i + 1
         return lst_voorstelling
 
     def lid_fotos(self, lid: str) -> list:
