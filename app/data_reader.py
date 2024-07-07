@@ -145,6 +145,17 @@ class KnaDB:
             i = i + 1
         return lst_voorstelling
 
+    def jaren(self) -> list:
+        sql_statement = "SELECT * FROM uitvoering"
+        df_events = pd.read_sql(sql=sql_statement, con=self.engine)
+        lst_events = []
+        grouped_jaar = df_events.groupby("jaar")
+        # Iterate over each jaar
+        for group_jaar, df_event in grouped_jaar:
+            data_list = df_event.to_dict("records")
+            lst_events.append({"jaar": group_jaar, "events": data_list})
+        return lst_events
+
     def lid_fotos(self, lid: str) -> list:
         sql_statement = f"""
         SELECT *
@@ -179,6 +190,20 @@ class KnaDB:
                         ),
                     )
                     for data in data_list
+                    if not data["file_ext"].lower() == "pdf"
+                ]
+                data_list = [
+                    dict(
+                        data,
+                        path_thumbnail=self.encode(
+                            os.path.join(
+                                "static/images",
+                                "media_type_booklet.png",
+                            )
+                        ),
+                    )
+                    for data in data_list
+                    if not data["file_ext"].lower() == "pdf"
                 ]
                 data_list = [
                     dict(
@@ -202,7 +227,8 @@ class KnaDB:
             f.ref_uitvoering,
             f.bestand,
             f.type_media,
-            u.folder
+            u.folder,
+            f.file_ext
         FROM file f
         INNER JOIN uitvoering u
         ON u.ref_uitvoering = f.ref_uitvoering
@@ -214,31 +240,37 @@ class KnaDB:
         grouped_media_type = df_fotos.groupby("type_media")
         # Iterate over each jaar
         for group_media_type, df_media in grouped_media_type:
-            data_list = df_media.to_dict("records")
-            data_list = [
-                dict(
-                    data,
-                    path_thumbnail=self.encode(
+            lst_media = df_media.to_dict("records")
+            i = 0
+            while i < len(lst_media):
+                if lst_media[i]["file_ext"].lower() == "pdf":
+                    lst_media[i]["path_thumbnail"] = self.encode(
                         os.path.join(
-                            f"/data/resources/{data['folder']}/thumbnails",
-                            data["bestand"],
+                            "static/images",
+                            "media_type_booklet.png",
                         )
-                    ),
-                )
-                for data in data_list
-            ]
-            data_list = [
-                dict(
-                    data,
-                    path_photo=self.encode(
+                    )
+                elif lst_media[i]["file_ext"].lower() == "mp4":
+                    lst_media[i]["path_thumbnail"] = self.encode(
                         os.path.join(
-                            f"/data/resources/{data['folder']}",
-                            data["bestand"],
+                            "static/images",
+                            "media_type_movie.png",
                         )
-                    ),
+                    )
+                else:
+                    lst_media[i]["path_thumbnail"] = self.encode(
+                        os.path.join(
+                            f"/data/resources/{lst_media[i]['folder']}/thumbnails",
+                            lst_media[i]["bestand"],
+                        )
+                    )
+                lst_media[i]["path_photo"] = self.encode(
+                    os.path.join(
+                        f"/data/resources/{lst_media[i]['folder']}",
+                        lst_media[i]["bestand"],
+                    )
                 )
-                for data in data_list
-            ]
-            # Iterate over each subgroup
-            lst_photos.append({"type_media": group_media_type, "bestanden": data_list})
+                i = i + 1
+            lst_photos.append({"type_media": group_media_type, "bestanden": lst_media})
+
         return lst_photos

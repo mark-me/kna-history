@@ -25,7 +25,7 @@
           <div id="collapse{{uitvoering.uitvoering}}" class="collapse show" aria-labelledby="heading{{uitvoering.uitvoering}}" data-parent="#accordion{{uitvoering.uitvoering}}">
             {% for foto in uitvoering.fotos %}
             <!--- <div class="card-body"> --->
-              <a href="/foto/{{ foto.path_photo }}"><img src='cdn/{{ foto.path_thumbnail }}' onclick="clicked_img(this)" ></a>
+              <a href="/foto/{{ foto.path_photo }}"><img src='cdn/{{ foto.path_thumbnail }}'  width='auto' height='200' style='margin: 0.5em 0;' ></a>
               <!--- <div class="clearfix"></div> --->
             <!--- </div> --->
             {% endfor %}

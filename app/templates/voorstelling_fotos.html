@@ -15,10 +15,13 @@
       </div>
       <div id="collapse{{type_media.type_media}}" class="collapse show" aria-labelledby="heading{{type_media.type_media}}" data-parent="#accordion{{type_media.type_media}}">
         {% for bestand in type_media.bestanden %}
-          <!--- <div class="card-body"> --->
-          <a href="/foto/{{ bestand.path_photo }}"><img src="/cdn/{{ bestand.path_thumbnail }}"></a>
-          <!--- <div class="clearfix"></div> --->
-          <!--- </div> --->
+          {% if bestand.file_ext.lower() == "pdf" %}
+            <a href="/pdf/{{ bestand.path_photo }}"><img src="/cdn/{{ bestand.path_thumbnail }}" width='auto' height='200' style='margin: 0.5em 0;'></a>
+          {% elif bestand.file_ext.lower() == "mp4" %}
+            <a href="/video/{{ bestand.path_photo }}"><img src="/cdn/{{ bestand.path_thumbnail }}" width='auto' height='200' style='margin: 0.5em 0;'></a>
+          {% else %}
+            <a href="/foto/{{ bestand.path_photo }}"><img src="/cdn/{{ bestand.path_thumbnail }}" width='auto' height='200' style='margin: 0.5em 0;'></a>
+          {% endif %}
         {% endfor %}
       </div>
     </div>

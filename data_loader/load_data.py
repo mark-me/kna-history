@@ -52,6 +52,8 @@ df_files_leden = df_files.melt(
 ).reset_index()
 df_files_leden.dropna(subset=["lid"], inplace=True)
 df_files_leden.drop(columns=["index"], inplace=True)
+df_files["file_ext"] = df_files["bestand"].str.split('.').str[-1]
+
 df_files_leden.to_sql("file_leden", con=engine, if_exists="replace", index=False)
 
 df_files = df_files[df_files.columns.drop(list(df_files.filter(regex="lid_")))]
