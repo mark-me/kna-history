@@ -274,3 +274,23 @@ class KnaDB:
             lst_photos.append({"type_media": group_media_type, "bestanden": lst_media})
 
         return lst_photos
+
+    def medium(self, path: str) -> dict:
+        sql_statement = f"""
+        SELECT f.*
+        FROM file f
+        INNER JOIN uitvoering u
+        ON u.ref_uitvoering = f.ref_uitvoering
+        WHERE CONCAT(u.folder, "/" , f.bestand) = {path}
+        """
+        df_file = pd.read_sql(sql=sql_statement, con=self.engine)
+        dict_file = df_file.to_dict("records")[0]
+        sql_statement = f"""
+        SELECT u.folder, f.bestand, f.vlnr, f.lid,
+        FROM file_leden f
+        INNER JOIN uitvoering u
+        ON u.ref_uitvoering = f.ref_uitvoering
+        WHERE CONCAT(u.folder, "/" , f.bestand) = {path}
+        """
+        df_file_leden = pd.read_sql(sql=sql_statement, con=self.engine)
+        return dict_file
