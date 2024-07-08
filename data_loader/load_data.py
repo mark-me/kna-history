@@ -44,20 +44,21 @@ df_media_type = pd.read_excel(file_db, sheet_name="Type_Media")
 df_media_type.to_sql("media_type", con=engine, if_exists="replace", index=False)
 
 df_files = pd.read_excel(file_db, sheet_name="Bestand")
+df_files["file_ext"] = df_files["bestand"].str.split('.').str[-1]
+df_files["file_ext"] = df_files["file_ext"].str.lower()
 
 df_files_leden = df_files.melt(
-    id_vars=["ref_uitvoering", "bestand", "type_media"],
+    id_vars=["ref_uitvoering", "bestand", "type_media", "file_ext"],
     var_name="vlnr",
     value_name="lid",
 ).reset_index()
 df_files_leden.dropna(subset=["lid"], inplace=True)
 df_files_leden.drop(columns=["index"], inplace=True)
-df_files["file_ext"] = df_files["bestand"].str.split('.').str[-1]
-
 df_files_leden.to_sql("file_leden", con=engine, if_exists="replace", index=False)
 
 df_files = df_files[df_files.columns.drop(list(df_files.filter(regex="lid_")))]
 df_files.to_sql("file", con=engine, if_exists="replace", index=False)
+
 
 ## Creating thumbnails
 for root, dirs, files in os.walk("/data/kna_resources"):

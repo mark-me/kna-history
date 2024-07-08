@@ -16,10 +16,12 @@ class KnaDB:
                 "mysql+mysqldb://root:kna-toneel@127.0.0.1:3306/kna"
             )
 
-    def encode(self, x):
-        return binascii.hexlify(x.encode("utf-8")).decode()
+    def encode(self, folder, file) -> str:
+        path = os.path.join(folder, file)
+        path = binascii.hexlify(path.encode("utf-8")).decode()
+        return path
 
-    def decode(self, x):
+    def decode(self, x) -> str:
         return binascii.unhexlify(x.encode("utf-8")).decode()
 
     def leden(self):
@@ -44,21 +46,12 @@ class KnaDB:
             df_lid["id_lid"] + ".png",
             "member_photo_default2.png",
         )
+        df_lid["profielfoto"] = df_lid.apply(
+            lambda x: self.encode(x["dir_photo"], x["file_photo"]), axis=1
+        )
         lst_lid = df_lid.to_dict(orient="records")
-        lst_lid = [
-            dict(
-                data,
-                profielfoto=self.encode(
-                    os.path.join(
-                        data["dir_photo"],
-                        data["file_photo"],
-                    )
-                ),
-            )
-            for data in lst_lid
-        ]
 
-        # Uitvoeringen
+        # Rollen
         sql_statement = """
         SELECT DISTINCT
             u.titel,
@@ -71,11 +64,9 @@ class KnaDB:
         ON r.ref_uitvoering = u.ref_uitvoering
         ORDER BY u.jaar
         """
-
-        # Rollen
         df_rol = pd.read_sql(sql=sql_statement, con=self.engine)
 
-        # Combine to dictionary
+        # Integrate into dictionary
         lst_lid = [
             dict(
                 lid,
@@ -88,6 +79,7 @@ class KnaDB:
         return lst_lid
 
     def voorstellingen(self) -> list:
+        # Voorstellingen
         sql_statement = """
         SELECT *
         FROM uitvoering u
@@ -96,8 +88,32 @@ class KnaDB:
         """
         df_voorstelling = pd.read_sql(sql=sql_statement, con=self.engine)
         df_voorstelling["jaar"] = df_voorstelling["jaar"].astype("Int64")
-        sql_statement = "SELECT * FROM file WHERE type_media = 'poster'"
+        # Poster
+        sql_statement = """
+        SELECT u.ref_uitvoering,
+            u.folder AS dir_poster,
+            MAX(f.bestand) as file_poster
+        FROM uitvoering u
+        LEFT JOIN file f
+        ON f.ref_uitvoering = u.ref_uitvoering
+        WHERE f.type_media = 'poster'
+        GROUP BY
+            u.ref_uitvoering,
+            u.folder"""
         df_poster = pd.read_sql(sql=sql_statement, con=self.engine)
+        df_poster["dir_poster"] = "/data/resources/" + df_poster["dir_poster"] + "/thumbnails"
+        # Add poster to voorstelling
+        df_voorstelling = df_voorstelling.merge(
+            right=df_poster, how="left", on="ref_uitvoering"
+        )
+        del df_poster
+        df_voorstelling["dir_poster"] = df_voorstelling["dir_poster"].fillna("static/images")
+        df_voorstelling["file_poster"] = df_voorstelling["file_poster"].fillna("media_type_poster.png")
+        df_voorstelling["path_thumbnail"] = df_voorstelling.apply(
+            lambda x: self.encode(x["dir_poster"], x["file_poster"]), axis=1
+        )
+
+        # Rollen
         sql_statement = """
         SELECT
             r.ref_uitvoering,
@@ -112,32 +128,11 @@ class KnaDB:
         ORDER BY l.achternaam_sort
         """
         df_rol = pd.read_sql(sql=sql_statement, con=self.engine)
+
+        # Integrate all data into list of dictionaries
         lst_voorstelling = df_voorstelling.to_dict(orient="records")
         i = 0
         while i < len(lst_voorstelling):
-            dict_poster = df_poster.loc[
-                df_poster["ref_uitvoering"] == lst_voorstelling[i]["ref_uitvoering"]
-            ].to_dict("records")
-            dict_poster = [
-                dict(
-                    data,
-                    path_thumbnail=self.encode(
-                        os.path.join(
-                            f"/data/resources/{lst_voorstelling[i]['folder']}/thumbnails",
-                            data["bestand"],
-                        )
-                    ),
-                )
-                for data in dict_poster
-            ]
-            if len(dict_poster) > 0:
-                lst_voorstelling[i]["poster"] = dict_poster[0]
-            else:
-                lst_voorstelling[i]["poster"] = {
-                    "path_thumbnail": self.encode(
-                        os.path.join("static/images", "media_type_poster.png")
-                    )
-                }
             dict_rollen = df_rol.loc[
                 df_rol["ref_uitvoering"] == lst_voorstelling[i]["ref_uitvoering"]
             ].to_dict("records")
@@ -156,7 +151,8 @@ class KnaDB:
             lst_events.append({"jaar": group_jaar, "events": data_list})
         return lst_events
 
-    def lid_fotos(self, lid: str) -> list:
+    def lid_media(self, lid: str) -> list:
+        logger.info(lid)
         sql_statement = f"""
         SELECT *
         FROM file_leden
@@ -164,13 +160,26 @@ class KnaDB:
             ON uitvoering.ref_uitvoering = file_leden.ref_uitvoering
         WHERE lid='{lid}'
         """
-        df_fotos = pd.read_sql(
+        df_media = pd.read_sql(
             sql=sql_statement,
             con=self.engine,
         )
-        df_fotos["jaar"] = df_fotos["jaar"].astype("Int64")
-        lst_fotos = []  # Initialize the result list
-        grouped_jaar = df_fotos.groupby("jaar")  # Group by 'jaar'
+        df_media["jaar"] = df_media["jaar"].astype("Int64")
+        df_media["dir_thumbnail"] = f"/data/resources/{df_media['folder']}/thumbnails"
+        df_media["dir_media"] = f"/data/resources/{df_media['folder']}"
+        df_media.loc[df_media["file_ext"].isin(["pdf", "mp4"]), "dir_thumbnail"] = "static/images"
+        df_media["file_thumbnail"] = df_media["bestand"]
+        df_media.loc[df_media["file_ext"] == "pdf", "file_thumbnail"] = "media_type_booklet.png"
+        df_media.loc[df_media["file_ext"] == "mp4", "file_thumbnail"] = "media_type_video.png"
+        df_media["path_thumbnail"] = df_media.apply(
+            lambda x: self.encode(x["dir_thumbnail"], x["file_thumbnail"]), axis=1
+        )
+        df_media["path_media"] = df_media.apply(
+            lambda x: self.encode(x["dir_media"], x["bestand"]), axis=1
+        )
+
+        lst_media = []  # Initialize the result list
+        grouped_jaar = df_media.groupby("jaar")  # Group by 'jaar'
         # Iterate over each jaar
         for group_jaar, df_jaar in grouped_jaar:
             lst_titel = []
@@ -179,47 +188,9 @@ class KnaDB:
             # Iterate over each subgroup
             for group_titel, df_titel in grouped_titel:
                 data_list = df_titel.to_dict("records")
-                data_list = [
-                    dict(
-                        data,
-                        path_thumbnail=self.encode(
-                            os.path.join(
-                                f"/data/resources/{data['folder']}/thumbnails",
-                                data["bestand"],
-                            )
-                        ),
-                    )
-                    for data in data_list
-                    if not data["file_ext"].lower() == "pdf"
-                ]
-                data_list = [
-                    dict(
-                        data,
-                        path_thumbnail=self.encode(
-                            os.path.join(
-                                "static/images",
-                                "media_type_booklet.png",
-                            )
-                        ),
-                    )
-                    for data in data_list
-                    if not data["file_ext"].lower() == "pdf"
-                ]
-                data_list = [
-                    dict(
-                        data,
-                        path_photo=self.encode(
-                            os.path.join(
-                                f"/data/resources/{data['folder']}",
-                                data["bestand"],
-                            )
-                        ),
-                    )
-                    for data in data_list
-                ]
                 lst_titel.append({"uitvoering": group_titel, "fotos": data_list})
-            lst_fotos.append({"jaar": group_jaar, "uitvoering": lst_titel})
-        return lst_fotos
+            lst_media.append({"jaar": group_jaar, "uitvoering": lst_titel})
+        return lst_media
 
     def voorstelling_fotos(self, voorstelling: str) -> list:
         sql_statement = f"""
@@ -293,4 +264,20 @@ class KnaDB:
         WHERE CONCAT(u.folder, "/" , f.bestand) = {path}
         """
         df_file_leden = pd.read_sql(sql=sql_statement, con=self.engine)
+        return dict_file
+
+    def test_path(self) -> list:
+        sql_statement = """
+        SELECT f.*, u.folder
+        FROM file f
+        INNER JOIN uitvoering u
+        ON u.ref_uitvoering = f.ref_uitvoering
+        """
+        df_file = pd.read_sql(sql=sql_statement, con=self.engine)
+        df_file["folder"] = "/data/resources/" + df_file["folder"] + "/thumbnails"
+        df_file["path"] = df_file.apply(
+            lambda x: self.encode_test(x["folder"], x["bestand"]), axis=1
+        )
+
+        dict_file = df_file.to_dict("records")
         return dict_file
