@@ -17,12 +17,36 @@ class KnaDB:
             )
 
     def encode(self, folder, file) -> str:
+        logger.info(f"Encode - {folder}, {file}")
         path = os.path.join(folder, file)
+        logger.info(f"Encode path - {path}")
         path = binascii.hexlify(path.encode("utf-8")).decode()
         return path
 
     def decode(self, x) -> str:
         return binascii.unhexlify(x.encode("utf-8")).decode()
+
+    def enrich_media(self, df_media: pd.DataFrame) -> pd.DataFrame:
+        df_media["dir_thumbnail"] = "/data/resources/" + df_media['folder'] + "/thumbnails"
+        df_media["dir_media"] = "/data/resources/" + df_media['folder']
+        df_media.loc[df_media["file_ext"].isin(["pdf", "mp4"]), "dir_thumbnail"] = (
+            "static/images"
+        )
+        df_media["file_thumbnail"] = df_media["bestand"]
+        df_media.loc[df_media["file_ext"] == "pdf", "file_thumbnail"] = (
+            "media_type_booklet.png"
+        )
+        df_media.loc[df_media["file_ext"] == "mp4", "file_thumbnail"] = (
+            "media_type_video.png"
+        )
+        df_media["path_thumbnail"] = df_media.apply(
+            lambda x: self.encode(x["dir_thumbnail"], x["file_thumbnail"]), axis=1
+        )
+        df_media["path_media"] = df_media.apply(
+            lambda x: self.encode(x["dir_media"], x["bestand"]), axis=1
+        )
+        df_media["type_media"] = df_media["type_media"].str.capitalize()
+        return df_media
 
     def leden(self):
         sql_statement = """
@@ -101,14 +125,20 @@ class KnaDB:
             u.ref_uitvoering,
             u.folder"""
         df_poster = pd.read_sql(sql=sql_statement, con=self.engine)
-        df_poster["dir_poster"] = "/data/resources/" + df_poster["dir_poster"] + "/thumbnails"
+        df_poster["dir_poster"] = (
+            "/data/resources/" + df_poster["dir_poster"] + "/thumbnails"
+        )
         # Add poster to voorstelling
         df_voorstelling = df_voorstelling.merge(
             right=df_poster, how="left", on="ref_uitvoering"
         )
         del df_poster
-        df_voorstelling["dir_poster"] = df_voorstelling["dir_poster"].fillna("static/images")
-        df_voorstelling["file_poster"] = df_voorstelling["file_poster"].fillna("media_type_poster.png")
+        df_voorstelling["dir_poster"] = df_voorstelling["dir_poster"].fillna(
+            "static/images"
+        )
+        df_voorstelling["file_poster"] = df_voorstelling["file_poster"].fillna(
+            "media_type_poster.png"
+        )
         df_voorstelling["path_thumbnail"] = df_voorstelling.apply(
             lambda x: self.encode(x["dir_poster"], x["file_poster"]), axis=1
         )
@@ -152,12 +182,23 @@ class KnaDB:
         return lst_events
 
     def lid_media(self, lid: str) -> list:
-        logger.info(lid)
+        logger.info(f"Lid media voor {lid}")
         sql_statement = f"""
-        SELECT *
-        FROM file_leden
-        INNER JOIN uitvoering
-            ON uitvoering.ref_uitvoering = file_leden.ref_uitvoering
+        SELECT
+        	f.ref_uitvoering,
+        	f.bestand,
+        	f.type_media,
+        	f.file_ext,
+        	f.vlnr,
+        	f.lid,
+        	u.titel,
+        	u.jaar,
+			u.folder,
+			u.type,
+			u.auteur
+        FROM file_leden f
+        INNER JOIN uitvoering u
+            ON u.ref_uitvoering = f.ref_uitvoering
         WHERE lid='{lid}'
         """
         df_media = pd.read_sql(
@@ -165,19 +206,7 @@ class KnaDB:
             con=self.engine,
         )
         df_media["jaar"] = df_media["jaar"].astype("Int64")
-        df_media["dir_thumbnail"] = f"/data/resources/{df_media['folder']}/thumbnails"
-        df_media["dir_media"] = f"/data/resources/{df_media['folder']}"
-        df_media.loc[df_media["file_ext"].isin(["pdf", "mp4"]), "dir_thumbnail"] = "static/images"
-        df_media["file_thumbnail"] = df_media["bestand"]
-        df_media.loc[df_media["file_ext"] == "pdf", "file_thumbnail"] = "media_type_booklet.png"
-        df_media.loc[df_media["file_ext"] == "mp4", "file_thumbnail"] = "media_type_video.png"
-        df_media["path_thumbnail"] = df_media.apply(
-            lambda x: self.encode(x["dir_thumbnail"], x["file_thumbnail"]), axis=1
-        )
-        df_media["path_media"] = df_media.apply(
-            lambda x: self.encode(x["dir_media"], x["bestand"]), axis=1
-        )
-
+        df_media = self.enrich_media(df_media=df_media)
         lst_media = []  # Initialize the result list
         grouped_jaar = df_media.groupby("jaar")  # Group by 'jaar'
         # Iterate over each jaar
@@ -192,7 +221,7 @@ class KnaDB:
             lst_media.append({"jaar": group_jaar, "uitvoering": lst_titel})
         return lst_media
 
-    def voorstelling_fotos(self, voorstelling: str) -> list:
+    def voorstelling_media(self, voorstelling: str) -> list:
         sql_statement = f"""
         SELECT
             f.ref_uitvoering,
@@ -205,46 +234,18 @@ class KnaDB:
         ON u.ref_uitvoering = f.ref_uitvoering
         WHERE f.ref_uitvoering='{voorstelling}'
         """
-        df_fotos = pd.read_sql(sql=sql_statement, con=self.engine)
-        df_fotos["type_media"] = df_fotos["type_media"].str.capitalize()
-        lst_photos = []  # Initialize the result list
-        grouped_media_type = df_fotos.groupby("type_media")
+        df_media = pd.read_sql(sql=sql_statement, con=self.engine)
+        df_media = self.enrich_media(df_media=df_media)
+
+        lst_voorstelling_media = []  # Initialize the result list
+        grouped_media_type = df_media.groupby("type_media")
         # Iterate over each jaar
         for group_media_type, df_media in grouped_media_type:
             lst_media = df_media.to_dict("records")
-            i = 0
-            while i < len(lst_media):
-                if lst_media[i]["file_ext"].lower() == "pdf":
-                    lst_media[i]["path_thumbnail"] = self.encode(
-                        os.path.join(
-                            "static/images",
-                            "media_type_booklet.png",
-                        )
-                    )
-                elif lst_media[i]["file_ext"].lower() == "mp4":
-                    lst_media[i]["path_thumbnail"] = self.encode(
-                        os.path.join(
-                            "static/images",
-                            "media_type_movie.png",
-                        )
-                    )
-                else:
-                    lst_media[i]["path_thumbnail"] = self.encode(
-                        os.path.join(
-                            f"/data/resources/{lst_media[i]['folder']}/thumbnails",
-                            lst_media[i]["bestand"],
-                        )
-                    )
-                lst_media[i]["path_photo"] = self.encode(
-                    os.path.join(
-                        f"/data/resources/{lst_media[i]['folder']}",
-                        lst_media[i]["bestand"],
-                    )
-                )
-                i = i + 1
-            lst_photos.append({"type_media": group_media_type, "bestanden": lst_media})
-
-        return lst_photos
+            lst_voorstelling_media.append(
+                {"type_media": group_media_type, "files": lst_media}
+            )
+        return lst_voorstelling_media
 
     def medium(self, path: str) -> dict:
         sql_statement = f"""

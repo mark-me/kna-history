@@ -20,20 +20,30 @@ def home():
     return render_template("home.html")
 
 
-@app.route("/foto/<foto>")
-def show_photo(foto: str):
-    return render_template("foto.html", foto=foto)
+@app.route("/thumbnail/<path:filepath>")
+def lid_foto(filepath):
+    test = db_reader.decode(filepath)
+    logger.info(f"Thumbnail - Path: {test}")
+    dir, filename = os.path.split(db_reader.decode(filepath))
+    logger.info(f"Thumbnail - Directory: {dir} - File: {filename}")
+    return send_from_directory(dir, filename, as_attachment=False)
 
+
+@app.route("/image/<path:filepath>")
+def show_image(filepath):
+    dir, filename = os.path.split(db_reader.decode(filepath))
+    logger.info(f"Show image - Directory: {dir} - File: {filename}")
+    return send_from_directory(dir, filename, as_attachment=False)
 
 @app.route("/pdf/<file_pdf>")
 def show_document(file_pdf: str):
-    logger.info(file_pdf)
+    logger.info(f"Show PDF - {file_pdf}")
     return render_template("pdf.html", file_pdf=file_pdf)
 
 
 @app.route("/video/<file_video>")
 def show_movie(file_video: str):
-    logger.info(file_video)
+    logger.info(f"Show video - {file_video}")
     return render_template("video.html", file_video=file_video)
 
 
@@ -59,56 +69,21 @@ def view_jaren():
     return render_template("jaren.html", jaren=lst_jaar)
 
 
-@app.route("/lid_fotos/<lid>")
-def lid_fotos(lid: str):
+@app.route("/lid_media/<lid>")
+def lid_media(lid: str):
     """Page for member photos"""
-    lst_fotos = db_reader.lid_media(lid=lid)
-    return render_template("lid_fotos.html", lid={"naam": lid}, fotos=lst_fotos)
+    lst_media = db_reader.lid_media(lid=lid)
+    return render_template("lid_media.html", lid={"naam": lid}, media=lst_media)
 
 
-@app.route("/voorstelling_fotos/<voorstelling>")
-def voorstelling_fotos(voorstelling: str):
-    """Page for member photos"""
-    lst_fotos = db_reader.voorstelling_fotos(voorstelling=voorstelling)
-    logger.info(voorstelling)
+@app.route("/voorstelling_media/<voorstelling>")
+def voorstelling_media(voorstelling: str):
+    """Page for member media"""
+    lst_media = db_reader.voorstelling_media(voorstelling=voorstelling)
+    logger.info(f"Get media voor voorstelling {voorstelling}")
     return render_template(
-        "voorstelling_fotos.html", voorstelling=voorstelling, fotos=lst_fotos
+        "voorstelling_media.html", voorstelling=voorstelling, media=lst_media
     )
-
-
-@app.route("/cdn/<path:filepath>")
-def lid_foto(filepath):
-    dir, filename = os.path.split(db_reader.decode(filepath))
-    logger.info(f"Directory: {dir} - File: {filename}")
-    return send_from_directory(dir, filename, as_attachment=False)
-
-
-@app.route("/pdf/cdn/<path:filepath>")
-def show_image(filepath):
-    dir, filename = os.path.split(db_reader.decode(filepath))
-    logger.info(f"Directory: {dir} - File: {filename}")
-    return send_from_directory(dir, filename, as_attachment=False)
-
-
-@app.route("/video/cdn/<path:filepath>")
-def show_mp4(filepath):
-    dir, filename = os.path.split(db_reader.decode(filepath))
-    logger.info(f"Directory: {dir} - File: {filename}")
-    return send_from_directory(dir, filename, as_attachment=False)
-
-
-@app.route("/foto/cdn/<path:filepath>")
-def show_pdf(filepath):
-    dir, filename = os.path.split(db_reader.decode(filepath))
-    logger.info(f"Directory: {dir} - File: {filename}")
-    return send_from_directory(dir, filename, as_attachment=False)
-
-
-@app.route("/lid_fotos/cdn/<path:filepath>")
-def download_file(filepath):
-    dir, filename = os.path.split(db_reader.decode(filepath))
-    logger.info(f"Directory: {dir} - File: {filename}")
-    return send_from_directory(dir, filename, as_attachment=False)
 
 
 @app.route("/about")

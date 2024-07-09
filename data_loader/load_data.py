@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 from sqlalchemy import create_engine
 from PIL import Image
