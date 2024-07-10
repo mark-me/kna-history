@@ -72,6 +72,7 @@ def view_jaren():
 @app.route("/lid_media/<lid>")
 def lid_media(lid: str):
     """Page for member photos"""
+    logger.info(f"Leden media voor {lid}")
     lst_media = db_reader.lid_media(lid=lid)
     return render_template("lid_media.html", lid={"naam": lid}, media=lst_media)
 

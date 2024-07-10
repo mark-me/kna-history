@@ -1,19 +1,10 @@
 {% extends "layout.html" %}
 {% block content %}
 <h2>Foto's van  {{ lid.naam }}</h2>
-  <div class="overlay"><img src="blah" id="top" hidden=True>
-    <span id="close" hidden=True onclick=do_close()><b><u>CLOSE(X)</u></b></span>
-  </div>
-  <div class="row">
-  </div>
-    {% for jaar in media %}
+  {% for jaar in media %}
     <h3>{{jaar.jaar}}</h3>
-    <div class="row">
-    </div>
     <div id="accordionUitvoering">
       {% for uitvoering in jaar.uitvoering %}
-      <div class="row">
-      </div>
         <div class="card">
           <div class="card-header" id="heading{{uitvoering.uitvoering}}">
             <h5 class="mb-0">
@@ -34,11 +25,7 @@
             {% endfor %}
           </div>
         </div>
-        </div>
-      </div>
       {% endfor %}
     </div>
-    </div>
-    {% endfor %}
-  </div>
+  {% endfor %}
 {% endblock content %}

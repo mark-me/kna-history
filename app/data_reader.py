@@ -1,11 +1,11 @@
 import binascii
-from logging_kna import logger
 import os
 
 import numpy as np
 import pandas as pd
 from sqlalchemy import create_engine
 
+from logging_kna import logger
 
 class KnaDB:
     def __init__(self, debug: bool = False) -> None:
@@ -24,6 +24,7 @@ class KnaDB:
         return path
 
     def decode(self, x) -> str:
+        logger.info(f"Decode - {x}")
         return binascii.unhexlify(x.encode("utf-8")).decode()
 
     def enrich_media(self, df_media: pd.DataFrame) -> pd.DataFrame:
@@ -39,6 +40,8 @@ class KnaDB:
         df_media.loc[df_media["file_ext"] == "mp4", "file_thumbnail"] = (
             "media_type_video.png"
         )
+        logger.info(df_media)
+        logger.info("Encoding while enriching dataframe")
         df_media["path_thumbnail"] = df_media.apply(
             lambda x: self.encode(x["dir_thumbnail"], x["file_thumbnail"]), axis=1
         )
@@ -206,6 +209,7 @@ class KnaDB:
             con=self.engine,
         )
         df_media["jaar"] = df_media["jaar"].astype("Int64")
+        logger.info("Lid media - Enrich media data")
         df_media = self.enrich_media(df_media=df_media)
         lst_media = []  # Initialize the result list
         grouped_jaar = df_media.groupby("jaar")  # Group by 'jaar'
@@ -217,7 +221,7 @@ class KnaDB:
             # Iterate over each subgroup
             for group_titel, df_titel in grouped_titel:
                 data_list = df_titel.to_dict("records")
-                lst_titel.append({"uitvoering": group_titel, "fotos": data_list})
+                lst_titel.append({"uitvoering": group_titel, "media": data_list})
             lst_media.append({"jaar": group_jaar, "uitvoering": lst_titel})
         return lst_media
 
