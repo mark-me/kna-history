@@ -17,7 +17,7 @@
             </div>
           </div>
           <div class="card-body">
-            <img src="cdn/{{ voorstelling.poster.path_thumbnail }}" class="float-right" width="200" />
+            <img src="/cdn/{{ voorstelling.path_thumbnail }}" class="float-right" width="200" />
             {% for rol in voorstelling.rollen %}
               {{ rol.id_lid }} - {{ rol.rol }} <br />
             {% endfor %}

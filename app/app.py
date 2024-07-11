@@ -20,31 +20,28 @@ def home():
     return render_template("home.html")
 
 
-@app.route("/thumbnail/<path:filepath>")
-def lid_foto(filepath):
-    test = db_reader.decode(filepath)
-    logger.info(f"Thumbnail - Path: {test}")
+@app.route("/cdn/<path:filepath>")
+def cdn(filepath):
     dir, filename = os.path.split(db_reader.decode(filepath))
-    logger.info(f"Thumbnail - Directory: {dir} - File: {filename}")
+    logger.info(f"Serve media CDN - Directory: {dir} - File: {filename}")
     return send_from_directory(dir, filename, as_attachment=False)
 
 
-@app.route("/image/<path:filepath>")
-def show_image(filepath):
-    dir, filename = os.path.split(db_reader.decode(filepath))
-    logger.info(f"Show image - Directory: {dir} - File: {filename}")
-    return send_from_directory(dir, filename, as_attachment=False)
+@app.route("/image/<path_image>")
+def show_image(path_image: str):
+    logger.info(f"Show image - filepath: {path_image}")
+    return render_template("image.html", image=path_image)
 
-@app.route("/pdf/<file_pdf>")
-def show_document(file_pdf: str):
-    logger.info(f"Show PDF - {file_pdf}")
-    return render_template("pdf.html", file_pdf=file_pdf)
+@app.route("/pdf/<path_pdf>")
+def show_document(path_pdf: str):
+    logger.info(f"Show PDF - {path_pdf}")
+    return render_template("pdf.html", file_pdf=path_pdf)
 
 
-@app.route("/video/<file_video>")
-def show_movie(file_video: str):
-    logger.info(f"Show video - {file_video}")
-    return render_template("video.html", file_video=file_video)
+@app.route("/video/<path_video>")
+def show_movie(path_video: str):
+    logger.info(f"Show video - {path_video}")
+    return render_template("video.html", file_video=path_video)
 
 
 @app.route("/leden")

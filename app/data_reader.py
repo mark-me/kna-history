@@ -40,7 +40,6 @@ class KnaDB:
         df_media.loc[df_media["file_ext"] == "mp4", "file_thumbnail"] = (
             "media_type_video.png"
         )
-        logger.info(df_media)
         logger.info("Encoding while enriching dataframe")
         df_media["path_thumbnail"] = df_media.apply(
             lambda x: self.encode(x["dir_thumbnail"], x["file_thumbnail"]), axis=1
