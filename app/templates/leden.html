@@ -24,8 +24,10 @@
                 </div>
               </div>
             </div>
-            <hr class="my-2" />
-            <a href="lid_media/{{ lid.id_lid }}" class="btn btn-primary" view>Media</a>
+            {% if lid.qty_media > 0 %}
+              <hr class="my-2" />
+              <a href="lid_media/{{ lid.id_lid }}" class="btn btn-primary" view>Media ({{lid.qty_media}})</a>
+            {% endif %}
           </div>
         </div>
       </div>

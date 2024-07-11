@@ -52,11 +52,27 @@ class KnaDB:
 
     def leden(self):
         sql_statement = """
-        SELECT *
-        FROM lid
-        WHERE gdpr_permission = 1 AND
-            Achternaam IS NOT NULL
-        ORDER BY achternaam_sort"""
+        SELECT
+            l.id_lid,
+            l.Voornaam,
+            l.Achternaam,
+            l.Geboortedatum,
+            l.Startjaar,
+            l.achternaam_sort,
+            COUNT(fl.bestand) AS qty_media
+        FROM lid l
+        LEFT JOIN file_leden fl
+        ON fl.lid = l.id_lid
+        WHERE l.gdpr_permission = 1 AND
+            l.Achternaam IS NOT NULL
+        GROUP BY
+            l.id_lid,
+            l.Voornaam,
+            l.Achternaam,
+            l.Geboortedatum,
+            l.Startjaar,
+            l.achternaam_sort
+        ORDER BY l.achternaam_sort"""
         df_lid = pd.read_sql(sql=sql_statement, con=self.engine)
         df_lid["Geboortedatum"] = df_lid["Geboortedatum"].dt.date
         df_lid["Startjaar"] = df_lid["Startjaar"].astype("Int64")
@@ -75,6 +91,12 @@ class KnaDB:
         df_lid["profielfoto"] = df_lid.apply(
             lambda x: self.encode(x["dir_photo"], x["file_photo"]), axis=1
         )
+
+        # Has media
+        sql_statement = """
+
+        """
+
         lst_lid = df_lid.to_dict(orient="records")
 
         # Rollen
