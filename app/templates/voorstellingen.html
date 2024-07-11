@@ -5,16 +5,9 @@
     {% for voorstelling in voorstellingen %}
       <div class="col-md-6 mb-3 mb-4">
         <div class="card">
-          <br />
-          <div class="container">
-            <div class="row">
-              <div class="col-6">
-                <h5 class="card-title">{{ voorstelling.titel }}</h5>
-              </div>
-              <div class="col-6">
-                <a class="float-right text-muted">{{ voorstelling.jaar }}&ensp;</a>
-              </div>
-            </div>
+          <div class="card-header">
+            {{ voorstelling.titel }}
+            <a class="float-right text-muted">{{ voorstelling.jaar }}</a>
           </div>
           <div class="card-body">
             <img src="/cdn/{{ voorstelling.path_thumbnail }}" class="float-right" width="200" />

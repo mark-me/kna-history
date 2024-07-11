@@ -7,16 +7,9 @@
     {% for lid in leden %}
       <div class="col-md-6 mb-4">
         <div class="card">
-          <br />
-          <div class="container">
-            <div class="row">
-              <div class="col-6">
-                <h5 class="card-title">{{ lid.id_lid }}</h5>
-              </div>
-              <div class="col-6">
-                <a class="float-right text-muted">Lid sinds: {{ lid.Startjaar }}&ensp;</a>
-              </div>
-            </div>
+          <div class="card-header">
+              {{ lid.id_lid }}
+              <a class="float-right text-muted">Lid sinds: {{ lid.Startjaar }}</a>
           </div>
           <div class="card-body">
             <div class="container">
