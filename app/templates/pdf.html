@@ -5,11 +5,11 @@
         <a href="javascript:window.history.back();" class="btn btn-primary" view>Terug</a>
         <div class="card">
             <div class="card-body">
-                <p>
-                    <object class="pdf"
-                    data='cdn/{{ file_pdf }}'
-                    width="100%" heigh="500" class="object-fit-xxl-contain border rounded">
-                </p>
+                <div class='embed-responsive' style='padding-bottom:150%'>
+                    <object data='/cdn/{{ file_pdf }}' type='application/pdf' width='100%' height='100%'>
+                        <p><a href='/cdn/{{ file_pdf }}'>Click hier om de PDF te downloaden.</a></p>
+                    </object>
+                </div>
             </div>
         </div>
     </div>
