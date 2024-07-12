@@ -66,5 +66,5 @@ for root, dirs, files in os.walk("/data/kna_resources"):
         for file in files:
             if any(file.lower().endswith(ext) for ext in [".png", ".jpg", ".jpeg"]):
                 image = Image.open(root + "/" + file)
-                image.thumbnail((200, 200))
-                image.save(root + "/thumbnails/" + file)
+                image.thumbnail((200, 200), Image.LANCZOS)
+                image.save(root + "/thumbnails/" + file, quality=95)
