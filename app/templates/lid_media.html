@@ -8,21 +8,23 @@
         <div class="card">
           <div class="card-header" id="heading{{uitvoering.uitvoering}}">
             <h5 class="mb-0">
-              <button class="btn btn-link" data-toggle="collapse" data-target="#collapse{{uitvoering.uitvoering}}" aria-expanded="false" aria-controls="collapse{{uitvoering.uitvoering}}">
+              <button class="btn btn-primary" data-toggle="collapse" data-target="#collapse{{uitvoering.uitvoering}}" aria-expanded="false" aria-controls="collapse{{uitvoering.uitvoering}}">
                 {{uitvoering.uitvoering}}
               </button>
             </h5>
           </div>
-          <div id="collapse{{uitvoering.uitvoering}}" class="collapse show" aria-labelledby="heading{{uitvoering.uitvoering}}" data-parent="#accordion{{uitvoering.uitvoering}}">
-            {% for file in uitvoering.media %}
-              {% if file.file_ext == "pdf" %}
-                <a href="/pdf/{{ file.path_media }}"><img src="/cdn/{{ file.path_thumbnail }}" width='auto' height='200' style='margin: 0.5em 0;'></a>
-              {% elif file.file_ext == "mp4" %}
-                <a href="/video/{{ file.path_media }}"><img src="/cdn/{{ file.path_thumbnail }}" width='auto' height='200' style='margin: 0.5em 0;'></a>
-              {% else %}
-                <a href="/image/{{ file.path_media }}"><img src="/cdn/{{ file.path_thumbnail }}" width='auto' height='200' style='margin: 0.5em 0;'></a>
-              {% endif %}
-            {% endfor %}
+          <div id="collapse{{uitvoering.uitvoering}}" class="collapse" aria-labelledby="heading{{uitvoering.uitvoering}}" data-parent="#accordion{{uitvoering.uitvoering}}">
+            <div class="card-body">
+              {% for file in uitvoering.media %}
+                {% if file.file_ext == "pdf" %}
+                  <a href="/pdf/{{ file.path_media }}"><img src="/cdn/{{ file.path_thumbnail }}" width='auto' height='200' style='margin: 0.5em 0;'></a>
+                {% elif file.file_ext == "mp4" %}
+                  <a href="/video/{{ file.path_media }}"><img src="/cdn/{{ file.path_thumbnail }}" width='auto' height='200' style='margin: 0.5em 0;'></a>
+                {% else %}
+                  <a href="/image/{{ file.path_media }}"><img src="/cdn/{{ file.path_thumbnail }}" width='auto' height='200' style='margin: 0.5em 0;'></a>
+                {% endif %}
+              {% endfor %}
+            </div>
           </div>
         </div>
       {% endfor %}

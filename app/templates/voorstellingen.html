@@ -1,6 +1,6 @@
-{% extends "layout.html" %}
+{% extends 'layout.html' %}
 {% block content %}
-<h2>Voorstellingen</h2>
+  <h2>Voorstellingen</h2>
   <div class="row">
     {% for voorstelling in voorstellingen %}
       <div class="col-md-6 mb-3 mb-4">
@@ -10,11 +10,11 @@
             <a class="float-right text-muted">{{ voorstelling.jaar }}</a>
           </div>
           <div class="card-body">
-            <img src="/cdn/{{ voorstelling.path_thumbnail }}" class="float-right" width="200" />
+            <img src="/cdn/{{ voorstelling.path_thumbnail }}" class="img-rounded float-right" width="200" />
             {% for rol in voorstelling.rollen %}
-              {{ rol.id_lid }} - {{ rol.rol }} <br />
+              <a href="voorstelling_lid_media/{{ voorstelling.ref_uitvoering }}/{{ rol.id_lid }}" class="btn btn-link" view>{{ rol.id_lid }} - {{ rol.rol }}</a>
             {% endfor %}
-            <hr class="my-2">
+            <hr class="my-2" />
             <div class="clearfix"></div>
             <a href="voorstelling_media/{{ voorstelling.ref_uitvoering }}" class="btn btn-primary" view>Media</a>
           </div>
@@ -22,4 +22,4 @@
       </div>
     {% endfor %}
   </div>
-{% endblock content %}
+{% endblock %}

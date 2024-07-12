@@ -244,6 +244,7 @@ class KnaDB:
                 data_list = df_titel.to_dict("records")
                 lst_titel.append({"uitvoering": group_titel, "media": data_list})
             lst_media.append({"jaar": group_jaar, "uitvoering": lst_titel})
+        lst_media = sorted(lst_media, key=lambda d: d['jaar'], reverse=True)
         return lst_media
 
     def voorstelling_media(self, voorstelling: str) -> list:
