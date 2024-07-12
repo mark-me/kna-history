@@ -83,6 +83,14 @@ def voorstelling_media(voorstelling: str):
         "voorstelling_media.html", voorstelling=voorstelling, media=lst_media
     )
 
+@app.route("/voorstelling_lid_media/<voorstelling>/<lid>")
+def voorstelling_lid_media(voorstelling: str, lid: str):
+    """Page for member media for a voorstelling"""
+    lst_media = db_reader.voorstelling_lid_media(voorstelling=voorstelling, lid=lid)
+    logger.info(f"Get media voor voorstelling {voorstelling} van {lid}")
+    return render_template(
+        "voorstelling_media.html", voorstelling=voorstelling, media=lst_media
+    )
 
 @app.route("/about")
 def about():

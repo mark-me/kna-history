@@ -264,7 +264,44 @@ class KnaDB:
 
         lst_voorstelling_media = []  # Initialize the result list
         grouped_media_type = df_media.groupby("type_media")
-        # Iterate over each jaar
+        # Iterate over each media type
+        for group_media_type, df_media in grouped_media_type:
+            lst_media = df_media.to_dict("records")
+            lst_voorstelling_media.append(
+                {"type_media": group_media_type, "files": lst_media}
+            )
+        return lst_voorstelling_media
+
+    def voorstelling_lid_media(self, voorstelling: str, lid: str) -> list:
+        logger.info(f"Lid media voor {lid}")
+        sql_statement = f"""
+        SELECT
+            f.ref_uitvoering,
+            f.bestand,
+            f.type_media,
+            f.file_ext,
+            f.vlnr,
+            f.lid,
+            u.titel,
+            u.jaar,
+			u.folder,
+			u.type,
+			u.auteur
+        FROM file_leden f
+        INNER JOIN uitvoering u
+            ON u.ref_uitvoering = f.ref_uitvoering
+        WHERE lid='{lid}' AND
+            f.ref_uitvoering = '{voorstelling}'
+        """
+        df_media = pd.read_sql(
+            sql=sql_statement,
+            con=self.engine,
+        )
+        logger.info("Lid media - Enrich media data")
+        df_media = self.enrich_media(df_media=df_media)
+        lst_voorstelling_media = []  # Initialize the result list
+        grouped_media_type = df_media.groupby("type_media")
+        # Iterate over each media type
         for group_media_type, df_media in grouped_media_type:
             lst_media = df_media.to_dict("records")
             lst_voorstelling_media.append(
