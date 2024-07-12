@@ -219,14 +219,14 @@ class KnaDB:
         logger.info(f"Lid media voor {lid}")
         sql_statement = f"""
         SELECT
-        	f.ref_uitvoering,
-        	f.bestand,
-        	f.type_media,
-        	f.file_ext,
-        	f.vlnr,
-        	f.lid,
-        	u.titel,
-        	u.jaar,
+            f.ref_uitvoering,
+            f.bestand,
+            f.type_media,
+            f.file_ext,
+            f.vlnr,
+            f.lid,
+            u.titel,
+            u.jaar,
 			u.folder,
 			u.type,
 			u.auteur
