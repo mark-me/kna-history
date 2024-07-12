@@ -17,11 +17,11 @@
             <div class="card-body">
               {% for file in uitvoering.media %}
                 {% if file.file_ext == "pdf" %}
-                  <a href="/pdf/{{ file.path_media }}"><img src="/cdn/{{ file.path_thumbnail }}" width='auto' height='200' style='margin: 0.5em 0;'></a>
+                  <a href="/pdf/{{ file.path_media }}"><img src="/cdn/{{ file.path_thumbnail }}" class="rounded" width='auto' height='200' style='margin: 0.5em 0;'></a>
                 {% elif file.file_ext == "mp4" %}
-                  <a href="/video/{{ file.path_media }}"><img src="/cdn/{{ file.path_thumbnail }}" width='auto' height='200' style='margin: 0.5em 0;'></a>
+                  <a href="/video/{{ file.path_media }}"><img src="/cdn/{{ file.path_thumbnail }}" class="rounded" width='auto' height='200' style='margin: 0.5em 0;'></a>
                 {% else %}
-                  <a href="/image/{{ file.path_media }}"><img src="/cdn/{{ file.path_thumbnail }}" width='auto' height='200' style='margin: 0.5em 0;'></a>
+                  <a href="/image/{{ file.path_media }}"><img src="/cdn/{{ file.path_thumbnail }}" class="rounded" width='auto' height='200' style='margin: 0.5em 0;'></a>
                 {% endif %}
               {% endfor %}
             </div>

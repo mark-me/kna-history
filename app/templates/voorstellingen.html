@@ -10,7 +10,7 @@
             <a class="float-right text-muted">{{ voorstelling.jaar }}</a>
           </div>
           <div class="card-body">
-            <img src="/cdn/{{ voorstelling.path_thumbnail }}" class="img-rounded float-right" width="200" />
+            <img src="/cdn/{{ voorstelling.path_thumbnail }}" class="float-right rounded" width="200" />
             {% for rol in voorstelling.rollen %}
               <a href="voorstelling_lid_media/{{ voorstelling.ref_uitvoering }}/{{ rol.id_lid }}" class="btn btn-link" view>{{ rol.id_lid }} - {{ rol.rol }}</a>
             {% endfor %}
