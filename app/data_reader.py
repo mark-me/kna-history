@@ -174,11 +174,21 @@ class KnaDB:
             r.id_lid,
             r.rol,
             r.rol_bijnaam,
-            l.achternaam_sort
+            l.achternaam_sort,
+            COUNT(fl.bestand) AS qty_media
         FROM rol r
         INNER JOIN lid l
         ON l.id_lid = r.id_lid
+        LEFT JOIN file_leden fl
+        ON  fl.ref_uitvoering = r.ref_uitvoering AND
+            fl.lid = r.id_lid
         WHERE l.gdpr_permission = 1
+        GROUP BY
+            r.ref_uitvoering,
+            r.id_lid,
+            r.rol,
+            r.rol_bijnaam,
+            l.achternaam_sort
         ORDER BY l.achternaam_sort
         """
         df_rol = pd.read_sql(sql=sql_statement, con=self.engine)

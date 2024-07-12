@@ -13,11 +13,11 @@
           </div>
           <div class="card-body">
             <div class="container">
-              <div class="row justify-content-start">
-                <div class="col-5">
+              <div class="row">
+                <div class="col-md-auto">
                   <img src="/cdn/{{ lid.profielfoto }}" class="float-left" width="150" height="150" />
                 </div>
-                <div class="col-7 ms-auto">
+                <div class="col">
                   {% for uitvoering in lid.uitvoeringen %}
                     <a href="voorstelling_lid_media/{{ uitvoering.ref_uitvoering }}/{{ lid.id_lid }}">{{ uitvoering.ref_uitvoering }}</a><br />
                   {% endfor %}

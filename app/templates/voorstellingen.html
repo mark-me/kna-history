@@ -10,10 +10,22 @@
             <a class="float-right text-muted">{{ voorstelling.jaar }}</a>
           </div>
           <div class="card-body">
-            <img src="/cdn/{{ voorstelling.path_thumbnail }}" class="float-right rounded" width="200" />
-            {% for rol in voorstelling.rollen %}
-              <a href="voorstelling_lid_media/{{ voorstelling.ref_uitvoering }}/{{ rol.id_lid }}" class="btn btn-link" view>{{ rol.id_lid }} - {{ rol.rol }}</a>
-            {% endfor %}
+            <div class="row">
+              <div class="col-md-auto">
+                <img src="/cdn/{{ voorstelling.path_thumbnail }}" class="rounded" width="200" />
+              </div>
+              <div class="col">
+                {% for rol in voorstelling.rollen %}
+                  <div class="row">
+                    {% if rol.qty_media > 0 %}
+                      <a href="voorstelling_lid_media/{{ voorstelling.ref_uitvoering }}/{{ rol.id_lid }}">{{ rol.id_lid }} - {{ rol.rol }}</a>
+                    {% else %}
+                      {{ rol.id_lid }} - {{ rol.rol }}
+                    {% endif %}
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
             <hr class="my-2" />
             <div class="clearfix"></div>
             <a href="voorstelling_media/{{ voorstelling.ref_uitvoering }}" class="btn btn-primary" view>Media</a>
