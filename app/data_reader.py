@@ -8,7 +8,8 @@ from sqlalchemy import create_engine
 from logging_kna import logger
 
 class KnaDB:
-    def __init__(self, debug: bool = False) -> None:
+    def __init__(self, dir_resources: str,debug: bool = False) -> None:
+        self.dir_resources = dir_resources
         if not debug:
             self.engine = create_engine("mysql+mysqldb://root:kna-toneel@mariadb/kna")
         else:
@@ -28,8 +29,8 @@ class KnaDB:
         return binascii.unhexlify(x.encode("utf-8")).decode()
 
     def enrich_media(self, df_media: pd.DataFrame) -> pd.DataFrame:
-        df_media["dir_thumbnail"] = "/data/resources/" + df_media['folder'] + "/thumbnails"
-        df_media["dir_media"] = "/data/resources/" + df_media['folder']
+        df_media["dir_thumbnail"] = self.dir_resources + df_media['folder'] + "/thumbnails"
+        df_media["dir_media"] = self.dir_resources + df_media['folder']
         df_media.loc[df_media["file_ext"].isin(["pdf", "mp4"]), "dir_thumbnail"] = (
             "static/images"
         )
@@ -150,7 +151,7 @@ class KnaDB:
             u.folder"""
         df_poster = pd.read_sql(sql=sql_statement, con=self.engine)
         df_poster["dir_poster"] = (
-            "/data/resources/" + df_poster["dir_poster"] + "/thumbnails"
+            self.dir_resources + df_poster["dir_poster"] + "/thumbnails"
         )
         # Add poster to voorstelling
         df_voorstelling = df_voorstelling.merge(
@@ -321,23 +322,28 @@ class KnaDB:
         return lst_voorstelling_media
 
     def medium(self, path: str) -> dict:
+        dir_medium, file_medium = os.path.split(path)
+        path = path.replace(self.dir_resources, "")
         sql_statement = f"""
         SELECT f.*
         FROM file f
         INNER JOIN uitvoering u
         ON u.ref_uitvoering = f.ref_uitvoering
-        WHERE CONCAT(u.folder, "/" , f.bestand) = {path}
+        WHERE CONCAT(u.folder, "/" , f.bestand) = '{path}'
         """
         df_file = pd.read_sql(sql=sql_statement, con=self.engine)
         dict_file = df_file.to_dict("records")[0]
         sql_statement = f"""
-        SELECT u.folder, f.bestand, f.vlnr, f.lid,
+        SELECT f.vlnr, f.lid
         FROM file_leden f
         INNER JOIN uitvoering u
         ON u.ref_uitvoering = f.ref_uitvoering
-        WHERE CONCAT(u.folder, "/" , f.bestand) = {path}
+        WHERE CONCAT(u.folder, "/" , f.bestand) = '{path}'
+        ORDER BY f.vlnr
         """
         df_file_leden = pd.read_sql(sql=sql_statement, con=self.engine)
+        list_file_leden = df_file_leden.to_dict("records")
+        dict_file["leden"] = list_file_leden
         return dict_file
 
     def test_path(self) -> list:
@@ -348,7 +354,7 @@ class KnaDB:
         ON u.ref_uitvoering = f.ref_uitvoering
         """
         df_file = pd.read_sql(sql=sql_statement, con=self.engine)
-        df_file["folder"] = "/data/resources/" + df_file["folder"] + "/thumbnails"
+        df_file["folder"] = self.dir_resources + df_file["folder"] + "/thumbnails"
         df_file["path"] = df_file.apply(
             lambda x: self.encode_test(x["folder"], x["bestand"]), axis=1
         )

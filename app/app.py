@@ -5,7 +5,7 @@ from flask import Flask, render_template, send_from_directory
 from data_reader import KnaDB
 from logging_kna import logger
 
-db_reader = KnaDB()
+db_reader = KnaDB(dir_resources="/data/resources/")
 
 app = Flask(__name__)
 
@@ -30,6 +30,8 @@ def cdn(filepath):
 @app.route("/image/<path_image>")
 def show_image(path_image: str):
     logger.info(f"Show image - filepath: {path_image}")
+    dir, filename = os.path.split(db_reader.decode(path_image))
+    logger.info(f"Show image - Dir: {dir} - File: {filename}")
     return render_template("image.html", image=path_image)
 
 @app.route("/pdf/<path_pdf>")

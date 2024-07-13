@@ -36,6 +36,8 @@ df_uitvoering = pd.read_excel(file_db, sheet_name="Uitvoering")
 df_uitvoering.rename(columns={"uitvoering": "ref_uitvoering"}, inplace=True)
 df_uitvoering.to_sql("uitvoering", con=engine, if_exists="replace", index=False)
 
+df_uitvoering_folder = df_uitvoering[["ref_uitvoering", "folder"]]
+
 df_rollen = pd.read_excel(file_db, sheet_name="Rollen")
 df_rollen.to_sql("rol", con=engine, if_exists="replace", index=False)
 
@@ -43,11 +45,12 @@ df_media_type = pd.read_excel(file_db, sheet_name="Type_Media")
 df_media_type.to_sql("media_type", con=engine, if_exists="replace", index=False)
 
 df_files = pd.read_excel(file_db, sheet_name="Bestand")
+df_files = df_files.merge(right=df_uitvoering_folder, how="left", on="ref_uitvoering")
 df_files["file_ext"] = df_files["bestand"].str.split('.').str[-1]
 df_files["file_ext"] = df_files["file_ext"].str.lower()
 
 df_files_leden = df_files.melt(
-    id_vars=["ref_uitvoering", "bestand", "type_media", "file_ext"],
+    id_vars=["ref_uitvoering", "bestand", "type_media", "file_ext", "folder"],
     var_name="vlnr",
     value_name="lid",
 ).reset_index()
@@ -66,5 +69,5 @@ for root, dirs, files in os.walk("/data/kna_resources"):
         for file in files:
             if any(file.lower().endswith(ext) for ext in [".png", ".jpg", ".jpeg"]):
                 image = Image.open(root + "/" + file)
-                image.thumbnail((200, 200), Image.LANCZOS)
+                image.thumbnail((300, 300), Image.LANCZOS)
                 image.save(root + "/thumbnails/" + file, quality=95)
