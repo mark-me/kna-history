@@ -2,5 +2,5 @@ from data_reader import KnaDB
 
 db = KnaDB(dir_resources="/data/kna_resources/", debug=True)
 
-lst_leden = db.medium("/data/kna_resources/2023/Sinefre/330810608_738827544616600_2163554102445074715_n.jpg") #("Hou toch allemaal ff je kop - 2024") #("Anwer Alhussein") #"Assepoes - 2015") #
+lst_leden = db.medium("2f646174612f7265736f75726365732f323032342f486f7520746f636820616c6c656d61616c206666206a65206b6f702f3432383437393536365f3838383539353239363630323539385f373335343134383438383530383130343938385f6e2e6a7067") #("Hou toch allemaal ff je kop - 2024") #("Anwer Alhussein") #"Assepoes - 2015") #
 lst_leden

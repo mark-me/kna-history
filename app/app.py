@@ -30,9 +30,9 @@ def cdn(filepath):
 @app.route("/image/<path_image>")
 def show_image(path_image: str):
     logger.info(f"Show image - filepath: {path_image}")
-    dir, filename = os.path.split(db_reader.decode(path_image))
-    logger.info(f"Show image - Dir: {dir} - File: {filename}")
-    return render_template("image.html", image=path_image)
+    dict_image = db_reader.medium(path=path_image)
+    logger.info(dict_image)
+    return render_template("image.html", image=dict_image)
 
 @app.route("/pdf/<path_pdf>")
 def show_document(path_pdf: str):

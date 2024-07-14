@@ -1,17 +1,19 @@
 {% extends "layout.html" %}
 {% block content%}
 <div class="row">
-    <div class="col-md-12">
+    <div class="col-auto">
         <a href="javascript:window.history.back();" class="btn btn-primary" view>Terug</a>
-        <div class="card">
-            <div class="card-body">
-                <div class="row">
-                    <p>
-                        <img src='/cdn/{{ image }}' class="object-fit-xxl-contain border rounded img-fluid">
-                    </p>
-                </div>
-            </div>
-        </div>
+    </div>
+    <div class="col">
+        <b>vlnr: </b>
+        {% for lid in image.leden %}
+            {{ lid.lid }}{% if not loop.last %},&nbsp;{% endif %}
+        {% endfor %}
+    </div>
+</div>
+<div class="card">
+    <div class="card-body">
+        <img src='/cdn/{{ image.path_medium }}' class="rounded img-fluid">
     </div>
 </div>
 {% endblock content %}

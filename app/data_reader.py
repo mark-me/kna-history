@@ -322,23 +322,29 @@ class KnaDB:
         return lst_voorstelling_media
 
     def medium(self, path: str) -> dict:
-        dir_medium, file_medium = os.path.split(path)
-        path = path.replace(self.dir_resources, "")
+        dir_medium, file_medium = os.path.split(self.decode(path))
+        dir_medium = dir_medium.replace(self.dir_resources, "")
         sql_statement = f"""
         SELECT f.*
         FROM file f
         INNER JOIN uitvoering u
         ON u.ref_uitvoering = f.ref_uitvoering
-        WHERE CONCAT(u.folder, "/" , f.bestand) = '{path}'
+        WHERE
+            u.folder = '{ dir_medium }' AND
+            f.bestand = '{ file_medium }'
         """
         df_file = pd.read_sql(sql=sql_statement, con=self.engine)
         dict_file = df_file.to_dict("records")[0]
+        dict_file["folder"] = self.dir_resources + dict_file["folder"]
+        dict_file["path_medium"] = self.encode(folder=dict_file["folder"], file = dict_file["bestand"])
         sql_statement = f"""
         SELECT f.vlnr, f.lid
         FROM file_leden f
         INNER JOIN uitvoering u
         ON u.ref_uitvoering = f.ref_uitvoering
-        WHERE CONCAT(u.folder, "/" , f.bestand) = '{path}'
+        WHERE
+            u.folder = '{ dir_medium }' AND
+            f.bestand = '{ file_medium }'
         ORDER BY f.vlnr
         """
         df_file_leden = pd.read_sql(sql=sql_statement, con=self.engine)
