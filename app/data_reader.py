@@ -137,6 +137,7 @@ class KnaDB:
         """
         df_voorstelling = pd.read_sql(sql=sql_statement, con=self.engine)
         df_voorstelling["jaar"] = df_voorstelling["jaar"].astype("Int64")
+        df_voorstelling["qty_media"] = df_voorstelling["qty_media"].astype("Int64")
         # Poster
         sql_statement = """
         SELECT u.ref_uitvoering,
@@ -352,18 +353,26 @@ class KnaDB:
         dict_file["leden"] = list_file_leden
         return dict_file
 
-    def test_path(self) -> list:
-        sql_statement = """
-        SELECT f.*, u.folder
-        FROM file f
-        INNER JOIN uitvoering u
-        ON u.ref_uitvoering = f.ref_uitvoering
-        """
-        df_file = pd.read_sql(sql=sql_statement, con=self.engine)
-        df_file["folder"] = self.dir_resources + df_file["folder"] + "/thumbnails"
-        df_file["path"] = df_file.apply(
-            lambda x: self.encode_test(x["folder"], x["bestand"]), axis=1
-        )
+    def timeline(self) -> list:
+        sql_statement = "SELECT * FROM uitvoering"
+        df_event = pd.read_sql(sql=sql_statement, con=self.engine)
+        sql_statement = "SELECT * FROM lid"
+        df_lid = pd.read_sql(sql=sql_statement, con=self.engine)
+        sql_statement = "SELECT * FROM file"
+        df_files = pd.read_sql(sql=sql_statement, con=self.engine)
 
-        dict_file = df_file.to_dict("records")
-        return dict_file
+        lst_events = []  # Initialize the result list
+        grouped_jaar = df_event.groupby("jaar")  # Group by 'jaar'
+        # Iterate over each jaar
+        for group_jaar, df_jaar in grouped_jaar:
+            dict_leden_nieuw = df_lid.loc[df_lid["Startjaar"] == group_jaar].to_dict("records")
+            lst_event_type = []
+            # Group by 'titel' within each jaar
+            grouped_type_event = df_jaar.groupby("type")
+            # Iterate over each subgroup
+            for group_event_type, df_event in grouped_type_event:
+                data_list = df_event.to_dict("records")
+                lst_event_type.append({"event_type": group_event_type, "events": data_list})
+            lst_events.append({"jaar": group_jaar, "events": lst_event_type})
+        lst_events = sorted(lst_events, key=lambda d: d['jaar'], reverse=True)
+        return lst_events

@@ -26,9 +26,11 @@
                 {% endfor %}
               </div>
             </div>
-            <hr class="my-2" />
-            <div class="clearfix"></div>
-            <a href="voorstelling_media/{{ voorstelling.ref_uitvoering }}" class="btn btn-primary" view>Media</a>
+            {% if voorstelling.qty_media > 0 %}
+              <hr class="my-2" />
+              <div class="clearfix"></div>
+              <a href="voorstelling_media/{{ voorstelling.ref_uitvoering }}" class="btn btn-primary" view>Media ({{voorstelling.qty_media}})</a>
+            {% endif %}
           </div>
         </div>
       </div>

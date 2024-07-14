@@ -13,7 +13,7 @@ file_db = data_root + "kna_database.xlsx"
 df_leden = pd.read_excel(file_db, sheet_name="Leden")
 # Achternaam sortering, verwijderen tussenvoegsels
 df_leden["achternaam_sort"] = ""
-tussenvoegsels = ["van der", "van den", "van de", "van", "de"]
+tussenvoegsels = ["van der", "van den", "van de", "van", "de", "v.d."]
 for index, row in df_leden.iterrows():
     found = False
     i = 0
@@ -34,7 +34,7 @@ df_leden.to_sql("lid", con=engine, if_exists="replace", index=False)
 
 df_uitvoering = pd.read_excel(file_db, sheet_name="Uitvoering")
 df_uitvoering.rename(columns={"uitvoering": "ref_uitvoering"}, inplace=True)
-df_uitvoering.to_sql("uitvoering", con=engine, if_exists="replace", index=False)
+
 
 df_uitvoering_folder = df_uitvoering[["ref_uitvoering", "folder"]]
 
@@ -61,6 +61,11 @@ df_files_leden.to_sql("file_leden", con=engine, if_exists="replace", index=False
 df_files = df_files[df_files.columns.drop(list(df_files.filter(regex="lid_")))]
 df_files.to_sql("file", con=engine, if_exists="replace", index=False)
 
+df_uitvoering_files = df_files.groupby("ref_uitvoering").size().reset_index()
+df_uitvoering_files.columns = ["ref_uitvoering", "qty_media"]
+df_uitvoering = df_uitvoering.merge(right=df_uitvoering_files, how="left", on="ref_uitvoering")
+df_uitvoering["qty_media"] = df_uitvoering["qty_media"].fillna(0)
+df_uitvoering.to_sql("uitvoering", con=engine, if_exists="replace", index=False)
 
 ## Creating thumbnails
 for root, dirs, files in os.walk("/data/kna_resources"):
