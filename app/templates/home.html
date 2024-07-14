@@ -1,7 +1,11 @@
 {% extends "layout.html" %}
 {% block content%}
-    <h2>Welkom op het historisch archief van KNA Hillegom!</h2>
-
+    <div class="bg-image">
+        <div class="mask text-light d-flex justify-content-center flex-column text-center" style="background-color: rgba(0, 0, 0, 0.5)">
+            <h2>Welkom op het historisch archief van KNA Hillegom!</h2>
+        </div>
+        <img src="static/images/archief.webp" style="width:100%;">
+    </div>
     <p>Toneelvereniging KNA in Hillegom bestaat al sinds 1930 en daar zijn we trots op! Met dit historisch archief kunt u uw eigen weg door de geschiedenis van KNA Hillegom afleggen.</p>
 
     <p>Hoe wilt u navigeren door de geschiedenis van KNA?
@@ -13,6 +17,9 @@
         </ul>
         <ul>
             <a href="/voorstellingen" class="btn btn-primary">Voorstellingen</a>
+        </ul>
+        <ul>
+            <a href="/tijdslijn" class="btn btn-primary">Tijdslijn</a>
         </ul>
     </p>
 {% endblock content %}

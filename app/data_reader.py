@@ -358,8 +358,6 @@ class KnaDB:
         df_event = pd.read_sql(sql=sql_statement, con=self.engine)
         sql_statement = "SELECT * FROM lid"
         df_lid = pd.read_sql(sql=sql_statement, con=self.engine)
-        sql_statement = "SELECT * FROM file"
-        df_files = pd.read_sql(sql=sql_statement, con=self.engine)
 
         lst_events = []  # Initialize the result list
         grouped_jaar = df_event.groupby("jaar")  # Group by 'jaar'
@@ -373,6 +371,6 @@ class KnaDB:
             for group_event_type, df_event in grouped_type_event:
                 data_list = df_event.to_dict("records")
                 lst_event_type.append({"event_type": group_event_type, "events": data_list})
-            lst_events.append({"jaar": group_jaar, "events": lst_event_type})
-        lst_events = sorted(lst_events, key=lambda d: d['jaar'], reverse=True)
+            lst_events.append({"jaar": group_jaar, "nieuwe_leden": dict_leden_nieuw, "events": lst_event_type})
+        lst_events = sorted(lst_events, key=lambda d: d['jaar'])
         return lst_events

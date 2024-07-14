@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>Tijdslijn KNA</h2>
+<div class="accordion" id="accordionJaar">
+  {% for jaar in tijdslijn %}
+    <div class="card">
+      <div class="card-header" id="heading{{jaar}}">
+        <h5 class="card-title">
+          <button class="btn btn-primary" data-toggle="collapse" data-target="#collapse{{jaar}}" aria-expanded="false" aria-controls="collapse{{jaar}}">
+            {{ jaar.jaar }}
+          </button>
+        </h5>
+      </div>
+      <div id="collapse{{jaar}}" class="collapse" aria-labelledby="heading{{jaar}}" data-parent="#accordionJaar">
+        <div class="card-body">
+          {% if jaar.nieuwe_leden|length > 0 %}
+          <div class="card child-card">
+            <div class="card-header" id="headingNewMembers">
+              <h5 class="card-title">Nieuwe leden</h5>
+            </div>
+            <div class="card-body">
+              {% for lid in jaar.nieuwe_leden %}
+              {{ lid.id_lid }}{% if not loop.last %},&nbsp;{% endif %}
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+          {% for event_type in jaar.events %}
+          <div class="card child-card">
+            <div class="card-header" id="heading{{event_type.event_type}}">
+              <h5 class="card-title">{{event_type.event_type}}</h5>
+            </div>
+            <div class="card-body">
+              {% for event in event_type.events %}
+              <div class="row">
+                {% if event.qty_media > 0 %}
+                  <a href="voorstelling_media/{{ event.ref_uitvoering }}">{{event.titel}}</a>
+                {% else %}
+                  {{event.titel}}
+                {% endif %}
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% endblock content %}

@@ -61,11 +61,11 @@ def view_voorstellingen():
     return render_template("voorstellingen.html", voorstellingen=lst_voorstelling)
 
 
-@app.route("/jaren")
-def view_jaren():
+@app.route("/tijdslijn")
+def view_tijdslijn():
     """Page for viewing jaren"""
-    lst_jaar = db_reader.jaren()
-    return render_template("jaren.html", jaren=lst_jaar)
+    lst_timeline = db_reader.timeline()
+    return render_template("tijdslijn.html", tijdslijn=lst_timeline)
 
 
 @app.route("/lid_media/<lid>")
