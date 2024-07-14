@@ -19,7 +19,13 @@
                 </div>
                 <div class="col">
                   {% for uitvoering in lid.uitvoeringen %}
-                    <a href="voorstelling_lid_media/{{ uitvoering.ref_uitvoering }}/{{ lid.id_lid }}">{{ uitvoering.ref_uitvoering }}</a><br />
+                  <div class="row">
+                    {% if uitvoering.qty_media > 0 %}
+                      <a href="voorstelling_lid_media/{{ uitvoering.ref_uitvoering }}/{{ lid.id_lid }}">{{ uitvoering.ref_uitvoering }}</a>
+                    {% else %}
+                      {{ uitvoering.ref_uitvoering }}
+                    {% endif %}
+                  </div>
                   {% endfor %}
                 </div>
               </div>

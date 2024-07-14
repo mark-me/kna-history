@@ -92,12 +92,6 @@ class KnaDB:
         df_lid["profielfoto"] = df_lid.apply(
             lambda x: self.encode(x["dir_photo"], x["file_photo"]), axis=1
         )
-
-        # Has media
-        sql_statement = """
-
-        """
-
         lst_lid = df_lid.to_dict(orient="records")
 
         # Rollen
@@ -107,7 +101,8 @@ class KnaDB:
             u.jaar,
             u.ref_uitvoering,
             u.auteur,
-            r.id_lid
+            r.id_lid,
+            r.qty_media
         FROM rol r
         INNER JOIN uitvoering u
         ON r.ref_uitvoering = u.ref_uitvoering

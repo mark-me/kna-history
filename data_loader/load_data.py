@@ -39,7 +39,7 @@ df_uitvoering.rename(columns={"uitvoering": "ref_uitvoering"}, inplace=True)
 df_uitvoering_folder = df_uitvoering[["ref_uitvoering", "folder"]]
 
 df_rollen = pd.read_excel(file_db, sheet_name="Rollen")
-df_rollen.to_sql("rol", con=engine, if_exists="replace", index=False)
+
 
 df_media_type = pd.read_excel(file_db, sheet_name="Type_Media")
 df_media_type.to_sql("media_type", con=engine, if_exists="replace", index=False)
@@ -66,6 +66,12 @@ df_uitvoering_files.columns = ["ref_uitvoering", "qty_media"]
 df_uitvoering = df_uitvoering.merge(right=df_uitvoering_files, how="left", on="ref_uitvoering")
 df_uitvoering["qty_media"] = df_uitvoering["qty_media"].fillna(0)
 df_uitvoering.to_sql("uitvoering", con=engine, if_exists="replace", index=False)
+
+df_rol_files = df_files_leden.groupby(["ref_uitvoering", "lid"]).size().reset_index()
+df_rol_files.columns = ["ref_uitvoering", "id_lid", "qty_media"]
+df_rollen = df_rollen.merge(right=df_rol_files, how="left", on=["ref_uitvoering", "id_lid"])
+df_rollen["qty_media"] = df_rollen["qty_media"].fillna(0)
+df_rollen.to_sql("rol", con=engine, if_exists="replace", index=False)
 
 ## Creating thumbnails
 for root, dirs, files in os.walk("/data/kna_resources"):
