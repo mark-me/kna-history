@@ -31,7 +31,6 @@ def cdn(filepath):
 def show_image(path_image: str):
     logger.info(f"Show image - filepath: {path_image}")
     dict_image = db_reader.medium(path=path_image)
-    logger.info(dict_image)
     return render_template("image.html", image=dict_image)
 
 @app.route("/pdf/<path_pdf>")
@@ -43,7 +42,8 @@ def show_document(path_pdf: str):
 @app.route("/video/<path_video>")
 def show_movie(path_video: str):
     logger.info(f"Show video - {path_video}")
-    return render_template("video.html", file_video=path_video)
+    dict_video = db_reader.medium(path=path_video)
+    return render_template("video.html", video=dict_video)
 
 
 @app.route("/leden")

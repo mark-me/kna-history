@@ -1,17 +1,22 @@
 {% extends "layout.html" %}
 {% block content%}
 <div class="row">
-    <div class="col-md-12">
+    <div class="col-auto">
         <a href="javascript:window.history.back();" class="btn btn-primary" view>Terug</a>
-        <div class="card">
-            <div class="card-body">
-                <div id="trailer" class="section d-flex justify-content-center embed-responsive embed-responsive-4by3">
-                    <video class="embed-responsive-item" controls>
-                        <source src="/cdn/{{ file_video }}" type="video/mp4">
-                        Your browser does not support the video tag.
-                        </video>
-                </div>
-            </div>
+    </div>
+    <div class="col">
+        {% for lid in video.leden %}
+            {{ lid.lid }}{% if not loop.last %},&nbsp;{% endif %}
+        {% endfor %}
+    </div>
+</div>
+<div class="card">
+    <div class="card-body">
+        <div id="trailer" class="section d-flex justify-content-center embed-responsive embed-responsive-4by3">
+            <video class="embed-responsive-item" controls>
+                <source src="/cdn/{{ video.path_medium }}" type="video/mp4">
+                Your browser does not support the video tag.
+                </video>
         </div>
     </div>
 </div>
