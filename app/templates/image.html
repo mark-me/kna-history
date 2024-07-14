@@ -4,12 +4,14 @@
     <div class="col-auto">
         <a href="javascript:window.history.back();" class="btn btn-primary" view>Terug</a>
     </div>
+    {% if image.leden|length > 0 %}
     <div class="col">
         <b>vlnr: </b>
         {% for lid in image.leden %}
             {{ lid.lid }}{% if not loop.last %},&nbsp;{% endif %}
         {% endfor %}
     </div>
+    {% endif %}
 </div>
 <div class="card">
     <div class="card-body">

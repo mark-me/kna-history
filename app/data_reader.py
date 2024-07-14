@@ -194,6 +194,7 @@ class KnaDB:
         ORDER BY l.achternaam_sort
         """
         df_rol = pd.read_sql(sql=sql_statement, con=self.engine)
+        df_rol = df_rol.groupby(["ref_uitvoering", "id_lid", "achternaam_sort", "qty_media"]).agg(list).reset_index()
 
         # Integrate all data into list of dictionaries
         lst_voorstelling = df_voorstelling.to_dict(orient="records")
