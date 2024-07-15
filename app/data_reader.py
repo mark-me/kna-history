@@ -352,6 +352,8 @@ class KnaDB:
     def timeline(self) -> list:
         sql_statement = "SELECT * FROM uitvoering"
         df_event = pd.read_sql(sql=sql_statement, con=self.engine)
+        df_event["datum_van"] = df_event["datum_van"].dt.date
+        df_event["datum_tot"] = df_event["datum_tot"].dt.date
         sql_statement = "SELECT * FROM lid WHERE gdpr_permission = 1"
         df_lid = pd.read_sql(sql=sql_statement, con=self.engine)
 

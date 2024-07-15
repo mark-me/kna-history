@@ -33,10 +33,42 @@
             <div class="card-body">
               {% for event in event_type.events %}
               <div class="row">
-                {% if event.qty_media > 0 %}
-                  <a href="voorstelling_media/{{ event.ref_uitvoering }}">{{event.titel}}</a>
-                {% else %}
-                  {{event.titel}}
+                <div class="col my-auto">
+                  {% if event.qty_media > 0 %}
+                    <a href="voorstelling_media/{{ event.ref_uitvoering }}">{{event.titel}}</a>
+                  {% else %}
+                    {{event.titel}}
+                  {% endif %}
+                </div>
+                {% if event_type.event_type == "Uitvoering" %}
+                  {% if event.datum_van is not none %}
+                    <div class="col my-auto">
+                      Van: {{ event.datum_van }}
+                    </div>
+                  {% endif %}
+                  {% if event.datum_tot is not none %}
+                    <div class="col my-auto">
+                      Tot: {{ event.datum_tot }}
+                    </div>
+                  {% endif %}
+                  {% if event.auteur is not none %}
+                    <div class="col my-auto">
+                      Auteur: {{event.auteur}}
+                    </div>
+                  {% else %}
+                  <div class="col my-auto">
+                    Auteur: Onbekend
+                  </div>
+                  {% endif %}
+                  {% if event.regie is not none %}
+                    <div class="col my-auto">
+                      Regie: {{event.regie}}
+                    </div>
+                  {% else %}
+                    <div class="col my-auto">
+                      Regie: Onbekend
+                    </div>
+                  {% endif %}
                 {% endif %}
               </div>
               {% endfor %}

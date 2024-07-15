@@ -61,6 +61,10 @@ df_files_leden.to_sql("file_leden", con=engine, if_exists="replace", index=False
 df_files = df_files[df_files.columns.drop(list(df_files.filter(regex="lid_")))]
 df_files.to_sql("file", con=engine, if_exists="replace", index=False)
 
+df_uitvoering_regie = df_rollen.loc[df_rollen["rol"] == "Regie"].groupby("ref_uitvoering").agg("max").reset_index()
+df_uitvoering_regie = df_uitvoering_regie.drop(["rol", "rol_bijnaam"], axis=1)
+df_uitvoering_regie.columns = ["ref_uitvoering", "regie"]
+df_uitvoering = df_uitvoering.merge(right=df_uitvoering_regie, how="left", on="ref_uitvoering")
 df_uitvoering_files = df_files.groupby("ref_uitvoering").size().reset_index()
 df_uitvoering_files.columns = ["ref_uitvoering", "qty_media"]
 df_uitvoering = df_uitvoering.merge(right=df_uitvoering_files, how="left", on="ref_uitvoering")
