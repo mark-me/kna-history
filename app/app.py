@@ -81,6 +81,7 @@ def voorstelling_media(voorstelling: str):
     """Page for member media"""
     lst_media = db_reader.voorstelling_media(voorstelling=voorstelling)
     logger.info(f"Get media voor voorstelling {voorstelling}")
+
     return render_template(
         "voorstelling_media.html", voorstelling=voorstelling, media=lst_media
     )
