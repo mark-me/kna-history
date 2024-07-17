@@ -54,84 +54,50 @@ class KnaDB:
         df_media["type_media"] = df_media["type_media"].str.capitalize()
         return df_media
 
-    def voorstelling_rollen(self, voorstelling: str) -> dict:
-        # Rollen
+    def lid_info(self, id_lid: str) -> dict:
+        pass
+
+    def lid_media(self, lid: str) -> list:
+        logger.info(f"Lid media voor {lid}")
         sql_statement = f"""
         SELECT
-            r.ref_uitvoering,
-            r.id_lid,
-            r.rol,
-            r.rol_bijnaam,
-            l.achternaam_sort,
-            COUNT(fl.bestand) AS qty_media
-        FROM rol r
-        INNER JOIN lid l
-        ON l.id_lid = r.id_lid
-        LEFT JOIN file_leden fl
-        ON  fl.ref_uitvoering = r.ref_uitvoering AND
-            fl.lid = r.id_lid
-        WHERE
-            l.gdpr_permission = 1 AND
-            r.ref_uitvoering = "{voorstelling}"
-        GROUP BY
-            r.ref_uitvoering,
-            r.id_lid,
-            r.rol,
-            r.rol_bijnaam,
-            l.achternaam_sort
-        ORDER BY l.achternaam_sort
-        """
-        df_rol = pd.read_sql(sql=sql_statement, con=self.engine)
-        if df_rol.shape[0] > 0:
-            df_rol = (
-                df_rol.groupby(
-                    ["ref_uitvoering", "id_lid", "achternaam_sort", "qty_media"]
-                )
-                .agg(list)
-                .reset_index()
-            )
-        return df_rol.to_dict("records")
-
-    def voorstelling_thumbnail(self, voorstelling: str) -> str:
-        # Poster
-        sql_statement = f"""
-        SELECT u.ref_uitvoering,
-            u.folder AS dir_thumbnail,
+            f.ref_uitvoering,
+            f.bestand,
             f.type_media,
-            MIN(f.bestand) as file_poster
-        FROM uitvoering u
-        LEFT JOIN file f
-        ON f.ref_uitvoering = u.ref_uitvoering
-        WHERE u.ref_uitvoering = "{voorstelling}" AND
-            ( f.type_media = 'poster' OR f.type_media = 'kaartje')
-        GROUP BY
-            u.ref_uitvoering,
-            u.folder,
-            f.type_media"""
-        df_thumbnail = pd.read_sql(sql=sql_statement, con=self.engine)
-        df_thumbnail = df_thumbnail.pivot(
-            index=["ref_uitvoering", "dir_thumbnail"],
-            columns="type_media",
-            values="file_poster",
-        ).reset_index()
-
-        if df_thumbnail.shape[0] > 0:
-            dict_thumbnail = df_thumbnail.to_dict("records")[0]
-            dir_thumbnail = (
-                    self.dir_resources + dict_thumbnail["dir_thumbnail"] + "/thumbnails"
-                )
-            if "poster" in dict_thumbnail:
-                file_thumbnail = dict_thumbnail["poster"]
-            elif "kaartje" in dict_thumbnail:
-                file_thumbnail = dict_thumbnail["kaartje"]
-            else:
-                dir_thumbnail = "static/images"
-                file_thumbnail = "media_type_poster.png"
-        else:
-            dir_thumbnail = "static/images"
-            file_thumbnail = "media_type_poster.png"
-        path_thumbnail = self.encode(folder=dir_thumbnail, file=file_thumbnail)
-        return path_thumbnail
+            f.file_ext,
+            f.vlnr,
+            f.lid,
+            u.titel,
+            u.jaar,
+			u.folder,
+			u.type,
+			u.auteur
+        FROM file_leden f
+        INNER JOIN uitvoering u
+            ON u.ref_uitvoering = f.ref_uitvoering
+        WHERE lid="{lid}"
+        """
+        df_media = pd.read_sql(
+            sql=sql_statement,
+            con=self.engine,
+        )
+        df_media["jaar"] = df_media["jaar"].astype("Int64")
+        logger.info("Lid media - Enrich media data")
+        df_media = self.__enrich_media(df_media=df_media)
+        lst_media = []  # Initialize the result list
+        grouped_jaar = df_media.groupby("jaar")  # Group by 'jaar'
+        # Iterate over each jaar
+        for group_jaar, df_jaar in grouped_jaar:
+            lst_titel = []
+            # Group by 'titel' within each jaar
+            grouped_titel = df_jaar.groupby("titel")
+            # Iterate over each subgroup
+            for group_titel, df_titel in grouped_titel:
+                data_list = df_titel.to_dict("records")
+                lst_titel.append({"uitvoering": group_titel, "media": data_list})
+            lst_media.append({"jaar": group_jaar, "uitvoering": lst_titel})
+        lst_media = sorted(lst_media, key=lambda d: d["jaar"], reverse=True)
+        return lst_media
 
     def leden(self):
         sql_statement = """
@@ -204,95 +170,56 @@ class KnaDB:
         ]
         return lst_lid
 
-    def lid_info(self, id_lid: str) -> dict:
-        pass
-
-    def voorstellingen(self) -> list:
-        # Voorstellingen
-        sql_statement = """
-        SELECT *
-        FROM uitvoering u
-        WHERE `type` = 'Uitvoering'
-        ORDER BY jaar DESC
-        """
-        df_voorstelling = pd.read_sql(sql=sql_statement, con=self.engine)
-        df_voorstelling["jaar"] = df_voorstelling["jaar"].astype("Int64")
-        df_voorstelling["qty_media"] = df_voorstelling["qty_media"].astype("Int64")
-
-        # Integrate all data into list of dictionaries
-        lst_voorstelling = df_voorstelling.to_dict(orient="records")
-        i = 0
-        while i < len(lst_voorstelling):
-            voorstelling = lst_voorstelling[i]["ref_uitvoering"]
-            # Add rollen
-            dict_rollen = self.voorstelling_rollen(voorstelling=voorstelling)
-            lst_voorstelling[i]["rollen"] = dict_rollen
-            lst_voorstelling[i]["path_thumbnail"] = self.voorstelling_thumbnail(
-                voorstelling=voorstelling
-            )
-            i = i + 1
-        return lst_voorstelling
-
     def voorstelling_info(self, voorstelling: str) -> dict:
         sql_statement = f"""
         SELECT *
-        FROM voorstelling
+        FROM uitvoering
         WHERE ref_uitvoering = "{voorstelling}"
         """
-        pass
+        df_voorstelling = pd.read_sql(sql=sql_statement, con=self.engine)
+        df_voorstelling["datum_van"] = df_voorstelling["datum_van"].dt.date
+        df_voorstelling["datum_tot"] = df_voorstelling["datum_tot"].dt.date
+        dict_voorstelling = df_voorstelling.to_dict("records")[0]
+        dict_voorstelling["rollen"] = self.voorstelling_rollen(voorstelling=voorstelling)
+        return dict_voorstelling
 
-    def jaren(self) -> list:
-        sql_statement = "SELECT * FROM uitvoering"
-        df_events = pd.read_sql(sql=sql_statement, con=self.engine)
-        lst_events = []
-        grouped_jaar = df_events.groupby("jaar")
-        # Iterate over each jaar
-        for group_jaar, df_event in grouped_jaar:
-            data_list = df_event.to_dict("records")
-            lst_events.append({"jaar": group_jaar, "events": data_list})
-        return lst_events
-
-    def lid_media(self, lid: str) -> list:
-        logger.info(f"Lid media voor {lid}")
+    def voorstelling_rollen(self, voorstelling: str) -> dict:
+        # Rollen
         sql_statement = f"""
         SELECT
-            f.ref_uitvoering,
-            f.bestand,
-            f.type_media,
-            f.file_ext,
-            f.vlnr,
-            f.lid,
-            u.titel,
-            u.jaar,
-			u.folder,
-			u.type,
-			u.auteur
-        FROM file_leden f
-        INNER JOIN uitvoering u
-            ON u.ref_uitvoering = f.ref_uitvoering
-        WHERE lid="{lid}"
+            r.ref_uitvoering,
+            r.id_lid,
+            r.rol,
+            r.rol_bijnaam,
+            l.achternaam_sort,
+            COUNT(fl.bestand) AS qty_media
+        FROM rol r
+        INNER JOIN lid l
+        ON l.id_lid = r.id_lid
+        LEFT JOIN file_leden fl
+        ON  fl.ref_uitvoering = r.ref_uitvoering AND
+            fl.lid = r.id_lid
+        WHERE
+            l.gdpr_permission = 1 AND
+            r.ref_uitvoering = "{voorstelling}"
+        GROUP BY
+            r.ref_uitvoering,
+            r.id_lid,
+            r.rol,
+            r.rol_bijnaam,
+            l.achternaam_sort
+        ORDER BY l.achternaam_sort
         """
-        df_media = pd.read_sql(
-            sql=sql_statement,
-            con=self.engine,
-        )
-        df_media["jaar"] = df_media["jaar"].astype("Int64")
-        logger.info("Lid media - Enrich media data")
-        df_media = self.__enrich_media(df_media=df_media)
-        lst_media = []  # Initialize the result list
-        grouped_jaar = df_media.groupby("jaar")  # Group by 'jaar'
-        # Iterate over each jaar
-        for group_jaar, df_jaar in grouped_jaar:
-            lst_titel = []
-            # Group by 'titel' within each jaar
-            grouped_titel = df_jaar.groupby("titel")
-            # Iterate over each subgroup
-            for group_titel, df_titel in grouped_titel:
-                data_list = df_titel.to_dict("records")
-                lst_titel.append({"uitvoering": group_titel, "media": data_list})
-            lst_media.append({"jaar": group_jaar, "uitvoering": lst_titel})
-        lst_media = sorted(lst_media, key=lambda d: d["jaar"], reverse=True)
-        return lst_media
+        df_rol = pd.read_sql(sql=sql_statement, con=self.engine)
+        if df_rol.shape[0] > 0:
+            df_rol = (
+                df_rol.groupby(
+                    ["ref_uitvoering", "id_lid", "achternaam_sort", "qty_media"]
+                )
+                .agg(list)
+                .reset_index()
+            )
+        return df_rol.to_dict("records")
 
     def voorstelling_media(self, voorstelling: str) -> list:
         sql_statement = f"""
@@ -319,6 +246,73 @@ class KnaDB:
                 {"type_media": group_media_type, "files": lst_media}
             )
         return lst_voorstelling_media
+
+    def voorstelling_thumbnail(self, voorstelling: str) -> str:
+        # Poster
+        sql_statement = f"""
+        SELECT u.ref_uitvoering,
+            u.folder AS dir_thumbnail,
+            f.type_media,
+            MIN(f.bestand) as file_poster
+        FROM uitvoering u
+        LEFT JOIN file f
+        ON f.ref_uitvoering = u.ref_uitvoering
+        WHERE u.ref_uitvoering = "{voorstelling}" AND
+            ( f.type_media = 'poster' OR f.type_media = 'kaartje')
+        GROUP BY
+            u.ref_uitvoering,
+            u.folder,
+            f.type_media"""
+        df_thumbnail = pd.read_sql(sql=sql_statement, con=self.engine)
+        df_thumbnail = df_thumbnail.pivot(
+            index=["ref_uitvoering", "dir_thumbnail"],
+            columns="type_media",
+            values="file_poster",
+        ).reset_index()
+
+        if df_thumbnail.shape[0] > 0:
+            dict_thumbnail = df_thumbnail.to_dict("records")[0]
+            dir_thumbnail = (
+                    self.dir_resources + dict_thumbnail["dir_thumbnail"] + "/thumbnails"
+                )
+            if "poster" in dict_thumbnail:
+                file_thumbnail = dict_thumbnail["poster"]
+            elif "kaartje" in dict_thumbnail:
+                file_thumbnail = dict_thumbnail["kaartje"]
+            else:
+                dir_thumbnail = "static/images"
+                file_thumbnail = "media_type_poster.png"
+        else:
+            dir_thumbnail = "static/images"
+            file_thumbnail = "media_type_poster.png"
+        path_thumbnail = self.encode(folder=dir_thumbnail, file=file_thumbnail)
+        return path_thumbnail
+
+    def voorstellingen(self) -> list:
+        # Voorstellingen
+        sql_statement = """
+        SELECT *
+        FROM uitvoering u
+        WHERE `type` = 'Uitvoering'
+        ORDER BY jaar DESC
+        """
+        df_voorstelling = pd.read_sql(sql=sql_statement, con=self.engine)
+        df_voorstelling["jaar"] = df_voorstelling["jaar"].astype("Int64")
+        df_voorstelling["qty_media"] = df_voorstelling["qty_media"].astype("Int64")
+
+        # Integrate all data into list of dictionaries
+        lst_voorstelling = df_voorstelling.to_dict(orient="records")
+        i = 0
+        while i < len(lst_voorstelling):
+            voorstelling = lst_voorstelling[i]["ref_uitvoering"]
+            # Add rollen
+            dict_rollen = self.voorstelling_rollen(voorstelling=voorstelling)
+            lst_voorstelling[i]["rollen"] = dict_rollen
+            lst_voorstelling[i]["path_thumbnail"] = self.voorstelling_thumbnail(
+                voorstelling=voorstelling
+            )
+            i = i + 1
+        return lst_voorstelling
 
     def voorstelling_lid_media(self, voorstelling: str, lid: str) -> list:
         logger.info(f"Lid media voor {lid}")

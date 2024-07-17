@@ -1,6 +1,59 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>{{ voorstelling }}</h2>
+<h2>{{ voorstelling.ref_uitvoering }}</h2>
+<div class="card">
+  <div class="card-header">
+    Info
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col my-auto">
+        {% if voorstelling.datum_van is not none %}
+          Uitvoering van: {{ voorstelling.datum_van }}
+        {% endif %}
+        {% if voorstelling.datum_tot is not none %}
+          tot {{ voorstelling.datum_tot }}
+        {% endif %}
+      </div>
+      <div class="col my-auto">
+        {% if voorstelling.locatie is not none %}
+            Locatie: {{voorstelling.locatie}}
+        {% else %}
+          Locatie: Onbekend
+        {% endif %}
+      </div>
+    </div>
+    <hr class="my-2" />
+    <div class="row">
+      <div class="col my-auto">
+        {% if voorstelling.auteur is not none %}
+          Auteur: {{voorstelling.auteur}}
+        {% else %}
+          Auteur: Onbekend
+        {% endif %}
+      </div>
+      <div class="col my-auto">
+        {% if voorstelling.regie is not none %}
+          Regie: {{voorstelling.regie}}
+        {% else %}
+          Regie: Onbekend
+        {% endif %}
+      </div>
+    </div>
+    <hr class="my-2" />
+      {% for rol in voorstelling.rollen %}
+      <div class="row">
+        {% if rol.qty_media > 0 %}
+          <a href="voorstelling_lid_media/{{ voorstelling.ref_uitvoering }}/{{ rol.id_lid }}">{{ rol.id_lid }} -
+            {% for figuur in rol.rol %}{{ figuur }}{% if not loop.last %},&nbsp;{% endif %}{% endfor %}
+          </a>
+        {% else %}
+          {{ rol.id_lid }} - {% for figuur in rol.rol %}{{ figuur }}{% if not loop.last %},&nbsp;{% endif %}{% endfor %}
+        {% endif %}
+      </div>
+      {% endfor %}
+  </div>
+</div>
   <div id="accordionMediaType">
     {% for type_media in media %}
     <div class="row">

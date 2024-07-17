@@ -79,11 +79,12 @@ def lid_media(lid: str):
 @app.route("/voorstelling_media/<voorstelling>")
 def voorstelling_media(voorstelling: str):
     """Page for member media"""
+    dict_voorstelling = db_reader.voorstelling_info(voorstelling=voorstelling)
     lst_media = db_reader.voorstelling_media(voorstelling=voorstelling)
     logger.info(f"Get media voor voorstelling {voorstelling}")
 
     return render_template(
-        "voorstelling_media.html", voorstelling=voorstelling, media=lst_media
+        "voorstelling_media.html", voorstelling=dict_voorstelling, media=lst_media
     )
 
 @app.route("/voorstelling_lid_media/<voorstelling>/<lid>")
