@@ -51,6 +51,15 @@
                       Tot: {{ event.datum_tot }}
                     </div>
                   {% endif %}
+                  {% if event.locatie is not none %}
+                    <div class="col my-auto">
+                      Locatie: {{event.locatie}}
+                    </div>
+                  {% else %}
+                    <div class="col my-auto">
+                      Locatie: Onbekend
+                    </div>
+                  {% endif %}
                   {% if event.auteur is not none %}
                     <div class="col my-auto">
                       Auteur: {{event.auteur}}
