@@ -152,7 +152,7 @@ class KnaDB:
                 if df_rol.shape[0] > 0:
                     dict_rol = df_rol.to_dict("records")[0]
                 else:
-                    dict_rol = {"rol": None, "rol_bijnaam": None}
+                    dict_rol = {"rol": [None], "rol_bijnaam": [None]}
                 lst_titel.append({
                     "ref_uitvoering": group_titel[0],
                     "uitvoering": group_titel[1],
