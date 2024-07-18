@@ -72,7 +72,7 @@ def view_tijdslijn():
 def lid_media(lid: str):
     """Page for member photos"""
     logger.info(f"Leden media voor {lid}")
-    lst_media = db_reader.lid_media(lid=lid)
+    lst_media = db_reader.lid_media(id_lid=lid)
     dict_lid = db_reader.lid_info(id_lid=lid)
     return render_template("lid_media.html", lid=dict_lid, media=lst_media)
 

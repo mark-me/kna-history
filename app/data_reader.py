@@ -85,8 +85,34 @@ class KnaDB:
         dict_lid = df_lid.to_dict("records")[0]
         return dict_lid
 
-    def lid_media(self, lid: str) -> list:
-        logger.info(f"Lid media voor {lid}")
+    def lid_rollen(self, id_lid: str) -> pd.DataFrame:
+        sql_statement = f"""
+        SELECT
+            r.ref_uitvoering,
+            r.id_lid,
+            r.rol,
+            r.rol_bijnaam,
+            l.achternaam_sort
+        FROM rol r
+        INNER JOIN lid l
+        ON l.id_lid = r.id_lid
+        WHERE
+            l.gdpr_permission = 1 AND
+            r.id_lid = "{id_lid}"
+        """
+        df_rol = pd.read_sql(sql=sql_statement, con=self.engine)
+        if df_rol.shape[0] > 0:
+            df_rol = (
+                df_rol.groupby(
+                    ["ref_uitvoering", "id_lid", "achternaam_sort"]
+                )
+                .agg(list)
+                .reset_index()
+            )
+        return df_rol
+
+    def lid_media(self, id_lid: str) -> list:
+        logger.info(f"Lid media voor {id_lid}")
         sql_statement = f"""
         SELECT
             f.ref_uitvoering,
@@ -103,15 +129,15 @@ class KnaDB:
         FROM file_leden f
         INNER JOIN uitvoering u
             ON u.ref_uitvoering = f.ref_uitvoering
-        WHERE lid="{lid}"
+        WHERE lid="{id_lid}"
         """
         df_media = pd.read_sql(
             sql=sql_statement,
             con=self.engine,
         )
         df_media["jaar"] = df_media["jaar"].astype("Int64")
-        logger.info("Lid media - Enrich media data")
         df_media = self.__enrich_media(df_media=df_media)
+        df_rollen = self.lid_rollen(id_lid=id_lid)
         lst_media = []  # Initialize the result list
         grouped_jaar = df_media.groupby("jaar")  # Group by 'jaar'
         # Iterate over each jaar
@@ -122,11 +148,18 @@ class KnaDB:
             # Iterate over each subgroup
             for group_titel, df_titel in grouped_titel:
                 data_list = df_titel.to_dict("records")
-                lst_titel.append(
-                    {"ref_uitvoering": group_titel[0],
-                     "uitvoering": group_titel[1],
-                     "media": data_list}
-                    )
+                df_rol = df_rollen.loc[df_rollen["ref_uitvoering"] == group_titel[0]]
+                if df_rol.shape[0] > 0:
+                    dict_rol = df_rol.to_dict("records")[0]
+                else:
+                    dict_rol = {"rol": None, "rol_bijnaam": None}
+                lst_titel.append({
+                    "ref_uitvoering": group_titel[0],
+                    "uitvoering": group_titel[1],
+                    "rol": dict_rol["rol"],
+                    "rol_bijnaam": dict_rol["rol_bijnaam"],
+                    "media": data_list
+                    })
             lst_media.append({"jaar": group_jaar, "uitvoering": lst_titel})
         lst_media = sorted(lst_media, key=lambda d: d["jaar"], reverse=True)
         return lst_media
