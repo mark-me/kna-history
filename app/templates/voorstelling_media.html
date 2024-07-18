@@ -3,7 +3,7 @@
 <h2>{{ voorstelling.ref_uitvoering }}</h2>
 <div class="card">
   <div class="card-header">
-    Info
+    <h5>Info</h5>
   </div>
   <div class="card-body">
     <div class="row">
@@ -41,19 +41,31 @@
       </div>
     </div>
     <hr class="my-2" />
-      {% for rol in voorstelling.rollen %}
-      <div class="row">
-        <div class="col">
-          {% if rol.qty_media > 0 %}
-            <a href="voorstelling_lid_media/{{ voorstelling.ref_uitvoering }}/{{ rol.id_lid }}">{{ rol.id_lid }} -
-              {% for figuur in rol.rol %}{{ figuur }}{% if not loop.last %},&nbsp;{% endif %}{% endfor %}
+    <b>Cast & crew</b>
+    {% for i in range(0, (voorstelling.rollen|length)|int, 2) %}
+    <div class="row">
+      <div class="col">
+        {% if voorstelling.rollen[i].qty_media > 0 %}
+          <a href="voorstelling_lid_media/{{ voorstelling.rollen[i].ref_uitvoering }}/{{ voorstelling.rollen[i].id_lid }}">{{ voorstelling.rollen[i].id_lid }} -
+            {% for figuur in voorstelling.rollen[i].rol %}{{ figuur }}{% if not loop.last %},&nbsp;{% endif %}{% endfor %}
+          </a>
+        {% else %}
+          {{ voorstelling.rollen[i].id_lid }} - {% for figuur in voorstelling.rollen[i].rol %}{{ figuur }}{% if not loop.last %},&nbsp;{% endif %}{% endfor %}
+        {% endif %}
+      </div>
+      <div class="col">
+        {% if i + 1 < (voorstelling.rollen|length) %}
+          {% if voorstelling.rollen[i+1].qty_media > 0 %}
+            <a href="voorstelling_lid_media/{{ voorstelling.rollen[i+1].ref_uitvoering }}/{{ voorstelling.rollen[i+1].id_lid }}">{{ voorstelling.rollen[i+1].id_lid }} -
+              {% for figuur in voorstelling.rollen[i+1].rol %}{{ figuur }}{% if not loop.last %},&nbsp;{% endif %}{% endfor %}
             </a>
           {% else %}
-            {{ rol.id_lid }} - {% for figuur in rol.rol %}{{ figuur }}{% if not loop.last %},&nbsp;{% endif %}{% endfor %}
+            {{ voorstelling.rollen[i+1].id_lid }} - {% for figuur in voorstelling.rollen[i+1].rol %}{{ figuur }}{% if not loop.last %},&nbsp;{% endif %}{% endfor %}
           {% endif %}
-        </div>
+        {% endif %}
       </div>
-      {% endfor %}
+    </div>
+    {% endfor %}
   </div>
 </div>
   <div id="accordionMediaType">
