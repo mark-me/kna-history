@@ -55,7 +55,35 @@ class KnaDB:
         return df_media
 
     def lid_info(self, id_lid: str) -> dict:
-        pass
+        sql_statement = f"""
+        SELECT
+            l.id_lid,
+            l.Voornaam,
+            l.Achternaam,
+            l.Geboortedatum,
+            l.Startjaar,
+            l.achternaam_sort,
+            COUNT(fl.bestand) AS qty_media
+        FROM lid l
+        LEFT JOIN file_leden fl
+        ON fl.lid = l.id_lid
+        WHERE l.gdpr_permission = 1 AND
+            l.Achternaam IS NOT NULL AND
+            l.id_lid = "{id_lid}"
+        GROUP BY
+            l.id_lid,
+            l.Voornaam,
+            l.Achternaam,
+            l.Geboortedatum,
+            l.Startjaar,
+            l.achternaam_sort
+        """
+        df_lid = pd.read_sql(
+            sql=sql_statement,
+            con=self.engine,
+        )
+        dict_lid = df_lid.to_dict("records")[0]
+        return dict_lid
 
     def lid_media(self, lid: str) -> list:
         logger.info(f"Lid media voor {lid}")

@@ -1,6 +1,73 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>Foto's van  {{ lid.naam }}</h2>
+<h2>Foto's van  {{ lid.id_lid }}</h2>
+<div class="card">
+  <div class="card-header">
+    <h5>Info</h5>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col my-auto">
+        {% if voorstelling.datum_van is not none %}
+          Uitvoering van: {{ voorstelling.datum_van }}
+        {% endif %}
+        {% if voorstelling.datum_tot is not none %}
+          tot {{ voorstelling.datum_tot }}
+        {% endif %}
+      </div>
+      <div class="col my-auto">
+        {% if voorstelling.locatie is not none %}
+            Locatie: {{voorstelling.locatie}}
+        {% else %}
+          Locatie: Onbekend
+        {% endif %}
+      </div>
+    </div>
+    <hr class="my-2" />
+    <div class="row">
+      <div class="col my-auto">
+        {% if voorstelling.auteur is not none %}
+          Auteur: {{voorstelling.auteur}}
+        {% else %}
+          Auteur: Onbekend
+        {% endif %}
+      </div>
+      <div class="col my-auto">
+        {% if voorstelling.regie is not none %}
+          Regie: {{voorstelling.regie}}
+        {% else %}
+          Regie: Onbekend
+        {% endif %}
+      </div>
+    </div>
+    <hr class="my-2" />
+    <b>Cast & crew</b>
+    {% for i in range(0, (voorstelling.rollen|length)|int, 2) %}
+    <div class="row">
+      <div class="col">
+        {% if voorstelling.rollen[i].qty_media > 0 %}
+          <a href="voorstelling_lid_media/{{ voorstelling.rollen[i].ref_uitvoering }}/{{ voorstelling.rollen[i].id_lid }}">{{ voorstelling.rollen[i].id_lid }} -
+            {% for figuur in voorstelling.rollen[i].rol %}{{ figuur }}{% if not loop.last %},&nbsp;{% endif %}{% endfor %}
+          </a>
+        {% else %}
+          {{ voorstelling.rollen[i].id_lid }} - {% for figuur in voorstelling.rollen[i].rol %}{{ figuur }}{% if not loop.last %},&nbsp;{% endif %}{% endfor %}
+        {% endif %}
+      </div>
+      <div class="col">
+        {% if i + 1 < (voorstelling.rollen|length) %}
+          {% if voorstelling.rollen[i+1].qty_media > 0 %}
+            <a href="voorstelling_lid_media/{{ voorstelling.rollen[i+1].ref_uitvoering }}/{{ voorstelling.rollen[i+1].id_lid }}">{{ voorstelling.rollen[i+1].id_lid }} -
+              {% for figuur in voorstelling.rollen[i+1].rol %}{{ figuur }}{% if not loop.last %},&nbsp;{% endif %}{% endfor %}
+            </a>
+          {% else %}
+            {{ voorstelling.rollen[i+1].id_lid }} - {% for figuur in voorstelling.rollen[i+1].rol %}{{ figuur }}{% if not loop.last %},&nbsp;{% endif %}{% endfor %}
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
   {% for jaar in media %}
     <h3>{{jaar.jaar}}</h3>
     <div id="accordionUitvoering">
