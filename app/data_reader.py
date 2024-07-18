@@ -118,11 +118,15 @@ class KnaDB:
         for group_jaar, df_jaar in grouped_jaar:
             lst_titel = []
             # Group by 'titel' within each jaar
-            grouped_titel = df_jaar.groupby("titel")
+            grouped_titel = df_jaar.groupby(["ref_uitvoering", "titel"])
             # Iterate over each subgroup
             for group_titel, df_titel in grouped_titel:
                 data_list = df_titel.to_dict("records")
-                lst_titel.append({"uitvoering": group_titel, "media": data_list})
+                lst_titel.append(
+                    {"ref_uitvoering": group_titel[0],
+                     "uitvoering": group_titel[1],
+                     "media": data_list}
+                    )
             lst_media.append({"jaar": group_jaar, "uitvoering": lst_titel})
         lst_media = sorted(lst_media, key=lambda d: d["jaar"], reverse=True)
         return lst_media
@@ -211,7 +215,7 @@ class KnaDB:
         dict_voorstelling["rollen"] = self.voorstelling_rollen(voorstelling=voorstelling)
         return dict_voorstelling
 
-    def voorstelling_rollen(self, voorstelling: str) -> dict:
+    def voorstelling_rollen(self, voorstelling: str) -> list:
         # Rollen
         sql_statement = f"""
         SELECT
