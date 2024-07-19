@@ -103,9 +103,7 @@ class KnaDB:
         df_rol = pd.read_sql(sql=sql_statement, con=self.engine)
         if df_rol.shape[0] > 0:
             df_rol = (
-                df_rol.groupby(
-                    ["ref_uitvoering", "id_lid", "achternaam_sort"]
-                )
+                df_rol.groupby(["ref_uitvoering", "id_lid", "achternaam_sort"])
                 .agg(list)
                 .reset_index()
             )
@@ -153,13 +151,15 @@ class KnaDB:
                     dict_rol = df_rol.to_dict("records")[0]
                 else:
                     dict_rol = {"rol": [None], "rol_bijnaam": [None]}
-                lst_titel.append({
-                    "ref_uitvoering": group_titel[0],
-                    "uitvoering": group_titel[1],
-                    "rol": dict_rol["rol"],
-                    "rol_bijnaam": dict_rol["rol_bijnaam"],
-                    "media": data_list
-                    })
+                lst_titel.append(
+                    {
+                        "ref_uitvoering": group_titel[0],
+                        "uitvoering": group_titel[1],
+                        "rol": dict_rol["rol"],
+                        "rol_bijnaam": dict_rol["rol_bijnaam"],
+                        "media": data_list,
+                    }
+                )
             lst_media.append({"jaar": group_jaar, "uitvoering": lst_titel})
         lst_media = sorted(lst_media, key=lambda d: d["jaar"], reverse=True)
         return lst_media
@@ -242,10 +242,24 @@ class KnaDB:
         WHERE ref_uitvoering = "{voorstelling}"
         """
         df_voorstelling = pd.read_sql(sql=sql_statement, con=self.engine)
-        df_voorstelling["datum_van"] = df_voorstelling["datum_van"].dt.date
-        df_voorstelling["datum_tot"] = df_voorstelling["datum_tot"].dt.date
+        df_voorstelling["datum_van"] = pd.to_datetime(df_voorstelling["datum_van"])
+        df_voorstelling["datum_tot"] = pd.to_datetime(df_voorstelling["datum_tot"])
+        df_voorstelling.loc[df_voorstelling["datum_van"].notnull(), "datum_van"] = (
+            df_voorstelling.loc[
+                df_voorstelling["datum_van"].notnull(), "datum_van"
+            ].dt.date
+        )
+
+        # Update 'datum_tot' to only contain date part where it is not null
+        df_voorstelling.loc[df_voorstelling["datum_tot"].notnull(), "datum_tot"] = (
+            df_voorstelling.loc[
+                df_voorstelling["datum_tot"].notnull(), "datum_tot"
+            ].dt.date
+        )
         dict_voorstelling = df_voorstelling.to_dict("records")[0]
-        dict_voorstelling["rollen"] = self.voorstelling_rollen(voorstelling=voorstelling)
+        dict_voorstelling["rollen"] = self.voorstelling_rollen(
+            voorstelling=voorstelling
+        )
         return dict_voorstelling
 
     def voorstelling_rollen(self, voorstelling: str) -> list:
@@ -338,8 +352,8 @@ class KnaDB:
         if df_thumbnail.shape[0] > 0:
             dict_thumbnail = df_thumbnail.to_dict("records")[0]
             dir_thumbnail = (
-                    self.dir_resources + dict_thumbnail["dir_thumbnail"] + "/thumbnails"
-                )
+                self.dir_resources + dict_thumbnail["dir_thumbnail"] + "/thumbnails"
+            )
             if "poster" in dict_thumbnail:
                 file_thumbnail = dict_thumbnail["poster"]
             elif "kaartje" in dict_thumbnail:
