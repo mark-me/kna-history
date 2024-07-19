@@ -249,8 +249,6 @@ class KnaDB:
                 df_voorstelling["datum_van"].notnull(), "datum_van"
             ].dt.date
         )
-
-        # Update 'datum_tot' to only contain date part where it is not null
         df_voorstelling.loc[df_voorstelling["datum_tot"].notnull(), "datum_tot"] = (
             df_voorstelling.loc[
                 df_voorstelling["datum_tot"].notnull(), "datum_tot"
@@ -378,6 +376,18 @@ class KnaDB:
         df_voorstelling = pd.read_sql(sql=sql_statement, con=self.engine)
         df_voorstelling["jaar"] = df_voorstelling["jaar"].astype("Int64")
         df_voorstelling["qty_media"] = df_voorstelling["qty_media"].astype("Int64")
+        df_voorstelling["datum_van"] = pd.to_datetime(df_voorstelling["datum_van"])
+        df_voorstelling["datum_tot"] = pd.to_datetime(df_voorstelling["datum_tot"])
+        df_voorstelling.loc[df_voorstelling["datum_van"].notnull(), "datum_van"] = (
+            df_voorstelling.loc[
+                df_voorstelling["datum_van"].notnull(), "datum_van"
+            ].dt.date
+        )
+        df_voorstelling.loc[df_voorstelling["datum_tot"].notnull(), "datum_tot"] = (
+            df_voorstelling.loc[
+                df_voorstelling["datum_tot"].notnull(), "datum_tot"
+            ].dt.date
+        )
 
         # Integrate all data into list of dictionaries
         lst_voorstelling = df_voorstelling.to_dict(orient="records")
