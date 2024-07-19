@@ -1,25 +1,30 @@
 {% extends "layout.html" %}
 {% block content%}
     <div class="bg-image">
-        <div class="mask text-light d-flex justify-content-center flex-column text-center" style="background-color: rgba(0, 0, 0, 0.5)">
-            <h2>Welkom op het historisch archief van KNA Hillegom!</h2>
+        <div class="mask text-light d-flex justify-content-center flex-column text-center rounded" style="background-color: rgba(0, 0, 0, 0.5)">
+            <h2>Het Historisch Archief van Toneelvereniging KNA Hillegom</h2>
         </div>
-        <img src="static/images/archief.webp" style="width:100%;">
+        <img src="static/images/archief.png" class="rounded" style="width:100%;">
     </div>
-    <p>Toneelvereniging KNA in Hillegom bestaat al sinds 1930 en daar zijn we trots op! Met dit historisch archief kunt u uw eigen weg door de geschiedenis van KNA Hillegom afleggen.</p>
-
+    <br>
+    <p>Welkom bij het Historisch Archief van Toneelvereniging Kunst Na Arbeid uit Hillegom. Onze toneelvereniging bestaat al sinds 1930 en daar zijn we trots op!</p>
+    <p>Met dit historisch archief kunt u uw eigen weg door de rijke geschiedenis van KNA Hillegom afleggen. Duik in het verleden van onze geliefde vereniging en ontdek de verhalen, krantenartikelen, foto's, video's, programma's en herinneringen die KNA hebben gevormd tot wat het vandaag de dag is. Of u nu een oud-lid bent, een enthousiaste toneelliefhebber, of gewoon nieuwsgierig naar de lokale geschiedenis, ons archief biedt een schat aan informatie en nostalgie.
+    </p>
+        Veel plezier met uw reis door bijna een eeuw aan toneelgeschiedenis!</p>
+        <hr class="my-2">
     <p>Hoe wilt u navigeren door de geschiedenis van KNA?
     </p>
-    <hr class="my-2">
-    <p>
-        <ul>
-            <a href="/leden" class="btn btn-primary">Leden</a><br>
-        </ul>
-        <ul>
-            <a href="/voorstellingen" class="btn btn-primary">Voorstellingen</a>
-        </ul>
-        <ul>
-            <a href="/tijdslijn" class="btn btn-primary">Tijdslijn</a>
-        </ul>
-    </p>
+    <div class="container">
+        <div class="row">
+            <div class="col-md">
+                <a href="/leden" class="btn btn-secondary btn-lg btn-block">Leden</a>
+            </div>
+            <div class="col-md">
+                <a href="/voorstellingen" class="btn btn-secondary btn-lg btn-block">Voorstellingen</a>
+            </div>
+            <div class="col-md">
+                <a href="/tijdslijn" class="btn btn-secondary btn-lg btn-block">Tijdslijn</a>
+            </div>
+        </div>
+    </div>
 {% endblock content %}
