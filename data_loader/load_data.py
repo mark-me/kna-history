@@ -30,6 +30,7 @@ for index, row in df_leden.iterrows():
         i = i + 1
     if not found:
         df_leden.loc[index, "achternaam_sort"] = df_leden.loc[index, "Achternaam"]
+df_leden["achternaam_first_letter"] = df_leden["achternaam_sort"].astype(str).str[0]
 df_leden.to_sql("lid", con=engine, if_exists="replace", index=False)
 
 df_uitvoering = pd.read_excel(file_db, sheet_name="Uitvoering")

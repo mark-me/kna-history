@@ -33,6 +33,7 @@ def show_image(path_image: str):
     dict_image = db_reader.medium(path=path_image)
     return render_template("image.html", image=dict_image)
 
+
 @app.route("/pdf/<path_pdf>")
 def show_document(path_pdf: str):
     logger.info(f"Show PDF - {path_pdf}")
@@ -50,8 +51,9 @@ def show_movie(path_video: str):
 def view_leden():
     """Page for viewing members"""
     lst_leden = db_reader.leden()
+    lst_letters = db_reader.leden_letters()
     # reports = sorted(reports, key=lambda x: x['last_modified'], reverse=True)
-    return render_template("leden.html", leden=lst_leden)
+    return render_template("leden.html", leden=lst_leden, letters=lst_letters)
 
 
 @app.route("/voorstellingen")
@@ -88,6 +90,7 @@ def voorstelling_media(voorstelling: str):
         "voorstelling_media.html", voorstelling=dict_voorstelling, media=lst_media
     )
 
+
 @app.route("/voorstelling_lid_media/<voorstelling>/<lid>")
 def voorstelling_lid_media(voorstelling: str, lid: str):
     """Page for member media for a voorstelling"""
@@ -97,6 +100,7 @@ def voorstelling_lid_media(voorstelling: str, lid: str):
     return render_template(
         "voorstelling_media.html", voorstelling=dict_voorstelling, media=lst_media
     )
+
 
 @app.route("/about")
 def about():

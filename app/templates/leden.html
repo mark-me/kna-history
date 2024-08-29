@@ -4,6 +4,9 @@
 
   <p>Leden en anderen die ooit iets hebben bijgedragen aan KNA Hillegom</p>
   <div class="row">
+    {% for letter in letters %}
+      letter.achternaam_first_letter
+    {% endfor %}
     {% for lid in leden %}
       <div class="col-md-6 mb-4">
         <div class="card">

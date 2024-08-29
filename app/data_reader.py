@@ -164,6 +164,21 @@ class KnaDB:
         lst_media = sorted(lst_media, key=lambda d: d["jaar"], reverse=True)
         return lst_media
 
+    def leden_letters(self):
+        sql_statement = """
+        SELECT
+            achternaam_first_letter,
+            COUNT(*)
+        FROM lid
+        GROUP BY
+            achternaam_first_letter
+        ORDER BY
+            achternaam_first_letter
+        """
+        df_letters = pd.read_sql(sql=sql_statement, con=self.engine)
+        lst_letters = df_letters.to_dict(orient="records")
+        return lst_letters
+
     def leden(self):
         sql_statement = """
         SELECT
