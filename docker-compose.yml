@@ -20,7 +20,7 @@ services:
     image: mariadb:10.11.6
     container_name: mariadb
     restart: always
-    command: --transaction-isolation=READ-COMMITTED --log-bin=binlog --binlog-format=ROW
+    command: --transaction-isolation=READ-COMMITTED --log-bin=binlog --binlog-format=ROW --bind-address=0.0.0.0
     volumes:
       - db:/var/lib/mysql
     ports:
