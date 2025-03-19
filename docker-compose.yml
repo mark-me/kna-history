@@ -13,11 +13,14 @@ services:
       - resources:/data/resources
     depends_on:
       - mariadb
+    networks:
+      - internal_network
+      - public_network  # Allows web access
   mariadb:
     image: mariadb:10.11.6
     container_name: mariadb
     restart: always
-    command: --transaction-isolation=READ-COMMITTED --log-bin=binlog --binlog-format=ROW
+    command: --transaction-isolation=READ-COMMITTED --log-bin=binlog --binlog-format=ROW --bind-address=127.0.0.1
     volumes:
       - db:/var/lib/mysql
     ports:
@@ -30,6 +33,8 @@ services:
       - MARIADB_PASSWORD=${MARIADB_PASSWORD}
       - PUID=1000
       - PGID=1000
+    networks:
+      - internal_network
   nginx:
     container_name: nginx
     build:
@@ -42,6 +47,9 @@ services:
     volumes:
       - /data/certbot/conf:/etc/letsencrypt
       - /data/certbot/www:/var/www/certbot
+    networks:
+      - internal_network
+      - public_network  # Allows web access
   certbot-auto:
     container_name: certbot
     build:
@@ -52,6 +60,9 @@ services:
     environment:
       DOMAIN_NAME: ${DOMAIN_NAME}
       EMAIL_ADDRESS: ${EMAIL_ADDRESS}
+    networks:
+      - internal_network
+      - public_network  # Allows web access
   duckdns:
       image: ghcr.io/linuxserver/duckdns:version-369fbd5c
       container_name: duckdns
@@ -61,7 +72,16 @@ services:
         - TZ=Europe/Amsterdam
         - SUBDOMAINS=kna-historie
         - TOKEN=11afd534-1ff8-4779-989d-1bf4f25561f3
-        - LOG_FILE=false #optional
+        - LOG_FILE=false
+      networks:
+        - internal_network
+        - public_network  # Allows web access
+
+networks:
+  internal_network:
+    driver: bridge
+  public_network:
+    driver: bridge  # Allows external access to web app
 
 volumes:
   resources:
