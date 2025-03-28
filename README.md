@@ -42,29 +42,29 @@ erDiagram
     }
     Lid{
         string id_lid PK "Wordt automatisch gegenereerd door een samenvoeging van voor- en achternaam"
-        string Voornaam
+        string Voornaam "Voornaam"
         string Achternaam
         date Geboortedatum "Wordt niet gebruikt"
         int Startjaar "Wodt niet gebruikt"
         bool gdpr_permission "Lid heeft toestemming gegeven voor toevoeging aan de site"
     }
     Uitvoering{
-        string titel
-        int jaar
+        string titel PK "Titel van een uitvoering/event die uniek moet zijn in een jaar"
+        int jaar PK "Jaar waarin een uitvoering/event plaatsvindt"
         string uitvoering PK "Wordt automatisch gegenereerd door een samenvoeging van jaar en titel"
-        date datum_van
-        date datum_tot
-        string folder
-        string type
+        date datum_van "Eerste datum van de uitvoering/het event"
+        date datum_tot "Laatste datum van de uitvoering/het event"
+        string folder "Gegenereerde locatie van media op basis van jaar en titel"
+        string type "Type van het event (kan uitvoering zijn)"
         string locatie
-        string auteur
+        string auteur "Naam van de auteur wanneer het een uitvoering betreft"
         string Notitie
     }
     Rol{
-        string ref_uitvoering PK, FK
-        string id_lid PK, FK
-        string rol
-        string rol_bijnaam
+        string ref_uitvoering PK, FK "Referentie naar een uitvoering"
+        string id_lid PK, FK "Referenctie naar een lid"
+        string rol "Omschrijving van de rol in de uitvoering"
+        string rol_bijnaam "Verdere specificatie van de rol in de uitvoering"
     }
     Bestand{
         string ref_uitvoering PK, FK "Referentie naar een uitvoering/event, die tevens de directory van het bestand aanduidt."
