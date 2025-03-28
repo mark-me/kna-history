@@ -1,6 +1,6 @@
 # Het Historisch Archief van Toneelvereniging KNA Hillegom
 
-Dit project is heeft als doel een historisch archief aan te leggen voor de toneelvereniging waarmee de gebruikers een eigen weg door de rijke geschiedenis van KNA Hillegom kunnen afleggen. Duik in het verleden van onze geliefde vereniging en ontdek de verhalen, krantenartikelen, foto's, video's, programma's en herinneringen die KNA hebben gevormd tot wat het vandaag de dag is. Of u nu een oud-lid bent, een enthousiaste toneelliefhebber, of gewoon nieuwsgierig naar de lokale geschiedenis, ons archief biedt een schat aan informatie en nostalgie.
+Dit project is heeft als doel een historisch archief beschikbaar te stellen voor de toneelvereniging waarmee gebruikers een eigen weg door de rijke geschiedenis van Kunst Na Arbeid (KNA) Hillegom kunnen afleggen.
 
 ## Het project van data voorzien
 
