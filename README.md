@@ -24,9 +24,88 @@ De directory ```/data/kna_resources``` heeft een directory voor elk jaar. Hier k
 
 Je kunt data toevoegen door de Google Sheet [kna_database](https://docs.google.com/spreadsheets/d/13KDwR3IscHzJHt_mKWLaBtkP6HGC4ZtbhojuUbEjjlk/edit?gid=919083429#gid=919083429) aan te passen wanneer je toegang hebt tot de Google Drive van de vereniging.
 
+In dit Google Sheets document staan een aantal tabbladen waarin verschillende informatie wordt geregistreerd:
+
+* Type_Media -
+* Leden -
+* Uitvoering
+* Bestand
+* Rollen
+* Uitvoering Locaties
+
+#### Informatie
+
+```mermaid
+erDiagram
+    Type_Media{
+        string type_media PK
+    }
+    Lid{
+        string id_lid PK "Wordt automatisch gegenereerd door een samenvoeging van voor- en achternaam"
+        string Voornaam
+        string Achternaam
+        date Geboortedatum
+        int Startjaar
+        bool gdpr_permission
+    }
+    Uitvoering{
+        string titel
+        int jaar
+        string uitvoering PK "Wordt automatisch gegenereerd door een samenvoeging van jaar en titel"
+        date datum_van
+        date datum_tot
+        string folder
+        string type
+        string locatie
+        string auteur
+        string Notitie
+    }
+    Rol{
+        string ref_uitvoering PK, FK
+        string id_lid PK, FK
+        string rol
+        string rol_bijnaam
+    }
+    Bestand{
+        string ref_uitvoering PK, FK
+        string bestand PK
+        string type_media FK
+        string lid_0 FK
+        string lid_1 FK
+        string lid_2 FK
+        string lid_3 FK
+        string lid_ FK
+        string lid_14 FK
+        int Niet_compleet
+        string bijschrift
+    }
+    Lid ||--|{ Rol: speelt
+    Uitvoering ||--|{ Rol: heeft
+    Type_Media ||--|{ Bestand: "is een"
+    Uitvoering ||--|{ Bestand: heeft
+    Lid ||--|{ Bestand: "verschijnt in"
+```
+
+```mermaid
+    flowchart LR
+        uitvoering[Uitvoeringen]
+        leden[Leden registratie]
+        bestand[Bestand koppelen]
+        type_media[Type media]
+
+        uitvoering --> leden
+        uitvoering --> bestand
+        bestand --> type_media
+```
+
 ### Informatie in de database laden
 
-Om data te laden in de database moet er een laadscript worden gestart.
+Om data te laden in de database moet de data vanuit de Google Sheet op de server worden gezet waarna er een laadscript moet worden gestart.
+
+Om de data uit Google Sheets op de server te zetten moet als eerst een Excel (xlsx) kopie worden gedownload. Deze gedownloade Excel file moet vervolgens in de directory ```/data/kna_resources``` op de server worden geplaatst.
+
+Uitvoeren laadscript.
+
 
 ## Het project installeren
 
