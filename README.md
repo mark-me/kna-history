@@ -67,17 +67,17 @@ erDiagram
         string rol_bijnaam
     }
     Bestand{
-        string ref_uitvoering PK, FK
-        string bestand PK
-        string type_media FK
-        string lid_0 FK
+        string ref_uitvoering PK, FK "Referentie naar een uitvoering/event, die tevens de directory van het bestand aanduidt."
+        string bestand PK "Bestandsnaam"
+        string type_media FK "Referentie naar het type media dat het bestand bevat"
+        string lid_0 FK "Referentie naar een lid dat in de media verschijnt"
         string lid_1 FK
         string lid_2 FK
         string lid_3 FK
         string lid_ FK
         string lid_14 FK
-        int Niet_compleet
-        string bijschrift
+        int Niet_compleet "Geeft aan of de registratie rondom dit bestand volledig is"
+        string bijschrift "Extra bijschrift dat bij het bestand moet verschijnen"
     }
     Lid ||--|{ Rol: speelt
     Uitvoering ||--|{ Rol: heeft
