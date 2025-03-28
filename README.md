@@ -4,7 +4,11 @@ Dit project is heeft als doel een historisch archief aan te leggen voor de tonee
 
 ## Het project van data voorzien
 
-Wanneer je nieuwe informatie wil toevoegen aan de website
+Wanneer je nieuwe informatie wil toevoegen aan de website krijg je te maken met drie onderdelen:
+
+1. Media voor een uitvoering/evenement toevoegen
+2. Informatie in de database zetten om informatie toe te voegen en media te koppelen
+3. Een laadprogramma starten om
 
 ### Locatie data
 
@@ -20,6 +24,9 @@ De directory ```/data/kna_resources``` heeft een directory voor elk jaar. Hier k
 
 Je kunt data toevoegen door de Google Sheet [kna_database](https://docs.google.com/spreadsheets/d/13KDwR3IscHzJHt_mKWLaBtkP6HGC4ZtbhojuUbEjjlk/edit?gid=919083429#gid=919083429) aan te passen wanneer je toegang hebt tot de Google Drive van de vereniging.
 
+### Informatie in de database laden
+
+Om data te laden in de database moet er een laadscript worden gestart.
 
 ## Het project installeren
 
