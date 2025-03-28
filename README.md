@@ -26,11 +26,11 @@ Je kunt data toevoegen door de Google Sheet [kna_database](https://docs.google.c
 
 In dit Google Sheets document staan een aantal tabbladen waarin verschillende informatie wordt geregistreerd:
 
-* Type_Media -
-* Leden -
-* Uitvoering
-* Bestand
-* Rollen
+* Type_Media - De type media die zijn geüpload
+* Leden - Hier wordt iedereen geregistreerd die iets heeft bijgedragen aan KNA
+* Uitvoering - Registratie van uitvoeringen en evenementen
+* Bestand - Registratie van geüploade media
+* Rollen - De rol die leden spelen in een uitvoering/evenement
 * Uitvoering Locaties
 
 #### Informatie
@@ -38,15 +38,15 @@ In dit Google Sheets document staan een aantal tabbladen waarin verschillende in
 ```mermaid
 erDiagram
     Type_Media{
-        string type_media PK
+        string type_media PK "Typen media als foto, krantenartikel, poster etc."
     }
     Lid{
         string id_lid PK "Wordt automatisch gegenereerd door een samenvoeging van voor- en achternaam"
         string Voornaam
         string Achternaam
-        date Geboortedatum
-        int Startjaar
-        bool gdpr_permission
+        date Geboortedatum "Wordt niet gebruikt"
+        int Startjaar "Wodt niet gebruikt"
+        bool gdpr_permission "Lid heeft toestemming gegeven voor toevoeging aan de site"
     }
     Uitvoering{
         string titel
