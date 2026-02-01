@@ -3,7 +3,7 @@ FROM python:3.9.18-slim-bookworm
 RUN apt-get update && apt-get install -y certbot
 RUN apt-get install -y libmariadb-dev pkg-config python3-dev default-libmysqlclient-dev build-essential apache2 apache2-dev
 
-WORKDIR /app
+WORKDIR /src
 
 COPY ./requirements.txt /app
 RUN pip install --no-cache-dir -r requirements.txt
