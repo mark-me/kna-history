@@ -84,10 +84,16 @@ class DBLoader:
 
         df_performance_folder = df_uitvoering[["ref_uitvoering", "folder"]]
         self._files(df_performance_folder=df_performance_folder)
-        self._director(df_roles=)
+        df_roles = self._roles()
+        df_director = self._director(df_roles=df_roles)
+        df_uitvoering = df_director.merge(
+            right=df_director, how="left", on="ref_uitvoering"
+        )
+        df_performance_files = self._performance_files(df_files=)
 
-    def _roles(self) -> None:
+    def _roles(self) -> pd.DataFrame:
         df_rollen = pd.read_excel(self.path_excel, sheet_name="Rollen")
+        return df_rollen
 
     def _media_types(self) -> None:
         df_media_type = pd.read_excel(self.path_excel, sheet_name="Type_Media")
@@ -143,6 +149,25 @@ class DBLoader:
         df_file_members.drop(columns=["index"], inplace=True)
         df_file_members.to_sql("file_leden", con=self.engine, if_exists="replace", index=False)
 
+    def _performance_files(self, df_files: pd.DataFrame) -> pd.DataFrame:
+        """Aggregate the number of media files per performance.
+
+        Groups the provided file metadata by performance reference and returns a
+        summary table with a media count for each performance.
+
+        Args:
+            df_files (pd.DataFrame): DataFrame containing file records with a
+                `ref_uitvoering` column identifying the related performance.
+
+        Returns:
+            pd.DataFrame: DataFrame with one row per performance and a `qty_media`
+                column containing the number of associated files.
+
+        """
+        df_performance_files = df_files.groupby("ref_uitvoering").size().reset_index()
+        df_performance_files.columns = ["ref_uitvoering", "qty_media"]
+        return df_performance_files
+
     def _director(self, df_roles: pd.DataFrame) -> pd.DataFrame:
         """Extract the director for each performance from the roles data.
 
@@ -167,11 +192,8 @@ class DBLoader:
         df_director = df_director.drop(["rol", "rol_bijnaam"], axis=1)
         df_director.columns = ["ref_uitvoering", "regie"]
 
-df_uitvoering = df_uitvoering.merge(
-    right=df_uitvoering_regie, how="left", on="ref_uitvoering"
-)
-df_uitvoering_files = df_files.groupby("ref_uitvoering").size().reset_index()
-df_uitvoering_files.columns = ["ref_uitvoering", "qty_media"]
+
+
 df_uitvoering = df_uitvoering.merge(
     right=df_uitvoering_files, how="left", on="ref_uitvoering"
 )
