@@ -79,21 +79,21 @@ class DBLoader:
         df_members.to_sql("lid", con=self.engine, if_exists="replace", index=False)
 
     def _performace(self) -> None:
-        df_uitvoering = pd.read_excel(self.path_excel, sheet_name="Uitvoering")
-        df_uitvoering.rename(columns={"uitvoering": "ref_uitvoering"}, inplace=True)
+        df_performance = pd.read_excel(self.path_excel, sheet_name="Uitvoering")
+        df_performance.rename(columns={"uitvoering": "ref_uitvoering"}, inplace=True)
 
-        df_performance_folder = df_uitvoering[["ref_uitvoering", "folder"]]
+        df_performance_folder = df_performance[["ref_uitvoering", "folder"]]
         self._files(df_performance_folder=df_performance_folder)
         df_roles = self._roles()
         df_director = self._director(df_roles=df_roles)
-        df_uitvoering = df_director.merge(
+        df_performance = df_director.merge(
             right=df_director, how="left", on="ref_uitvoering"
         )
         df_performance_files = self._performance_files(df_files=)
 
     def _roles(self) -> pd.DataFrame:
-        df_rollen = pd.read_excel(self.path_excel, sheet_name="Rollen")
-        return df_rollen
+        df_roles = pd.read_excel(self.path_excel, sheet_name="Rollen")
+        return df_roles
 
     def _media_types(self) -> None:
         df_media_type = pd.read_excel(self.path_excel, sheet_name="Type_Media")
