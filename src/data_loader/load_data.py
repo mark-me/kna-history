@@ -7,8 +7,8 @@ from PIL import Image
 
 engine = create_engine("mysql+mysqldb://root:kna-toneel@127.0.0.1:3306/kna")
 
-data_root = "/data/kna_resources/"
-file_db = data_root + "kna_database.xlsx"
+data_root = Path("/data/kna_resources/")
+file_db = data_root / "kna_database.xlsx"
 
 df_leden = pd.read_excel(file_db, sheet_name="Leden")
 # Achternaam sortering, verwijderen tussenvoegsels
@@ -27,7 +27,7 @@ for index, row in df_leden.iterrows():
                 achternaam_sort + ", " + tussenvoegsels[i]
             )
             found = True
-        i = i + 1
+        i += 1
     if not found:
         df_leden.loc[index, "achternaam_sort"] = df_leden.loc[index, "Achternaam"]
 df_leden.to_sql("lid", con=engine, if_exists="replace", index=False)
