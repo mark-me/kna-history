@@ -48,10 +48,8 @@ class KnaDataLoader:
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"Excel file not found: {file_path}")
 
-        stats = {}
+        stats = {"lid": self._load_leden(file_path)}
 
-        # Load each table
-        stats["lid"] = self._load_leden(file_path)
         stats["uitvoering"] = self._load_uitvoeringen(file_path)
         stats["media_type"] = self._load_media_types(file_path)
         stats["file"], stats["file_leden"] = self._load_files(file_path)
@@ -90,7 +88,7 @@ class KnaDataLoader:
                         achternaam_sort + ", " + tussenvoegsels[i]
                     )
                     found = True
-                i = i + 1
+                i += 1
 
             if not found:
                 df_leden.loc[index, "achternaam_sort"] = df_leden.loc[index, "Achternaam"]
