@@ -1,21 +1,33 @@
 ---
 version: "3.8"
+
 services:
   kna-historie:
-    image: ghcr.io/mark-me/kna-history:v0.0.1
-    # build:
-    #   context: ./nginx
+    image: ghcr.io/mark-me/kna-history:latest
     container_name: kna-historie
     restart: unless-stopped
     environment:
       - TZ=Europe/Amsterdam
+      - FLASK_SECRET=${FLASK_SECRET}
+      - MARIADB_HOST=${MARIADB_HOST}
+      - MARIADB_DATABASE=${MARIADB_DATABASE}
+      - MARIADB_USER=${MARIADB_USER}
+      - MARIADB_PASSWORD=${MARIADB_PASSWORD}
     volumes:
       - resources:/data/resources
     depends_on:
-      - mariadb
+      mariadb:
+        condition: service_healthy
     networks:
       - internal_network
-      - public_network  # Allows web access
+      - public_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 40s
+
   mariadb:
     image: mariadb:10.11.6
     container_name: mariadb
@@ -24,7 +36,7 @@ services:
     volumes:
       - db:/var/lib/mysql
     ports:
-      - 3306:3306
+      - "3306:3306"
     environment:
       - TZ=Europe/Amsterdam
       - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
@@ -35,25 +47,38 @@ services:
       - PGID=1000
     networks:
       - internal_network
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
   nginx:
     container_name: nginx
     build:
       context: ./nginx
+    restart: unless-stopped
     ports:
-      - 80:80
-      - 443:443
+      - "80:80"
+      - "443:443"
     environment:
-      DOMAIN_NAME: $DOMAIN_NAME
+      DOMAIN_NAME: ${DOMAIN_NAME}
     volumes:
       - /data/certbot/conf:/etc/letsencrypt
       - /data/certbot/www:/var/www/certbot
+    depends_on:
+      kna-historie:
+        condition: service_healthy
     networks:
       - internal_network
-      - public_network  # Allows web access
+      - public_network
+
   certbot-auto:
     container_name: certbot
     build:
       context: ./certbot-auto
+    restart: unless-stopped
     volumes:
       - /data/certbot/conf:/etc/letsencrypt
       - /data/certbot/www:/var/www/certbot
@@ -62,26 +87,28 @@ services:
       EMAIL_ADDRESS: ${EMAIL_ADDRESS}
     networks:
       - internal_network
-      - public_network  # Allows web access
+      - public_network
+
   duckdns:
-      image: ghcr.io/linuxserver/duckdns:version-369fbd5c
-      container_name: duckdns
-      environment:
-        - PUID=1000
-        - PGID=1000
-        - TZ=Europe/Amsterdam
-        - SUBDOMAINS=kna-historie
-        - TOKEN=11afd534-1ff8-4779-989d-1bf4f25561f3
-        - LOG_FILE=false
-      networks:
-        - internal_network
-        - public_network  # Allows web access
+    image: ghcr.io/linuxserver/duckdns:version-369fbd5c
+    container_name: duckdns
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Amsterdam
+      - SUBDOMAINS=${DUCKDNS_SUBDOMAIN}
+      - TOKEN=${DUCKDNS_TOKEN}
+      - LOG_FILE=false
+    networks:
+      - internal_network
+      - public_network
 
 networks:
   internal_network:
     driver: bridge
   public_network:
-    driver: bridge  # Allows external access to web app
+    driver: bridge
 
 volumes:
   resources:

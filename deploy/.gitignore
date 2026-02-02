@@ -1,0 +1,22 @@
+# Environment configuration
+.env
+
+# Logs
+*.log
+
+# Docker volumes (if accidentally placed here)
+data/
+
+# Temporary files
+*.tmp
+*.swp
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
