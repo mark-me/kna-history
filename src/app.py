@@ -14,7 +14,18 @@ from logging_kna import logger
 config = Config.for_production()
 db_reader = KnaDataReader(config=config)
 
+# Create Flask app
 app = Flask(__name__)
+
+# Secret key for sessions (required for file upload)
+app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET', os.urandom(24))
+
+# File upload configuration
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB max file size
+
+# Register blueprints
+from blueprints.admin import admin_bp
+app.register_blueprint(admin_bp)
 
 
 @app.route("/health")
@@ -24,7 +35,7 @@ def health():
         # Test database connection
         with db_reader.engine.connect() as conn:
             conn.execute("SELECT 1")
-
+        
         return {
             "status": "healthy",
             "version": os.getenv("APP_VERSION", "unknown"),
@@ -70,10 +81,7 @@ def show_document(path_pdf: str):
 
 @app.route("/video/<path_video>")
 def show_movie(path_video: str):
-    """Display video page.
-
-    Loads video metadata for the given path and renders the video template.
-    """
+    """Display video page"""
     logger.info(f"Show video - {path_video}")
     dict_video = db_reader.medium(path=path_video)
     return render_template("video.html", video=dict_video)

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}KNA Historie{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-gray-100">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center">
+                    <a href="{{ url_for('home') }}" class="text-xl font-bold text-gray-800">
+                        KNA Historie
+                    </a>
+                </div>
+                <div class="hidden md:flex space-x-6">
+                    <a href="{{ url_for('home') }}" class="text-gray-700 hover:text-blue-600">Home</a>
+                    <a href="{{ url_for('view_leden') }}" class="text-gray-700 hover:text-blue-600">Leden</a>
+                    <a href="{{ url_for('view_voorstellingen') }}" class="text-gray-700 hover:text-blue-600">Voorstellingen</a>
+                    <a href="{{ url_for('view_tijdslijn') }}" class="text-gray-700 hover:text-blue-600">Tijdslijn</a>
+                    <a href="{{ url_for('about') }}" class="text-gray-700 hover:text-blue-600">Over</a>
+                    <a href="{{ url_for('admin.index') }}" class="text-blue-600 hover:text-blue-800 font-medium">Admin</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="min-h-screen">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; {{ current_year|default('2025') }} KNA Toneel Hillegom. Alle rechten voorbehouden.</p>
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
