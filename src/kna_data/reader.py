@@ -5,7 +5,6 @@ Reads and formats data from the KNA database for display in the web application.
 """
 import binascii
 import os
-from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -17,14 +16,14 @@ from logging_kna import logger
 class KnaDataReader:
     """
     Data access layer for KNA theatre history database.
-    
+
     Provides methods to query and format data for web display.
     """
-    
-    def __init__(self, config: Optional[Config] = None):
+
+    def __init__(self, config: Config | None = None):
         """
         Initialize the data reader.
-        
+
         Args:
             config: Configuration object. If None, uses default production config.
         """
@@ -35,11 +34,11 @@ class KnaDataReader:
     def encode(self, folder: str, file: str) -> str:
         """
         Encode a file path to hexadecimal for URL safety.
-        
+
         Args:
             folder: Directory path
             file: Filename
-            
+
         Returns:
             Hex-encoded path string
         """
@@ -52,10 +51,10 @@ class KnaDataReader:
     def decode(self, x: str) -> str:
         """
         Decode a hexadecimal path back to original format.
-        
+
         Args:
             x: Hex-encoded path string
-            
+
         Returns:
             Decoded path string
         """
@@ -65,10 +64,10 @@ class KnaDataReader:
     def __enrich_media(self, df_media: pd.DataFrame) -> pd.DataFrame:
         """
         Add computed fields to media dataframe for display.
-        
+
         Args:
             df_media: DataFrame with media records
-            
+
         Returns:
             Enriched DataFrame with thumbnail paths and encoded paths
         """
@@ -97,7 +96,16 @@ class KnaDataReader:
         return df_media
 
     def lid_info(self, id_lid: str) -> dict:
-        """Get detailed information about a member"""
+        """Get basic information and media count for a specific member.
+
+        Retrieves the member record for the given identifier, including personal details and the number of linked media files, and returns it as a serializable dictionary.
+
+        Args:
+            id_lid (str): Identifier of the member whose information should be retrieved.
+
+        Returns:
+            dict: Dictionary containing the member's core details and total media count.
+        """
         sql_statement = f"""
         SELECT
             l.id_lid,
@@ -126,7 +134,16 @@ class KnaDataReader:
         return dict_lid
 
     def lid_rollen(self, id_lid: str) -> pd.DataFrame:
-        """Get all roles for a member"""
+        """Get all roles of a member across productions.
+
+        Retrieves role records for the given member, groups them per production, and returns them as a DataFrame for further enrichment.
+
+        Args:
+            id_lid (str): Identifier of the member whose roles should be retrieved.
+
+        Returns:
+            pd.DataFrame: DataFrame where each row represents a production and the associated roles for the member.
+        """
         sql_statement = f"""
         SELECT
             r.ref_uitvoering,
@@ -151,7 +168,16 @@ class KnaDataReader:
         return df_rol
 
     def lid_media(self, id_lid: str) -> list:
-        """Get all media files featuring a member, grouped by year and production"""
+        """Get all media files for a member grouped by year and production.
+
+        Retrieves media records for the given member, enriches them with display metadata and role information, and groups them per year and production for display.
+
+        Args:
+            id_lid (str): Identifier of the member whose media should be retrieved.
+
+        Returns:
+            list: A list of dictionaries where each entry represents a year containing the member's productions and associated media.
+        """
         logger.info(f"Lid media voor {id_lid}")
         sql_statement = f"""
         SELECT
@@ -175,23 +201,23 @@ class KnaDataReader:
         df_media["jaar"] = df_media["jaar"].astype("Int64")
         df_media = self.__enrich_media(df_media=df_media)
         df_rollen = self.lid_rollen(id_lid=id_lid)
-        
+
         lst_media = []
         grouped_jaar = df_media.groupby("jaar")
-        
+
         for group_jaar, df_jaar in grouped_jaar:
             lst_titel = []
             grouped_titel = df_jaar.groupby(["ref_uitvoering", "titel"])
-            
+
             for group_titel, df_titel in grouped_titel:
                 data_list = df_titel.to_dict("records")
                 df_rol = df_rollen.loc[df_rollen["ref_uitvoering"] == group_titel[0]]
-                
+
                 if df_rol.shape[0] > 0:
                     dict_rol = df_rol.to_dict("records")[0]
                 else:
                     dict_rol = {"rol": [None], "rol_bijnaam": [None]}
-                    
+
                 lst_titel.append({
                     "ref_uitvoering": group_titel[0],
                     "uitvoering": group_titel[1],
@@ -200,12 +226,19 @@ class KnaDataReader:
                     "media": data_list,
                 })
             lst_media.append({"jaar": group_jaar, "uitvoering": lst_titel})
-            
+
         lst_media = sorted(lst_media, key=lambda d: d["jaar"], reverse=True)
         return lst_media
 
-    def leden(self) -> list:
-        """Get list of all members with their information and media counts"""
+    def leden(self) -> list[dict]:
+        """Get a list of all members with basic details, profile photos, and roles.
+
+        Retrieves all GDPR-approved members, enriches them with profile photo paths and associated production roles,
+        and returns the data as serializable dictionaries.
+
+        Returns:
+            list: A list of dictionaries where each entry represents a member, their metadata, profile photo information, and roles.
+        """
         sql_statement = """
         SELECT
             l.id_lid,
@@ -266,15 +299,24 @@ class KnaDataReader:
         ORDER BY u.jaar, u.titel
         """
         df_rollen = pd.read_sql(sql=sql_statement, con=self.engine)
-        
+
         for lid in lst_lid:
             df_lid_rollen = df_rollen.loc[df_rollen["id_lid"] == lid["id_lid"]]
             lid["rollen"] = df_lid_rollen.to_dict(orient="records")
-            
+
         return lst_lid
 
     def voorstelling_info(self, voorstelling: str) -> dict:
-        """Get detailed information about a production"""
+        """Get detailed information about a specific production.
+
+        Loads the production record for the given reference and returns it as a serializable dictionary with normalized date fields.
+
+        Args:
+            voorstelling (str): Reference identifier of the production.
+
+        Returns:
+            dict: Dictionary containing all columns of the production, including parsed start and end dates.
+        """
         sql_statement = f"""
         SELECT *
         FROM uitvoering
@@ -289,7 +331,16 @@ class KnaDataReader:
         return dict_voorstelling
 
     def voorstelling_rollen(self, voorstelling: str) -> list:
-        """Get all roles/cast for a production"""
+        """Get all roles and cast members for a specific production.
+
+        Retrieves role assignments for the given production, groups them per member, and returns a list of cast records ready for display.
+
+        Args:
+            voorstelling (str): Reference identifier of the production whose roles should be retrieved.
+
+        Returns:
+            list: A list of dictionaries where each entry represents a cast member, their roles, and related metadata.
+        """
         sql_statement = f"""
         SELECT
             r.ref_uitvoering,
@@ -326,7 +377,16 @@ class KnaDataReader:
         return df_rol.to_dict("records")
 
     def voorstelling_media(self, voorstelling: str) -> list:
-        """Get all media files for a production, grouped by media type"""
+        """Get all media files for a production grouped by media type.
+
+        Retrieves media records for the given production, enriches them with display metadata, and groups them by media category.
+
+        Args:
+            voorstelling (str): Reference identifier of the production whose media should be retrieved.
+
+        Returns:
+            list: A list of dictionaries where each entry contains a media type and the associated media files.
+        """
         sql_statement = f"""
         SELECT
             f.ref_uitvoering,
@@ -344,7 +404,7 @@ class KnaDataReader:
 
         lst_voorstelling_media = []
         grouped_media_type = df_media.groupby("type_media")
-        
+
         for group_media_type, df_media in grouped_media_type:
             lst_media = df_media.to_dict("records")
             lst_voorstelling_media.append(
@@ -353,7 +413,16 @@ class KnaDataReader:
         return lst_voorstelling_media
 
     def voorstelling_thumbnail(self, voorstelling: str) -> str:
-        """Get thumbnail path for a production (poster or ticket)"""
+        """Get the thumbnail path for a production.
+
+        Determines the most suitable poster or ticket image for the production and returns its encoded path for display.
+
+        Args:
+            voorstelling (str): Reference identifier of the production whose thumbnail is requested.
+
+        Returns:
+            str: Hex-encoded path string pointing to the selected thumbnail image.
+        """
         sql_statement = f"""
         SELECT u.ref_uitvoering,
             u.folder AS dir_thumbnail,
@@ -390,12 +459,16 @@ class KnaDataReader:
         else:
             dir_thumbnail = "static/images"
             file_thumbnail = "media_type_poster.png"
-            
+
         path_thumbnail = self.encode(folder=dir_thumbnail, file=file_thumbnail)
         return path_thumbnail
 
     def voorstellingen(self) -> list:
-        """Get list of all productions with cast and media information"""
+        """Get a list of all productions with roles and thumbnail paths.
+
+        Retrieves production records ordered by year, converts them to serializable structures, and
+        augments each with cast information and a display thumbnail.
+        """
         sql_statement = """
         SELECT *
         FROM uitvoering u
@@ -411,7 +484,7 @@ class KnaDataReader:
         df_voorstelling["datum_tot"] = df_voorstelling["datum_tot"].dt.date
 
         lst_voorstelling = df_voorstelling.to_dict(orient="records")
-        
+
         for i, voorstelling_dict in enumerate(lst_voorstelling):
             voorstelling = voorstelling_dict["ref_uitvoering"]
             dict_rollen = self.voorstelling_rollen(voorstelling=voorstelling)
@@ -419,11 +492,21 @@ class KnaDataReader:
             lst_voorstelling[i]["path_thumbnail"] = self.voorstelling_thumbnail(
                 voorstelling=voorstelling
             )
-            
+
         return lst_voorstelling
 
     def voorstelling_lid_media(self, voorstelling: str, lid: str) -> list:
-        """Get media files for a specific member in a specific production"""
+        """Get all media files featuring a member in a specific production grouped by media type.
+
+        Retrieves media records for the given member and production combination, enriches them with display metadata, and groups them by media category.
+
+        Args:
+            voorstelling (str): Reference identifier of the production.
+            lid (str): Identifier of the member whose media should be retrieved.
+
+        Returns:
+            list: A list of dictionaries where each entry contains a media type and the associated media files.
+        """
         logger.info(f"Lid media voor {lid} in voorstelling {voorstelling}")
         sql_statement = f"""
         SELECT
@@ -447,10 +530,10 @@ class KnaDataReader:
         df_media = pd.read_sql(sql=sql_statement, con=self.engine)
         logger.info("Lid media - Enrich media data")
         df_media = self.__enrich_media(df_media=df_media)
-        
+
         lst_voorstelling_media = []
         grouped_media_type = df_media.groupby("type_media")
-        
+
         for group_media_type, df_media in grouped_media_type:
             lst_media = df_media.to_dict("records")
             lst_voorstelling_media.append(
@@ -462,7 +545,7 @@ class KnaDataReader:
         """Get detailed information about a specific media file"""
         dir_medium, file_medium = os.path.split(self.decode(path))
         dir_medium = dir_medium.replace(self.dir_resources, "")
-        
+
         sql_statement = f"""
         SELECT f.*
         FROM file f
@@ -478,7 +561,7 @@ class KnaDataReader:
         dict_file["path_medium"] = self.encode(
             folder=dict_file["folder"], file=dict_file["bestand"]
         )
-        
+
         sql_statement = f"""
         SELECT f.vlnr, f.lid
         FROM file_leden f
@@ -495,36 +578,76 @@ class KnaDataReader:
         return dict_file
 
     def timeline(self) -> list:
-        """Get chronological timeline of events and new members by year"""
+        """Get a chronological overview of productions, events, and new members by year.
+
+        Retrieves all productions and members, groups them per year and event type, and returns a list of yearly timeline entries ready for display.
+
+        Returns:
+            list: A list of dictionaries where each entry represents a year with its events and newly joined members.
+        """
+        df_event = self._load_timeline_events()
+        df_lid = self._load_timeline_members()
+        return self._build_timeline(df_event=df_event, df_lid=df_lid)
+
+    def _load_timeline_events(self) -> pd.DataFrame:
+        """Load and normalize event data for the timeline.
+
+        Fetches all productions and events and normalizes their date fields for grouping in the timeline view.
+
+        Returns:
+            pd.DataFrame: DataFrame containing all events with normalized date columns.
+        """
         sql_statement = "SELECT * FROM uitvoering"
         df_event = pd.read_sql(sql=sql_statement, con=self.engine)
         df_event["datum_van"] = df_event["datum_van"].dt.date
         df_event["datum_tot"] = df_event["datum_tot"].dt.date
-        
+        return df_event
+
+    def _load_timeline_members(self) -> pd.DataFrame:
+        """Load member data for inclusion in the timeline.
+
+        Fetches all GDPR-approved members so new members per year can be highlighted in the timeline.
+
+        Returns:
+            pd.DataFrame: DataFrame containing member records used for timeline aggregation.
+        """
         sql_statement = "SELECT * FROM lid WHERE gdpr_permission = 1"
         df_lid = pd.read_sql(sql=sql_statement, con=self.engine)
+        return df_lid
 
+    def _build_timeline(self, df_event: pd.DataFrame, df_lid: pd.DataFrame) -> list:
+        """Assemble the yearly timeline structure from events and members.
+
+        Groups events and new members per year and event type and returns the final timeline data structure.
+
+        Args:
+            df_event (pd.DataFrame): DataFrame containing all timeline events.
+            df_lid (pd.DataFrame): DataFrame containing member records.
+
+        Returns:
+            list: A list of dictionaries where each entry represents a year with its events and newly joined members.
+        """
         lst_events = []
         grouped_jaar = df_event.groupby("jaar")
-        
+
         for group_jaar, df_jaar in grouped_jaar:
             dict_leden_nieuw = df_lid.loc[df_lid["Startjaar"] == group_jaar].to_dict(
                 "records"
             )
             lst_event_type = []
             grouped_type_event = df_jaar.groupby("type")
-            
-            for group_event_type, df_event in grouped_type_event:
-                data_list = df_event.to_dict("records")
+
+            for group_event_type, df_event_type in grouped_type_event:
+                data_list = df_event_type.to_dict("records")
                 lst_event_type.append(
                     {"event_type": group_event_type, "events": data_list}
                 )
-                
+
             lst_events.append({
                 "jaar": group_jaar,
                 "nieuwe_leden": dict_leden_nieuw,
                 "events": lst_event_type,
             })
-            
+
         lst_events = sorted(lst_events, key=lambda d: d["jaar"])
         return lst_events
