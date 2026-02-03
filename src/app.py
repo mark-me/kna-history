@@ -1,16 +1,52 @@
+"""
+KNA History Web Application
+
+Flask web application for browsing the KNA theatre group history archive.
+"""
 import os
 
 from flask import Flask, render_template, send_from_directory
 
-from data_reader import KnaDB
+from kna_data import Config, KnaDataReader
 from logging_kna import logger
 
-db_reader = KnaDB(dir_resources="/data/resources/")
+# Initialize configuration and data reader
+config = Config.for_production()
+db_reader = KnaDataReader(config=config)
 
+# Create Flask app
 app = Flask(__name__)
 
-if __name__ == "__main__":
-    app.run(debug=True)
+# Secret key for sessions (required for file upload)
+app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET', os.urandom(24))
+
+# File upload configuration
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB max file size
+
+# Register blueprints
+from blueprints.admin import admin_bp
+app.register_blueprint(admin_bp)
+
+
+@app.route("/health")
+def health():
+    """Health check endpoint for Docker"""
+    try:
+        # Test database connection
+        with db_reader.engine.connect() as conn:
+            conn.execute("SELECT 1")
+        
+        return {
+            "status": "healthy",
+            "version": os.getenv("APP_VERSION", "unknown"),
+            "database": "connected"
+        }, 200
+    except Exception as e:
+        logger.error(f"Health check failed: {e}")
+        return {
+            "status": "unhealthy",
+            "error": str(e)
+        }, 503
 
 
 @app.route("/")
@@ -22,6 +58,7 @@ def home():
 
 @app.route("/cdn/<path:filepath>")
 def cdn(filepath):
+    """Serve media files via CDN endpoint"""
     dir, filename = os.path.split(db_reader.decode(filepath))
     logger.info(f"Serve media CDN - Directory: {dir} - File: {filename}")
     return send_from_directory(dir, filename, as_attachment=False)
@@ -29,18 +66,22 @@ def cdn(filepath):
 
 @app.route("/image/<path_image>")
 def show_image(path_image: str):
+    """Display image page"""
     logger.info(f"Show image - filepath: {path_image}")
     dict_image = db_reader.medium(path=path_image)
     return render_template("image.html", image=dict_image)
 
+
 @app.route("/pdf/<path_pdf>")
 def show_document(path_pdf: str):
+    """Display PDF document"""
     logger.info(f"Show PDF - {path_pdf}")
     return render_template("pdf.html", file_pdf=path_pdf)
 
 
 @app.route("/video/<path_video>")
 def show_movie(path_video: str):
+    """Display video page"""
     logger.info(f"Show video - {path_video}")
     dict_video = db_reader.medium(path=path_video)
     return render_template("video.html", video=dict_video)
@@ -50,27 +91,26 @@ def show_movie(path_video: str):
 def view_leden():
     """Page for viewing members"""
     lst_leden = db_reader.leden()
-    # reports = sorted(reports, key=lambda x: x['last_modified'], reverse=True)
     return render_template("leden.html", leden=lst_leden)
 
 
 @app.route("/voorstellingen")
 def view_voorstellingen():
-    """Page for viewing uitvoeringen"""
+    """Page for viewing performances"""
     lst_voorstelling = db_reader.voorstellingen()
     return render_template("voorstellingen.html", voorstellingen=lst_voorstelling)
 
 
 @app.route("/tijdslijn")
 def view_tijdslijn():
-    """Page for viewing jaren"""
+    """Page for viewing timeline"""
     lst_timeline = db_reader.timeline()
     return render_template("tijdslijn.html", tijdslijn=lst_timeline)
 
 
 @app.route("/lid_media/<lid>")
 def lid_media(lid: str):
-    """Page for member photos"""
+    """Page for member media"""
     logger.info(f"Leden media voor {lid}")
     lst_media = db_reader.lid_media(id_lid=lid)
     dict_lid = db_reader.lid_info(id_lid=lid)
@@ -79,18 +119,18 @@ def lid_media(lid: str):
 
 @app.route("/voorstelling_media/<voorstelling>")
 def voorstelling_media(voorstelling: str):
-    """Page for member media"""
+    """Page for performance media"""
     dict_voorstelling = db_reader.voorstelling_info(voorstelling=voorstelling)
     lst_media = db_reader.voorstelling_media(voorstelling=voorstelling)
     logger.info(f"Get media voor voorstelling {voorstelling}")
-
     return render_template(
         "voorstelling_media.html", voorstelling=dict_voorstelling, media=lst_media
     )
 
+
 @app.route("/voorstelling_lid_media/<voorstelling>/<lid>")
 def voorstelling_lid_media(voorstelling: str, lid: str):
-    """Page for member media for a voorstelling"""
+    """Page for member media in a specific performance"""
     dict_voorstelling = db_reader.voorstelling_info(voorstelling=voorstelling)
     lst_media = db_reader.voorstelling_lid_media(voorstelling=voorstelling, lid=lid)
     logger.info(f"Get media voor voorstelling {voorstelling} van {lid}")
@@ -98,11 +138,18 @@ def voorstelling_lid_media(voorstelling: str, lid: str):
         "voorstelling_media.html", voorstelling=dict_voorstelling, media=lst_media
     )
 
+
 @app.route("/about")
 def about():
     """About page"""
     return render_template("about.html", title="Over")
 
 
+def create_app():
+    """Application factory for gunicorn"""
+    return app
+
+
 if __name__ == "__main__":
-    app.run(debug=True, port=88)
+    # For local development
+    app.run(debug=True, host="0.0.0.0", port=5000)

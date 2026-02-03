@@ -1,0 +1,434 @@
+{% extends "base.html" %}
+
+{% block title %}Data Upload - KNA Historie{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+    <div class="mb-6">
+        <a href="{{ url_for('admin.index') }}" class="text-blue-600 hover:text-blue-800">
+            ← Terug naar Dashboard
+        </a>
+    </div>
+    
+    <h1 class="text-3xl font-bold mb-8">Data Upload</h1>
+    
+    <!-- Progress Steps -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div class="flex-1 text-center">
+                <div id="step1-indicator" class="w-10 h-10 mx-auto rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold">
+                    1
+                </div>
+                <div class="mt-2 text-sm font-medium text-gray-900">Selecteer Bestand</div>
+            </div>
+            <div class="flex-1 border-t-2 border-gray-300"></div>
+            <div class="flex-1 text-center">
+                <div id="step2-indicator" class="w-10 h-10 mx-auto rounded-full bg-gray-300 text-white flex items-center justify-center font-semibold">
+                    2
+                </div>
+                <div class="mt-2 text-sm font-medium text-gray-500">Valideer</div>
+            </div>
+            <div class="flex-1 border-t-2 border-gray-300"></div>
+            <div class="flex-1 text-center">
+                <div id="step3-indicator" class="w-10 h-10 mx-auto rounded-full bg-gray-300 text-white flex items-center justify-center font-semibold">
+                    3
+                </div>
+                <div class="mt-2 text-sm font-medium text-gray-500">Laden</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Upload Form -->
+    <div id="upload-section" class="bg-white rounded-lg shadow p-6 mb-6">
+        <h2 class="text-xl font-semibold mb-4">Stap 1: Selecteer Excel Bestand</h2>
+        
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+                Excel Bestand (.xlsx, .xls)
+            </label>
+            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-blue-400 transition-colors"
+                 id="drop-zone">
+                <div class="space-y-1 text-center">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <div class="flex text-sm text-gray-600">
+                        <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                            <span>Upload een bestand</span>
+                            <input id="file-upload" name="file" type="file" class="sr-only" accept=".xlsx,.xls">
+                        </label>
+                        <p class="pl-1">of sleep hier naartoe</p>
+                    </div>
+                    <p class="text-xs text-gray-500">
+                        XLSX of XLS tot 50MB
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div id="file-info" class="hidden mb-4 p-4 bg-blue-50 rounded-md">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <svg class="h-5 w-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    <span id="file-name" class="text-sm font-medium text-gray-900"></span>
+                </div>
+                <button onclick="clearFile()" class="text-red-600 hover:text-red-800 text-sm">
+                    Verwijderen
+                </button>
+            </div>
+            <div class="mt-2 text-sm text-gray-600">
+                <span id="file-size"></span>
+            </div>
+        </div>
+        
+        <button onclick="validateFile()" 
+                id="validate-btn"
+                disabled
+                class="w-full px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            Valideer Bestand
+        </button>
+    </div>
+    
+    <!-- Validation Results -->
+    <div id="validation-section" class="hidden bg-white rounded-lg shadow p-6 mb-6">
+        <h2 class="text-xl font-semibold mb-4">Stap 2: Validatie Resultaten</h2>
+        <div id="validation-results"></div>
+        
+        <div class="mt-6 flex gap-4">
+            <button onclick="loadData()" 
+                    id="load-btn"
+                    class="flex-1 px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                Laad Data in Database
+            </button>
+            <button onclick="cancelUpload()" 
+                    class="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                Annuleren
+            </button>
+        </div>
+    </div>
+    
+    <!-- Load Results -->
+    <div id="load-section" class="hidden bg-white rounded-lg shadow p-6">
+        <h2 class="text-xl font-semibold mb-4">Stap 3: Data Laden</h2>
+        <div id="load-results"></div>
+        
+        <div class="mt-6">
+            <a href="{{ url_for('admin.index') }}" 
+               class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                Terug naar Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+let selectedFile = null;
+
+// Drag and drop handlers
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-upload');
+
+dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.classList.add('border-blue-400', 'bg-blue-50');
+});
+
+dropZone.addEventListener('dragleave', () => {
+    dropZone.classList.remove('border-blue-400', 'bg-blue-50');
+});
+
+dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('border-blue-400', 'bg-blue-50');
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        handleFile(files[0]);
+    }
+});
+
+fileInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+        handleFile(e.target.files[0]);
+    }
+});
+
+function handleFile(file) {
+    // Check file type
+    const validTypes = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 
+                       'application/vnd.ms-excel'];
+    if (!validTypes.includes(file.type) && !file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
+        alert('Ongeldig bestandstype. Alleen .xlsx en .xls bestanden zijn toegestaan.');
+        return;
+    }
+    
+    // Check file size (50MB)
+    if (file.size > 50 * 1024 * 1024) {
+        alert('Bestand te groot. Maximale grootte is 50MB.');
+        return;
+    }
+    
+    selectedFile = file;
+    
+    // Show file info
+    document.getElementById('file-name').textContent = file.name;
+    document.getElementById('file-size').textContent = formatFileSize(file.size);
+    document.getElementById('file-info').classList.remove('hidden');
+    document.getElementById('validate-btn').disabled = false;
+}
+
+function clearFile() {
+    selectedFile = null;
+    fileInput.value = '';
+    document.getElementById('file-info').classList.add('hidden');
+    document.getElementById('validate-btn').disabled = true;
+}
+
+function formatFileSize(bytes) {
+    if (bytes < 1024) return bytes + ' bytes';
+    else if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
+    else return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+}
+
+async function validateFile() {
+    if (!selectedFile) return;
+    
+    const btn = document.getElementById('validate-btn');
+    btn.disabled = true;
+    btn.innerHTML = `
+        <svg class="animate-spin inline mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        Valideren...
+    `;
+    
+    // Update progress
+    updateStep(2);
+    
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+    
+    try {
+        const response = await fetch('{{ url_for("admin.validate_upload") }}', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        displayValidationResults(result);
+        
+    } catch (error) {
+        displayValidationResults({
+            valid: false,
+            errors: ['Validatie mislukt: ' + error.message]
+        });
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Valideer Bestand';
+    }
+}
+
+function displayValidationResults(result) {
+    const resultsDiv = document.getElementById('validation-results');
+    const section = document.getElementById('validation-section');
+    
+    section.classList.remove('hidden');
+    
+    if (result.valid) {
+        resultsDiv.innerHTML = `
+            <div class="rounded-md bg-green-50 p-4 mb-4 border border-green-200">
+                <div class="flex">
+                    <svg class="h-5 w-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-green-800">
+                            Validatie Geslaagd
+                        </h3>
+                        <div class="mt-2 text-sm text-green-700">
+                            <p>Het bestand is geldig en kan worden geladen.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-gray-50 rounded-md p-4">
+                <h4 class="text-sm font-medium text-gray-900 mb-3">Bestandsinhoud:</h4>
+                <dl class="grid grid-cols-2 gap-4 text-sm">
+                    ${Object.entries(result.info || {}).map(([sheet, count]) => `
+                        <div>
+                            <dt class="font-medium text-gray-500">${sheet}</dt>
+                            <dd class="text-gray-900">${count} rijen</dd>
+                        </div>
+                    `).join('')}
+                </dl>
+            </div>
+        `;
+        
+        document.getElementById('load-btn').disabled = false;
+        
+    } else {
+        resultsDiv.innerHTML = `
+            <div class="rounded-md bg-red-50 p-4 border border-red-200">
+                <div class="flex">
+                    <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">
+                            Validatie Mislukt
+                        </h3>
+                        <div class="mt-2 text-sm text-red-700">
+                            <ul class="list-disc list-inside space-y-1">
+                                ${result.errors.map(error => `<li>${error}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('load-btn').disabled = true;
+    }
+    
+    if (result.warnings && result.warnings.length > 0) {
+        resultsDiv.innerHTML += `
+            <div class="mt-4 rounded-md bg-yellow-50 p-4 border border-yellow-200">
+                <div class="flex">
+                    <svg class="h-5 w-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-yellow-800">
+                            Waarschuwingen
+                        </h3>
+                        <div class="mt-2 text-sm text-yellow-700">
+                            <ul class="list-disc list-inside space-y-1">
+                                ${result.warnings.map(warning => `<li>${warning}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+}
+
+async function loadData() {
+    const btn = document.getElementById('load-btn');
+    btn.disabled = true;
+    btn.innerHTML = `
+        <svg class="animate-spin inline mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        Laden...
+    `;
+    
+    // Update progress
+    updateStep(3);
+    
+    try {
+        const response = await fetch('{{ url_for("admin.load_data") }}', {
+            method: 'POST'
+        });
+        
+        const result = await response.json();
+        
+        displayLoadResults(result);
+        
+    } catch (error) {
+        displayLoadResults({
+            success: false,
+            error: 'Laden mislukt: ' + error.message
+        });
+    }
+}
+
+function displayLoadResults(result) {
+    const resultsDiv = document.getElementById('load-results');
+    const section = document.getElementById('load-section');
+    
+    section.classList.remove('hidden');
+    
+    if (result.success) {
+        resultsDiv.innerHTML = `
+            <div class="rounded-md bg-green-50 p-4 border border-green-200">
+                <div class="flex">
+                    <svg class="h-5 w-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-green-800">
+                            Data Succesvol Geladen
+                        </h3>
+                        <div class="mt-2 text-sm text-green-700">
+                            <p>${result.message}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4 bg-gray-50 rounded-md p-4">
+                <h4 class="text-sm font-medium text-gray-900 mb-3">Statistieken:</h4>
+                <dl class="grid grid-cols-2 gap-4 text-sm">
+                    ${Object.entries(result.stats || {}).map(([table, count]) => `
+                        <div>
+                            <dt class="font-medium text-gray-500 capitalize">${table}</dt>
+                            <dd class="text-gray-900">${typeof count === 'number' ? count.toLocaleString() : count}</dd>
+                        </div>
+                    `).join('')}
+                </dl>
+            </div>
+        `;
+    } else {
+        resultsDiv.innerHTML = `
+            <div class="rounded-md bg-red-50 p-4 border border-red-200">
+                <div class="flex">
+                    <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">
+                            Laden Mislukt
+                        </h3>
+                        <div class="mt-2 text-sm text-red-700">
+                            <p>${result.error}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+}
+
+async function cancelUpload() {
+    if (confirm('Weet je zeker dat je wilt annuleren?')) {
+        try {
+            await fetch('{{ url_for("admin.cancel_upload") }}', {
+                method: 'POST'
+            });
+        } catch (error) {
+            console.error('Cancel error:', error);
+        }
+        
+        window.location.href = '{{ url_for("admin.index") }}';
+    }
+}
+
+function updateStep(step) {
+    // Update step indicators
+    for (let i = 1; i <= 3; i++) {
+        const indicator = document.getElementById(`step${i}-indicator`);
+        if (i <= step) {
+            indicator.classList.remove('bg-gray-300');
+            indicator.classList.add('bg-blue-600');
+        }
+    }
+}
+</script>
+{% endblock %}
