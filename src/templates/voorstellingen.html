@@ -5,7 +5,7 @@
     <div class="card">
       <div class="card-header">
         <b>{{ voorstelling.titel }}</b>
-        <a class="float-right text-muted">{{ voorstelling.jaar }}</a>
+        <a class="float-end text-muted">{{ voorstelling.jaar }}</a>
       </div>
       <div class="card-body">
         <div class="row">
@@ -114,7 +114,9 @@
         {% if voorstelling.qty_media > 0 %}
         <hr class="my-2" />
         <div class="clearfix"></div>
-        <a href="voorstelling_media/{{ voorstelling.ref_uitvoering }}" class="btn btn-primary btn-lg btn-block" view>Media ({{voorstelling.qty_media}})</a>
+          <div class="d-grid">
+            <a href="voorstelling_media/{{ voorstelling.ref_uitvoering }}" class="btn btn-primary btn-lg" view>Media ({{voorstelling.qty_media}})</a>
+          </div>
         </div>
         {% endif %}
       </div>

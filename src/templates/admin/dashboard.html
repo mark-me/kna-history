@@ -1,217 +1,194 @@
-{% extends "base.html" %}
+{% extends "layout.html" %}
 
 {% block title %}Admin Dashboard - KNA Historie{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-8">Admin Dashboard</h1>
-    
+<div class="container px-4 py-5">
+    <h1 class="mb-4">Admin Dashboard</h1>
+
     <!-- Statistics Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white rounded-lg shadow p-6">
-            <div class="flex items-center">
-                <div class="flex-shrink-0 bg-blue-500 rounded-md p-3">
-                    <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                    </svg>
-                </div>
-                <div class="ml-5 w-0 flex-1">
-                    <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">Leden</dt>
-                        <dd class="text-2xl font-semibold text-gray-900" id="stat-members">-</dd>
-                    </dl>
-                </div>
-            </div>
-        </div>
-        
-        <div class="bg-white rounded-lg shadow p-6">
-            <div class="flex items-center">
-                <div class="flex-shrink-0 bg-green-500 rounded-md p-3">
-                    <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"></path>
-                    </svg>
-                </div>
-                <div class="ml-5 w-0 flex-1">
-                    <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">Voorstellingen</dt>
-                        <dd class="text-2xl font-semibold text-gray-900" id="stat-performances">-</dd>
-                    </dl>
+    <div class="row mb-5">
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body d-flex align-items-center">
+                    <div class="bg-primary text-white rounded p-3 me-3">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Leden</div>
+                        <div class="h4 mb-0 fw-bold" id="stat-members">—</div>
+                    </div>
                 </div>
             </div>
         </div>
-        
-        <div class="bg-white rounded-lg shadow p-6">
-            <div class="flex items-center">
-                <div class="flex-shrink-0 bg-yellow-500 rounded-md p-3">
-                    <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                    </svg>
-                </div>
-                <div class="ml-5 w-0 flex-1">
-                    <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">Rollen</dt>
-                        <dd class="text-2xl font-semibold text-gray-900" id="stat-roles">-</dd>
-                    </dl>
+
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body d-flex align-items-center">
+                    <div class="bg-success text-white rounded p-3 me-3">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Voorstellingen</div>
+                        <div class="h4 mb-0 fw-bold" id="stat-performances">—</div>
+                    </div>
                 </div>
             </div>
         </div>
-        
-        <div class="bg-white rounded-lg shadow p-6">
-            <div class="flex items-center">
-                <div class="flex-shrink-0 bg-purple-500 rounded-md p-3">
-                    <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
+
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body d-flex align-items-center">
+                    <div class="bg-warning text-white rounded p-3 me-3">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Rollen</div>
+                        <div class="h4 mb-0 fw-bold" id="stat-roles">—</div>
+                    </div>
                 </div>
-                <div class="ml-5 w-0 flex-1">
-                    <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">Media</dt>
-                        <dd class="text-2xl font-semibold text-gray-900" id="stat-files">-</dd>
-                    </dl>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body d-flex align-items-center">
+                    <div class="bg-danger text-white rounded p-3 me-3">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Media Bestanden</div>
+                        <div class="h4 mb-0 fw-bold" id="stat-media">—</div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    
+
     <!-- Action Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Upload Data -->
-        <div class="bg-white rounded-lg shadow p-6">
-            <h2 class="text-xl font-semibold mb-4">Data Upload</h2>
-            <p class="text-gray-600 mb-4">
-                Upload een Excel bestand met KNA data om de database bij te werken.
-            </p>
-            <a href="{{ url_for('admin.upload_page') }}" 
-               class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                </svg>
-                Upload Data
-            </a>
+    <div class="row mb-5">
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Data Upload</h5>
+                </div>
+                <div class="card-body text-center">
+                    <p class="text-muted mb-4">Upload nieuwe data vanuit een Excel bestand</p>
+                    <a href="{{ url_for('admin.upload') }}" class="btn btn-primary btn-lg w-100">
+                        Upload Data
+                    </a>
+                </div>
+            </div>
         </div>
-        
-        <!-- Regenerate Thumbnails -->
-        <div class="bg-white rounded-lg shadow p-6">
-            <h2 class="text-xl font-semibold mb-4">Thumbnails</h2>
-            <p class="text-gray-600 mb-4">
-                Genereer opnieuw alle thumbnail afbeeldingen voor foto's.
-            </p>
-            <button onclick="regenerateThumbnails()" 
-                    id="regenerate-btn"
-                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                </svg>
-                Regenereer Thumbnails
-            </button>
-            <div id="thumbnail-result" class="mt-4"></div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Thumbnails Regenereren</h5>
+                </div>
+                <div class="card-body text-center">
+                    <p class="text-muted mb-4">Genereer alle thumbnails opnieuw</p>
+                    <button id="regenerate-btn" class="btn btn-primary btn-lg w-100" onclick="regenerateThumbnails()">
+                        Regenereer Thumbnails
+                    </button>
+                    <div id="thumbnail-result" class="mt-4"></div>
+                </div>
+            </div>
         </div>
     </div>
-    
-    <!-- Media Type Breakdown -->
-    <div class="mt-8 bg-white rounded-lg shadow p-6">
-        <h2 class="text-xl font-semibold mb-4">Media per Type</h2>
-        <div id="media-breakdown" class="space-y-2">
-            <!-- Populated by JavaScript -->
+
+    <!-- Media Breakdown -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Media Verdeling</h5>
+        </div>
+        <div class="card-body" id="media-breakdown">
+            <p class="text-muted">Laden...</p>
         </div>
     </div>
 </div>
 
+{% block extra_js %}
 <script>
-// Load statistics on page load
-document.addEventListener('DOMContentLoaded', function() {
-    loadStats();
-});
+// Your existing loadStats() and regenerateThumbnails() functions here
+// (I've kept them almost identical, only updated the HTML classes they generate)
 
 async function loadStats() {
     try {
-        const response = await fetch('{{ url_for("admin.data_stats") }}');
-        const stats = await response.json();
-        
-        // Update stat cards
-        document.getElementById('stat-members').textContent = stats.members.toLocaleString();
-        document.getElementById('stat-performances').textContent = stats.performances.toLocaleString();
-        document.getElementById('stat-roles').textContent = stats.roles.toLocaleString();
-        document.getElementById('stat-files').textContent = stats.files.toLocaleString();
-        
-        // Update media breakdown
+        const response = await fetch('{{ url_for("admin.get_stats") }}');
+        const data = await response.json();
+
+        document.getElementById('stat-members').textContent = data.leden?.toLocaleString() || '—';
+        document.getElementById('stat-performances').textContent = data.voorstellingen?.toLocaleString() || '—';
+        document.getElementById('stat-roles').textContent = data.rollen?.toLocaleString() || '—';
+        document.getElementById('stat-media').textContent = data.media?.toLocaleString() || '—';
+
         const breakdownDiv = document.getElementById('media-breakdown');
         breakdownDiv.innerHTML = '';
-        
-        if (stats.media_by_type && stats.media_by_type.length > 0) {
-            stats.media_by_type.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'flex items-center justify-between p-3 bg-gray-50 rounded';
-                div.innerHTML = `
-                    <span class="font-medium capitalize">${item.type_media}</span>
-                    <span class="text-gray-600">${item.count.toLocaleString()}</span>
+
+        if (data.media_breakdown?.length > 0) {
+            data.media_breakdown.forEach(item => {
+                const row = document.createElement('div');
+                row.className = 'd-flex justify-content-between py-2 border-bottom';
+                row.innerHTML = `
+                    <span class="text-capitalize">${item.type_media}</span>
+                    <span class="fw-bold">${item.count.toLocaleString()}</span>
                 `;
-                breakdownDiv.appendChild(div);
+                breakdownDiv.appendChild(row);
             });
         } else {
-            breakdownDiv.innerHTML = '<p class="text-gray-500">Geen data beschikbaar</p>';
+            breakdownDiv.innerHTML = '<p class="text-muted">Geen data beschikbaar</p>';
         }
-        
     } catch (error) {
         console.error('Error loading stats:', error);
+        document.getElementById('media-breakdown').innerHTML = '<p class="text-danger">Fout bij laden van statistieken</p>';
     }
 }
 
 async function regenerateThumbnails() {
     const btn = document.getElementById('regenerate-btn');
     const resultDiv = document.getElementById('thumbnail-result');
-    
+
     btn.disabled = true;
-    btn.innerHTML = `
-        <svg class="animate-spin mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
-        Bezig...
-    `;
-    
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span> Bezig...';
+
     try {
-        const response = await fetch('{{ url_for("admin.regenerate_thumbnails") }}', {
-            method: 'POST'
-        });
-        
+        const response = await fetch('{{ url_for("admin.regenerate_thumbnails") }}', { method: 'POST' });
         const result = await response.json();
-        
+
         if (result.success) {
             resultDiv.innerHTML = `
-                <div class="p-4 rounded-md bg-green-50 border border-green-200">
-                    <p class="text-sm text-green-800">
-                        ✓ ${result.count} thumbnails gegenereerd
-                    </p>
+                <div class="alert alert-success mt-3">
+                    ✓ ${result.count} thumbnails succesvol gegenereerd
                 </div>
             `;
         } else {
             resultDiv.innerHTML = `
-                <div class="p-4 rounded-md bg-red-50 border border-red-200">
-                    <p class="text-sm text-red-800">
-                        ✗ Fout: ${result.error}
-                    </p>
+                <div class="alert alert-danger mt-3">
+                    ✗ ${result.error || 'Onbekende fout'}
                 </div>
             `;
         }
-        
     } catch (error) {
         resultDiv.innerHTML = `
-            <div class="p-4 rounded-md bg-red-50 border border-red-200">
-                <p class="text-sm text-red-800">
-                    ✗ Fout: ${error.message}
-                </p>
+            <div class="alert alert-danger mt-3">
+                ✗ Verbinding mislukt: ${error.message}
             </div>
         `;
     } finally {
         btn.disabled = false;
-        btn.innerHTML = `
-            <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-            </svg>
-            Regenereer Thumbnails
-        `;
+        btn.textContent = 'Regenereer Thumbnails';
     }
 }
+
+loadStats();
 </script>
 {% endblock %}

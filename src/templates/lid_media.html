@@ -10,14 +10,14 @@
           <div class="row">
             <div class="col">
               <h5 class="mb-0">
-                <button class="btn btn-primary" data-toggle="collapse" data-target="#collapse{{uitvoering.uitvoering}}" aria-expanded="false" aria-controls="collapse{{uitvoering.uitvoering}}">
+                <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#collapse{{uitvoering.uitvoering}}" aria-expanded="false" aria-controls="collapse{{uitvoering.uitvoering}}">
                   {{uitvoering.uitvoering}}
                 </button>
               </h5>
             </div>
             <div class="col align-self-end">
               {% if uitvoering.rol|length > 0 %}
-                <a class="float-right text-muted">als {% for figuur in uitvoering.rol %}{{ figuur }}{% if not loop.last %} en {% endif %}{% endfor %}</a>
+                <a class="float-end text-muted">als {% for figuur in uitvoering.rol %}{{ figuur }}{% if not loop.last %} en {% endif %}{% endfor %}</a>
               {% endif %}
             </div>
           </div>
