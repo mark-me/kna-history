@@ -23,7 +23,6 @@ from flask import (
     url_for,
 )
 from flask_login import current_user, login_required
-from werkzeug.security import check_password_hash
 from werkzeug.utils import secure_filename
 
 from kna_data import Config, KnaDataLoader, KnaDataReader, User, db
@@ -37,6 +36,13 @@ ALLOWED_EXTENSIONS = {"xlsx", "xls"}
 MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB
 UPLOAD_FOLDER = Path("/tmp/kna_uploads")
 UPLOAD_FOLDER.mkdir(exist_ok=True)
+
+@admin_bp.before_request
+@login_required
+def require_login_for_admin():
+    if not current_user.is_admin:
+        flash("Alleen beheerders hebben toegang tot dit gedeelte.", "danger")
+        return redirect(url_for("auth.login"))
 
 def admin_required(f):
     @wraps(f)
