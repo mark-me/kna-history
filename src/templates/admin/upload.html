@@ -68,7 +68,9 @@
     <div id="validation-section" class="card shadow-sm mb-5 d-none">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Stap 2: Validatieresultaat</h5>
-            <button class="btn btn-sm btn-outline-danger" onclick="cancelUpload()">Annuleren</button>
+            <button class="btn btn-sm btn-outline-danger" onclick="cancelUpload()">
+                Annuleren
+            </button>
         </div>
         <div class="card-body" id="validation-results"></div>
         <div class="card-footer d-none" id="load-btn-container">
@@ -90,80 +92,8 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
 {% block extra_js %}
-<script>
-// Your existing loadStats() and regenerateThumbnails() functions here
-// (I've kept them almost identical, only updated the HTML classes they generate)
-
-async function loadStats() {
-    try {
-        const response = await fetch('{{ url_for("admin.get_stats") }}');
-        const data = await response.json();
-
-        document.getElementById('stat-members').textContent = data.leden?.toLocaleString() || '—';
-        document.getElementById('stat-performances').textContent = data.voorstellingen?.toLocaleString() || '—';
-        document.getElementById('stat-roles').textContent = data.rollen?.toLocaleString() || '—';
-        document.getElementById('stat-media').textContent = data.media?.toLocaleString() || '—';
-
-        const breakdownDiv = document.getElementById('media-breakdown');
-        breakdownDiv.innerHTML = '';
-
-        if (data.media_breakdown?.length > 0) {
-            data.media_breakdown.forEach(item => {
-                const row = document.createElement('div');
-                row.className = 'd-flex justify-content-between py-2 border-bottom';
-                row.innerHTML = `
-                    <span class="text-capitalize">${item.type_media}</span>
-                    <span class="fw-bold">${item.count.toLocaleString()}</span>
-                `;
-                breakdownDiv.appendChild(row);
-            });
-        } else {
-            breakdownDiv.innerHTML = '<p class="text-muted">Geen data beschikbaar</p>';
-        }
-    } catch (error) {
-        console.error('Error loading stats:', error);
-        document.getElementById('media-breakdown').innerHTML = '<p class="text-danger">Fout bij laden van statistieken</p>';
-    }
-}
-
-async function regenerateThumbnails() {
-    const btn = document.getElementById('regenerate-btn');
-    const resultDiv = document.getElementById('thumbnail-result');
-
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span> Bezig...';
-
-    try {
-        const response = await fetch('{{ url_for("admin.regenerate_thumbnails") }}', { method: 'POST' });
-        const result = await response.json();
-
-        if (result.success) {
-            resultDiv.innerHTML = `
-                <div class="alert alert-success mt-3">
-                    ✓ ${result.count} thumbnails succesvol gegenereerd
-                </div>
-            `;
-        } else {
-            resultDiv.innerHTML = `
-                <div class="alert alert-danger mt-3">
-                    ✗ ${result.error || 'Onbekende fout'}
-                </div>
-            `;
-        }
-    } catch (error) {
-        resultDiv.innerHTML = `
-            <div class="alert alert-danger mt-3">
-                ✗ Verbinding mislukt: ${error.message}
-            </div>
-        `;
-    } finally {
-        btn.disabled = false;
-        btn.textContent = 'Regenereer Thumbnails';
-    }
-}
-
-loadStats();
-</script>
+    <script src="{{ url_for('static', filename='js/admin/upload.js') }}"></script>
 {% endblock %}
