@@ -29,7 +29,7 @@ from kna_data import Config, KnaDataLoader, KnaDataReader, User, db
 from logging_kna import logger
 
 # Create blueprint
-admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
+admin_bp = Blueprint("admin", __name__)
 
 # Configuration
 ALLOWED_EXTENSIONS = {"xlsx", "xls"}

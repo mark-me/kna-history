@@ -54,8 +54,7 @@ def create_app(config_object=None):
     @app.route("/")
     @app.route("/home")
     def home():
-        return app.send_static_file("index.html") if os.path.exists("static/index.html") \
-               else render_template("home.html")
+        return render_template("home.html")
 
     @app.route("/about")
     def about():
