@@ -32,7 +32,7 @@ UPLOAD_FOLDER = Path("/tmp/kna_uploads")
 UPLOAD_FOLDER.mkdir(exist_ok=True)
 
 
-def allowed_file(filename):
+def allowed_file(filename: str):
     """Check if file extension is allowed"""
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -142,8 +142,7 @@ def _validate_file_properties(file):
     return None
 
 
-def _save_temp_file(file):
-    """Save uploaded file to a temporary path and return (temp_path, filename)."""
+def _save_temp_file(file) -> tuple[Path, str]:
     filename = secure_filename(file.filename)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     temp_filename = f"{timestamp}_{filename}"
