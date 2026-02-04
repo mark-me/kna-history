@@ -3,6 +3,7 @@ KNA History Web Application
 
 Flask web application for browsing the KNA theatre group history archive.
 """
+
 import os
 
 from flask import Flask, render_template, send_from_directory
@@ -18,10 +19,10 @@ db_reader = KnaDataReader(config=config)
 app = Flask(__name__)
 
 # Secret key for sessions (required for file upload)
-app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET', os.urandom(24))
+app.config["SECRET_KEY"] = os.getenv("FLASK_SECRET", os.urandom(24))
 
 # File upload configuration
-app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB max file size
+app.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024  # 50MB max file size
 
 # Register blueprints
 from blueprints.admin import admin_bp
@@ -40,14 +41,11 @@ def health():
         return {
             "status": "healthy",
             "version": os.getenv("APP_VERSION", "unknown"),
-            "database": "connected"
+            "database": "connected",
         }, 200
     except Exception as e:
         logger.error(f"Health check failed: {e}")
-        return {
-            "status": "unhealthy",
-            "error": str(e)
-        }, 503
+        return {"status": "unhealthy", "error": str(e)}, 503
 
 
 @app.route("/")
