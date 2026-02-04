@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Gebruikersbeheer</h2>
+  <a href="{{ url_for('admin.create_user') }}" class="btn btn-success mb-3">Nieuwe gebruiker</a>
+
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Gebruikersnaam</th>
+        <th>Email</th>
+        <th>Rol</th>
+        <th>Actief</th>
+        <th>Acties</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td>{{ u.id }}</td>
+        <td>{{ u.username }}</td>
+        <td>{{ u.email }}</td>
+        <td><span class="badge bg-{{ 'success' if u.role=='admin' else 'info' }}">{{ u.role }}</span></td>
+        <td>{{ 'Ja' if u.is_active else 'Nee' }}</td>
+        <td>
+          <a href="{{ url_for('admin.edit_user', user_id=u.id) }}" class="btn btn-sm btn-primary">Bewerken</a>
+          <form action="{{ url_for('admin.delete_user', user_id=u.id) }}" method="POST" style="display:inline;">
+            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Weet je zeker?')">Verwijderen</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -10,6 +10,7 @@ A package for managing KNA theatre group historical data:
 from .config import Config
 from .reader import KnaDataReader
 from .loader import KnaDataLoader
+from .models import db, User
 
 __version__ = "1.0.0"
 
@@ -17,4 +18,6 @@ __all__ = [
     "Config",
     "KnaDataReader",
     "KnaDataLoader",
+    "db",
+    "User"
 ]

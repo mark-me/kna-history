@@ -8,18 +8,25 @@ Includes data upload, validation, and management features.
 import os
 import tempfile
 from datetime import datetime
+from functools import wraps
 from pathlib import Path
 
+import pandas as pd
 from flask import (
     Blueprint,
+    flash,
     jsonify,
+    redirect,
     render_template,
     request,
     session,
+    url_for,
 )
+from flask_login import current_user, login_required
+from werkzeug.security import check_password_hash
 from werkzeug.utils import secure_filename
 
-from kna_data import Config, KnaDataLoader
+from kna_data import Config, KnaDataLoader, KnaDataReader, User, db
 from logging_kna import logger
 
 # Create blueprint
@@ -31,6 +38,14 @@ MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB
 UPLOAD_FOLDER = Path("/tmp/kna_uploads")
 UPLOAD_FOLDER.mkdir(exist_ok=True)
 
+def admin_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not current_user.is_authenticated or not current_user.is_admin:
+            flash("Alleen administrators hebben toegang tot dit gedeelte.", "danger")
+            return redirect(url_for("auth.login"))
+        return f(*args, **kwargs)
+    return decorated
 
 def allowed_file(filename: str):
     """Check if file extension is allowed"""
@@ -242,9 +257,6 @@ def data_stats():
         config = Config.for_production()
         reader = KnaDataReader(config=config)
 
-        # Query counts from database
-        import pandas as pd
-
         stats = {}
 
         # Members count
@@ -314,3 +326,65 @@ def too_large(e):
             ],
         }
     ), 413
+
+# ── User management ────────────────────────────────────────────────
+
+@admin_bp.route("/users")
+def list_users():
+    users = User.query.order_by(User.username).all()
+    return render_template("admin/users.html", users=users)
+
+
+@admin_bp.route("/users/create", methods=["GET", "POST"])
+def create_user():
+    if request.method == "POST":
+        username = request.form.get("username")
+        email = request.form.get("email")
+        password = request.form.get("password")
+        role = request.form.get("role", "viewer")
+
+        if User.query.filter_by(username=username).first():
+            flash("Deze gebruikersnaam is al in gebruik.", "danger")
+            return redirect(url_for("admin.create_user"))
+
+        user = User(username=username, email=email, role=role)
+        user.set_password(password)
+        db.session.add(user)
+        db.session.commit()
+
+        flash(f"Gebruiker {username} succesvol aangemaakt.", "success")
+        return redirect(url_for("admin.list_users"))
+
+    return render_template("admin/user_form.html", user=None, form_action=url_for("admin.create_user"))
+
+
+@admin_bp.route("/users/edit/<int:user_id>", methods=["GET", "POST"])
+def edit_user(user_id):
+    user = User.query.get_or_404(user_id)
+
+    if request.method == "POST":
+        user.username = request.form.get("username")
+        user.email = request.form.get("email")
+        user.role = request.form.get("role", user.role)
+
+        password = request.form.get("password")
+        if password:
+            user.set_password(password)
+
+        db.session.commit()
+        flash("Gebruiker bijgewerkt.", "success")
+        return redirect(url_for("admin.list_users"))
+
+    return render_template("admin/user_form.html", user=user, form_action=url_for("admin.edit_user", user_id=user_id))
+
+
+@admin_bp.route("/users/delete/<int:user_id>", methods=["POST"])
+def delete_user(user_id):
+    if current_user.id == user_id:
+        flash("Je kunt jezelf niet verwijderen.", "danger")
+    else:
+        user = User.query.get_or_404(user_id)
+        db.session.delete(user)
+        db.session.commit()
+        flash("Gebruiker verwijderd.", "success")
+    return redirect(url_for("admin.list_users"))
