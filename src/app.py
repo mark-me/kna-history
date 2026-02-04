@@ -11,7 +11,7 @@ from kna_data import Config, KnaDataReader
 from logging_kna import logger
 
 # Initialize configuration and data reader
-config = Config.for_production()
+config = Config.for_development()
 db_reader = KnaDataReader(config=config)
 
 # Create Flask app
@@ -25,6 +25,7 @@ app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB max file size
 
 # Register blueprints
 from blueprints.admin import admin_bp
+
 app.register_blueprint(admin_bp)
 
 
@@ -35,7 +36,7 @@ def health():
         # Test database connection
         with db_reader.engine.connect() as conn:
             conn.execute("SELECT 1")
-        
+
         return {
             "status": "healthy",
             "version": os.getenv("APP_VERSION", "unknown"),
