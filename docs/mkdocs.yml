@@ -1,5 +1,5 @@
 site_name: KNA Historie
-site_description: "Self-hosted KNA Historisch archief"
+site_description: "Documentatie voor KNA Historisch Archief"
 site_author: "Mark Zwart"
 site_url: https://kna-history.org/
 repo_url: https://github.com/mark-me/kna-history
@@ -13,7 +13,7 @@ theme:
     name: material
     favicon: images/favicon.png
     logo: images/favicon.png
-    language: en
+    language: nl
     palette:
         - media: "(prefers-color-scheme: light)"
           scheme: default
@@ -21,14 +21,14 @@ theme:
           accent: custom
           toggle:
               icon: material/brightness-7
-              name: Switch to dark mode
+              name: Schakel naar donkere modus
         - media: "(prefers-color-scheme: dark)"
           scheme: slate
           primary: custom
           accent: custom
           toggle:
               icon: material/brightness-4
-              name: Switch to light mode
+              name: Schakel naar lichte modus
     features:
         - navigation.instant
         - navigation.tabs
@@ -39,7 +39,10 @@ theme:
         - navigation.path
         - navigation.footer
         - navigation.tracking
+        - navigation.sections
+        - navigation.expand
         - toc.follow
+        - toc.integrate
         - search.suggest
         - search.highlight
         - search.share
@@ -54,6 +57,19 @@ theme:
         repo: fontawesome/brands/github
         edit: material/pencil
         view: material/eye
+        admonition:
+            note: octicons/tag-16
+            abstract: octicons/checklist-16
+            info: octicons/info-16
+            tip: octicons/light-bulb-16
+            success: octicons/check-16
+            question: octicons/question-16
+            warning: octicons/alert-16
+            failure: octicons/x-circle-16
+            danger: octicons/zap-16
+            bug: octicons/bug-16
+            example: octicons/beaker-16
+            quote: octicons/quote-16
 
 extra_css:
     - stylesheets/extra.css
@@ -61,23 +77,52 @@ extra_css:
 extra:
     social:
         - icon: fontawesome/brands/github
-          link: https://github.com/mark-me/mixtape-society
+          link: https://github.com/mark-me/kna-history
           name: GitHub Repository
+    version:
+        provider: mike
     generator: false
 
 nav:
     - Home: index.md
-    - Development:
-          - Debuggen:
-                - Quick start: development/debugging/quick-start.md
-                - VSCode gids: development/debugging/vscode-debugging-guide.md
+    
+    - Gebruikershandleiding:
+        - user-guide/introduction.md
+        - user-guide/navigation.md
+        - user-guide/searching.md
+        - user-guide/viewing-media.md
+        - Beheer:
+            - user-guide/admin/dashboard.md
+            - user-guide/admin/data-upload.md
+            - user-guide/admin/user-management.md
+            - user-guide/admin/maintenance.md
+    
+    - Ontwikkelaars:
+        - developer-guide/architecture.md
+        - developer-guide/setup.md
+        - developer-guide/configuration.md
+        - developer-guide/database.md
+        - developer-guide/api-reference.md
+        - Debugging:
+            - developer-guide/debugging/quick-start.md
+            - developer-guide/debugging/vscode-debugging-guide.md
+        - developer-guide/contributing.md
+    
+    - Deployment:
+        - deployment/quick-start.md
+        - deployment/production.md
+        - deployment/configuration.md
+        - deployment/updates.md
+        - deployment/backup.md
+        - deployment/monitoring.md
+        - deployment/troubleshooting.md
 
 plugins:
     - search:
-          lang: en
+          lang: nl
           separator: '[\s\-\.]+'
     - offline:
-          enabled: true
+          enabled: !ENV [OFFLINE, false]
     - glightbox:
           touchNavigation: true
           loop: false
@@ -92,6 +137,7 @@ plugins:
     - mkdocstrings:
           handlers:
               python:
+                  paths: [src]
                   options:
                       show_bases: true
                       show_root_heading: true
@@ -107,11 +153,15 @@ plugins:
                       show_if_no_docstring: false
                       inherited_members: false
                       merge_init_into_class: true
+                      show_signature_annotations: true
+                      separate_signature: true
     - autorefs
     - git-revision-date-localized:
           enable_creation_date: true
           type: timeago
           fallback_to_build_date: true
+          timezone: Europe/Amsterdam
+          locale: nl
     - panzoom:
           full_screen: true
 
@@ -133,13 +183,15 @@ markdown_extensions:
           anchor_linenums: true
           line_spans: __span
           pygments_lang_class: true
+          use_pygments: true
     - pymdownx.inlinehilite
     - pymdownx.snippets:
           check_paths: true
+          base_path: [docs]
     - toc:
           permalink: true
-          permalink_title: Anchor link to this section
-          toc_depth: 2
+          permalink_title: Link naar deze sectie
+          toc_depth: 3
           slugify: !!python/object/apply:pymdownx.slugs.slugify
               kwds:
                   case: lower
@@ -165,3 +217,13 @@ markdown_extensions:
           mode: accept
     - pymdownx.arithmatex:
           generic: true
+
+validation:
+    nav:
+        omitted_files: info
+        not_found: warn
+        absolute_links: warn
+    links:
+        not_found: warn
+        absolute_links: warn
+        unrecognized_links: warn
