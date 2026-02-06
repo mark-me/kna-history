@@ -67,7 +67,20 @@ extra:
 
 nav:
       - Home: index.md
+
+      - Gebruikershandleiding:
+            - user-guide/introduction.md
+            - user-guide/navigation.md
+            - user-guide/searching.md
+            - user-guide/viewing-media.md
+            - Beheer:
+                  - user-guide/admin/dashboard.md
+                  - user-guide/admin/data-upload.md
+                  - user-guide/admin/user-management.md
+                  - user-guide/admin/maintenance.md
       - Ontwikkelaars:
+            - developer-guide/architecture.md
+            - developer-guide/setup.md
             - Debuggen:
                   - ⚡ Quick start: development/debugging/quick-start.md
                   - 👨‍💻 VSCode gids: development/debugging/vscode-debugging-guide.md
