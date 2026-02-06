@@ -1,10 +1,10 @@
+![KNA Historie](images/kna-logo.png){ align=right width="90" }
+
 # KNA Historie Documentatie
 
 Welkom bij de documentatie van het KNA Historie archief systeem.
 
-![KNA Historie](images/favicon.png){ width="100" }
-
-## Wat is KNA Historie?
+## 🤔 Wat is KNA Historie?
 
 KNA Historie is een self-hosted web applicatie voor het beheren en tonen van het historisch archief van toneelgroep KNA Hillegom. Het systeem biedt:
 
@@ -14,7 +14,7 @@ KNA Historie is een self-hosted web applicatie voor het beheren en tonen van het
 - 📅 **Tijdlijn** - Interactieve tijdlijn van de verenigingsgeschiedenis
 - 🔐 **Beheer** - Admin interface voor data upload en gebruikersbeheer
 
-## Documentatie Overzicht
+## 📑 Documentatie Overzicht
 
 Deze documentatie is opgesplitst in verschillende secties:
 
@@ -58,7 +58,7 @@ Documentatie voor deployment en operationele zaken:
 - **[Backup & Restore](deployment/backup.md)** - Data backup strategieën
 - **[Troubleshooting](deployment/troubleshooting.md)** - Veelvoorkomende problemen
 
-## Quick Links
+## 🔗 Quick Links
 
 ### 🚀 Aan de slag
 
@@ -73,7 +73,7 @@ Documentatie voor deployment en operationele zaken:
 - [Hoe update ik de applicatie?](deployment/updates.md)
 - [Hoe debug ik de applicatie?](developer-guide/debugging/quick-start.md)
 
-## Versie Informatie
+## 🏷️ Versie Informatie
 
 - **Huidige versie**: 1.0.0
 - **Python versie**: 3.13
@@ -81,7 +81,7 @@ Documentatie voor deployment en operationele zaken:
 - **Database**: MariaDB
 - **Container**: Docker
 
-## Support
+## 🤝 Support
 
 Voor vragen of problemen:
 
@@ -89,7 +89,7 @@ Voor vragen of problemen:
 2. Check de [GitHub Issues](https://github.com/mark-me/kna-history/issues)
 3. Maak een nieuw issue aan op GitHub
 
-## Licentie
+## ⚖️ Licentie
 
 Dit project is ontwikkeld voor KNA Hillegom.
 

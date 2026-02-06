@@ -1,18 +1,8 @@
-# KNA History - Deployment Guide
+# Deployment Guide
 
 Complete guide for deploying and managing the KNA History application with the unified configuration system.
 
-## Table of Contents
-
-1. [Prerequisites](#prerequisites)
-2. [Initial Setup](#initial-setup)
-3. [Configuration](#configuration)
-4. [Deployment](#deployment)
-5. [Management Scripts](#management-scripts)
-6. [Troubleshooting](#troubleshooting)
-7. [Maintenance](#maintenance)
-
-## Prerequisites
+## 📋 Prerequisites
 
 ### Server Requirements
 
@@ -47,7 +37,7 @@ docker --version
 docker compose version
 ```
 
-## Initial Setup
+## ✍️ Initial Setup
 
 ### 1. Clone/Download the Application
 
@@ -130,13 +120,14 @@ chmod +x *.sh
 ```
 
 This will check for:
+
 - Missing required variables
 - Weak/default passwords
 - Directory permissions
 - Docker installation
 - SSL certificate status
 
-## Configuration
+## 🔧 Configuration
 
 ### Environment Variables Reference
 
@@ -160,7 +151,7 @@ The application uses three configuration classes:
 
 The active configuration is selected via `FLASK_ENV` or `KNA_ENV` environment variable.
 
-## Deployment
+## 🚀 Deployment
 
 ### First-Time Deployment
 
@@ -171,6 +162,7 @@ The active configuration is selected via `FLASK_ENV` or `KNA_ENV` environment va
 ```
 
 This will:
+
 1. Stop any services on port 80
 2. Run certbot to obtain SSL certificates
 3. Store certificates in `/data/certbot/conf`
@@ -184,6 +176,7 @@ This will:
 ```
 
 This will:
+
 1. Validate configuration
 2. Check for security issues
 3. Create required directories
@@ -218,6 +211,7 @@ docker compose logs -f kna-historie
 ```
 
 This will:
+
 1. Create a backup of the current image
 2. Pull the latest version
 3. Restart the application
@@ -226,7 +220,7 @@ This will:
 
 If issues occur, you can rollback (instructions shown in the script output).
 
-## Management Scripts
+## 💼 Management Scripts
 
 ### validate-config.sh
 
@@ -237,6 +231,7 @@ Validates your configuration before deployment.
 ```
 
 **Checks:**
+
 - Required environment variables
 - Security (password strength, default values)
 - Database configuration
@@ -245,6 +240,7 @@ Validates your configuration before deployment.
 - SSL certificate status
 
 **Exit codes:**
+
 - 0: Configuration is valid
 - 1: Configuration has errors (deployment will fail)
 
@@ -257,6 +253,7 @@ Starts the application with validation and health checks.
 ```
 
 **Features:**
+
 - Configuration validation
 - Security warnings
 - Directory creation
@@ -272,6 +269,7 @@ Updates the application to the latest version.
 ```
 
 **Features:**
+
 - Automatic backup creation
 - Version tracking
 - Health checks
@@ -287,6 +285,7 @@ Shows comprehensive system status.
 ```
 
 **Information shown:**
+
 - Docker status
 - Container status (all services)
 - Application health
@@ -305,11 +304,12 @@ Obtains or renews SSL certificates.
 ```
 
 **Use cases:**
+
 - Initial certificate setup
 - Manual certificate renewal
 - Certificate troubleshooting
 
-## Troubleshooting
+## ⚠️ Troubleshooting
 
 ### Common Issues
 
@@ -409,20 +409,23 @@ curl http://localhost:5000/health
 # {"status":"healthy","database":"connected"}
 ```
 
-## Maintenance
+## 🚧 Maintenance
 
 ### Regular Tasks
 
 #### Daily
+
 - Monitor logs for errors: `docker compose logs -f`
 - Check disk space: `df -h`
 
 #### Weekly
+
 - Check system status: `./status.sh`
 - Review security updates
 - Backup databases
 
 #### Monthly
+
 - Update application: `./update.sh`
 - Review SSL certificate expiry
 - Clean up old Docker images: `docker image prune -a`
@@ -492,6 +495,7 @@ gunzip < kna_users_backup_20260206.sql.gz | docker exec -i mariadb mysql -u root
 ### Monitoring
 
 Set up monitoring for:
+
 - Application uptime
 - Database availability
 - Disk space
@@ -511,6 +515,7 @@ fi
 ```
 
 Add to crontab:
+
 ```bash
 */5 * * * * /path/to/monitor.sh
 ```
@@ -540,6 +545,7 @@ sudo nano /etc/docker/daemon.json
 ```
 
 Add:
+
 ```json
 {
   "log-driver": "json-file",
@@ -551,11 +557,12 @@ Add:
 ```
 
 Restart Docker:
+
 ```bash
 sudo systemctl restart docker
 ```
 
-## Support Resources
+## 🤝 Support Resources
 
 - **Configuration Reference**: [CONFIG_QUICK_REFERENCE.md](CONFIG_QUICK_REFERENCE.md)
 - **Migration Guide**: [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md)
@@ -563,7 +570,7 @@ sudo systemctl restart docker
 - **Status Check**: Run `./status.sh`
 - **Validation**: Run `./validate-config.sh`
 
-## Quick Reference Commands
+## 🤖 Quick Reference Commands
 
 ```bash
 # First-time setup

@@ -1,10 +1,10 @@
-# KNA History - Deployment Guide
+# Introduction
 
 This directory contains all Docker and deployment configuration for the KNA History application.
 
 ## 📁 Directory Structure
 
-```
+```bash
 deploy/
 ├── app/
 │   └── Dockerfile                    # Main application Dockerfile
@@ -33,6 +33,7 @@ deploy/
 ### First-Time Setup
 
 1. **Configure environment variables**
+
    ```bash
    cd deploy
    cp .env.example .env
@@ -40,11 +41,13 @@ deploy/
    ```
 
 2. **Obtain SSL certificates** (one-time setup)
+
    ```bash
    ./setup-certificates.sh
    ```
 
 3. **Start the application**
+
    ```bash
    ./start.sh
    ```
@@ -61,6 +64,7 @@ When a new version is released (or pushed to test):
 ```
 
 This will:
+
 - Pull the latest image from GitHub Container Registry
 - Restart the application with zero downtime
 - Show you the new version running
@@ -72,6 +76,7 @@ This will:
 The repository includes two GitHub Actions workflows:
 
 #### 1. Test Branch (`test`)
+
 - **Trigger**: Push to `test` branch
 - **Image tags**: `ghcr.io/mark-me/kna-history:test`, `ghcr.io/mark-me/kna-history:test-<commit-sha>`
 - **Use case**: Development testing
@@ -85,8 +90,9 @@ docker compose up -d
 ```
 
 #### 2. Release Tags (`v*.*.*`)
+
 - **Trigger**: Push version tag (e.g., `v1.0.0`)
-- **Image tags**: 
+- **Image tags**:
   - `ghcr.io/mark-me/kna-history:v1.0.0` (exact version)
   - `ghcr.io/mark-me/kna-history:1.0` (minor version)
   - `ghcr.io/mark-me/kna-history:1` (major version)
@@ -143,7 +149,7 @@ Copy `.env.example` to `.env` and configure:
 ### Required Variables
 
 | Variable | Description | Example |
-|----------|-------------|---------|
+| -------- | ----------- | ------- |
 | `DOMAIN_NAME` | Your domain name | `kna-historie.duckdns.org` |
 | `EMAIL_ADDRESS` | Email for Let's Encrypt | `admin@example.com` |
 | `FLASK_SECRET` | Flask secret key | Generate with `openssl rand -hex 32` |
@@ -181,6 +187,7 @@ This runs Certbot in standalone mode to obtain certificates from Let's Encrypt.
 ### Automatic Renewal
 
 Once the main stack is running, the `certbot-auto` service automatically:
+
 - Checks for certificate renewal every minute
 - Renews certificates when they're close to expiration (Let's Encrypt sends reminder emails)
 - Nginx automatically reloads every 6 hours to pick up renewed certificates
@@ -194,32 +201,53 @@ docker compose restart nginx
 
 ## 📊 Service Architecture
 
-```
-┌─────────────┐
-│   DuckDNS   │  Dynamic DNS updates
-└──────┬──────┘
-       │
-┌──────▼──────┐
-│    Nginx    │  Reverse proxy + SSL termination
-│   Port 443  │
-└──────┬──────┘
-       │
-┌──────▼──────┐
-│ kna-historie│  Flask application
-│   Port 5000 │
-└──────┬──────┘
-       │
-┌──────▼──────┐
-│   MariaDB   │  Database
-│   Port 3306 │
-└─────────────┘
+```mermaid
+flowchart TD
 
-Certbot-Auto: Runs in background for certificate renewal
+    %% External services
+    subgraph External["External Services"]
+        DuckDNS["DuckDNS<br/>Dynamic DNS updates"]
+    end
+
+    %% Server stack
+    subgraph Server["Server"]
+        subgraph Edge["Edge / Networking"]
+            Nginx["Nginx<br/>Reverse proxy + SSL termination<br/>Port 443"]
+            Certbot["Certbot-Auto<br/>Certificate renew"]
+        end
+
+        subgraph App["Application Layer"]
+            Flask["kna-historie<br/>Flask application<br/>Port 5000"]
+        end
+
+        subgraph Data["Data Layer"]
+            MariaDB["MariaDB<br/>Database<br/>Port 3306"]
+        end
+    end
+
+    %% Flow
+    DuckDNS --> Nginx
+    Nginx --> Flask
+    Flask --> MariaDB
+    Certbot -.-> Nginx
+
+    %% Styling
+    style External fill:#E3F2FD,stroke:#1E88E5,stroke-width:2px
+    style Edge fill:#E8F5E9,stroke:#43A047,stroke-width:2px
+    style App fill:#FFFDE7,stroke:#F9A825,stroke-width:2px
+    style Data fill:#FCE4EC,stroke:#D81B60,stroke-width:2px
+
+    style DuckDNS fill:#BBDEFB
+    style Nginx fill:#C8E6C9
+    style Certbot fill:#DCEDC8
+    style Flask fill:#FFF9C4
+    style MariaDB fill:#F8BBD0
 ```
 
 ## 🔍 Useful Commands
 
 ### View Logs
+
 ```bash
 # All services
 docker compose logs -f
@@ -234,6 +262,7 @@ docker compose logs --tail=100 kna-historie
 ```
 
 ### Service Management
+
 ```bash
 # Check status
 docker compose ps
@@ -249,6 +278,7 @@ docker compose down -v
 ```
 
 ### Database Access
+
 ```bash
 # MySQL shell
 docker compose exec mariadb mysql -u root -p
@@ -261,6 +291,7 @@ docker compose exec -T mariadb mysql -u root -p kna < backup.sql
 ```
 
 ### Container Shell Access
+
 ```bash
 # App container
 docker compose exec kna-historie bash
@@ -297,9 +328,11 @@ docker compose exec nginx sh
 ### Can't pull latest image
 
 1. Ensure you're logged into ghcr.io:
+
    ```bash
    echo $GITHUB_TOKEN | docker login ghcr.io -u USERNAME --password-stdin
    ```
+
 2. Verify image exists: `https://github.com/mark-me/kna-history/pkgs/container/kna-history`
 3. Check permissions on the package
 
