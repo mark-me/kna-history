@@ -1,3 +1,5 @@
+![KNA Historie](../../images/code-ide.png){ align=right width="90" }
+
 # VSCode Debugging - Quick Start
 
 ## ⚡ 5-Minute Setup

@@ -1,8 +1,10 @@
-## KNA Data Package
+![KNA Historie](../images/database.png){ align=right width="90" }
+
+# KNA Data Package
 
 A Python package for managing KNA theatre group historical data, providing both data reading and loading capabilities.
 
-### 📦 Package Structure
+## 📦 Package Structure
 
 ```
 src/kna_data/
@@ -13,22 +15,24 @@ src/kna_data/
 └── cli.py               # Command-line interface
 ```
 
-### 🎯 Design Philosophy
+## 🎯 Design Philosophy
 
 **Separation of Concerns:**
+
 - **Reader**: Read-only database access for web application
 - **Loader**: Write operations for data import
 - **Config**: Shared configuration for both
 
 **Benefits:**
+
 - Clean separation between read and write operations
 - Independent testing of each component
 - Different security requirements (reader=read-only, loader=write)
 - Easy to swap loading mechanism (Excel → Web upload)
 
-### 🚀 Usage
+## 🚀 Usage
 
-#### As a Library (in Flask app)
+### As a Library (in Flask app)
 
 ```python
 from kna_data import Config, KnaDataReader
@@ -44,7 +48,7 @@ members = reader.leden()
 performances = reader.voorstellingen()
 ```
 
-#### Command-Line Interface
+### Command-Line Interface
 
 ```bash
 # Validate Excel file
@@ -63,7 +67,7 @@ python -m kna_data.cli load --skip-validation /data/kna_resources/kna_database.x
 python -m kna_data.cli thumbnails
 ```
 
-#### As a Docker Command
+### As a Docker Command
 
 ```bash
 # Load data in production container
@@ -73,7 +77,7 @@ docker compose exec kna-historie python -m kna_data.cli load /data/resources/kna
 docker compose exec kna-historie python -m kna_data.cli validate /data/resources/kna_database.xlsx
 ```
 
-### 📊 Data Model
+## 📊 Data Model
 
 The package manages these database tables:
 
@@ -84,7 +88,7 @@ The package manages these database tables:
 - **file_leden**: Media-to-member associations
 - **media_type**: Types of media
 
-### 🔧 Configuration
+## 🔧 Configuration
 
 The `Config` class manages database and resource paths:
 
@@ -109,13 +113,14 @@ config = Config.for_development()  # Local development
 ```
 
 **Environment Variables:**
+
 - `MARIADB_HOST` - Database host (default: `mariadb`)
 - `MARIADB_USER` - Database user (default: `root`)
 - `MARIADB_PASSWORD` - Database password
 - `MARIADB_DATABASE` - Database name (default: `kna`)
 - `DIR_RESOURCES` - Resources directory (default: `/data/resources/`)
 
-### 📥 Data Loading Process
+## 📥 Data Loading Process
 
 The `KnaDataLoader` performs ETL operations:
 
@@ -140,7 +145,7 @@ if validation["valid"]:
     print(f"Loaded: {stats}")
 ```
 
-### 📖 Data Reading
+## 📖 Data Reading
 
 The `KnaDataReader` provides methods for querying data:
 
@@ -168,20 +173,22 @@ perf = reader.voorstelling_info(voorstelling="voorst_001")
 timeline = reader.timeline()
 ```
 
-### 🔐 Security Considerations
+## 🔐 Security Considerations
 
 **Reader (read-only):**
+
 - Used by web application
 - Only needs SELECT permissions
 - Can run with restricted database user
 
 **Loader (write access):**
+
 - Used for data imports
 - Needs CREATE, INSERT, UPDATE, DELETE permissions
 - Should run with elevated privileges
 - Should be protected (admin-only access)
 
-### 🚧 Future: Web Upload Interface
+## 🚧 Future: Web Upload Interface
 
 The current CLI loader will be replaced/complemented with a web interface:
 
@@ -190,62 +197,23 @@ The current CLI loader will be replaced/complemented with a web interface:
 @app.route("/admin/upload", methods=["POST"])
 def upload_data():
     file = request.files["excel_file"]
-    
+
     loader = KnaDataLoader(config=config)
-    
+
     # Validate
     validation = loader.validate_excel(file)
     if not validation["valid"]:
         return {"errors": validation["errors"]}, 400
-    
+
     # Load
     stats = loader.load_from_excel(file)
     return {"success": True, "stats": stats}
 ```
 
-### 🧪 Testing
-
-```bash
-# Test reader
-python -m pytest tests/test_reader.py
-
-# Test loader
-python -m pytest tests/test_loader.py
-
-# Test with development database
-python -m pytest tests/ --dev
-```
-
-### 📝 Migration from Old Code
-
-**Before:**
-```python
-# Old code
-from data_reader import KnaDB
-
-db = KnaDB(dir_resources="/data/resources/", debug=False)
-members = db.leden()
-```
-
-**After:**
-```python
-# New code
-from kna_data import Config, KnaDataReader
-
-config = Config.for_production()
-reader = KnaDataReader(config=config)
-members = reader.leden()
-```
-
-**Changes:**
-1. Class renamed: `KnaDB` → `KnaDataReader`
-2. Configuration externalized to `Config` class
-3. No more `debug` parameter (use `Config.for_development()`)
-4. Import from package: `from kna_data import ...`
-
-### 🎓 Best Practices
+## 🎓 Best Practices
 
 **For Web App:**
+
 ```python
 # Initialize once at startup
 from kna_data import Config, KnaDataReader
@@ -260,6 +228,7 @@ def members():
 ```
 
 **For Data Loading:**
+
 ```python
 # Use CLI for one-off loads
 python -m kna_data.cli load /path/to/file.xlsx
@@ -276,7 +245,7 @@ else:
     handle_errors(validation["errors"])
 ```
 
-### 🔄 Development Workflow
+## 🔄 Development Workflow
 
 1. Make changes to Excel file
 2. Validate: `python -m kna_data.cli validate file.xlsx`
@@ -284,7 +253,7 @@ else:
 4. Test web app locally
 5. Load to production: `docker compose exec kna-historie python -m kna_data.cli load /data/resources/file.xlsx`
 
-### 📚 API Reference
+## 📚 API Reference
 
 See individual module docstrings for detailed API documentation:
 
@@ -294,9 +263,10 @@ help(KnaDataLoader)
 help(Config)
 ```
 
-### 🐛 Troubleshooting
+## 🐛 Troubleshooting
 
 **Database connection errors:**
+
 ```bash
 # Check environment variables
 docker compose exec kna-historie env | grep MARIADB
@@ -306,12 +276,14 @@ docker compose exec kna-historie python -c "from kna_data import Config; Config(
 ```
 
 **Excel validation failures:**
+
 ```bash
 # Get detailed validation info
 python -m kna_data.cli validate --verbose file.xlsx
 ```
 
 **Thumbnail generation issues:**
+
 ```bash
 # Check permissions
 ls -la /data/resources/*/thumbnails

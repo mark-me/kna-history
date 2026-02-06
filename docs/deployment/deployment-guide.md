@@ -1,3 +1,5 @@
+![KNA Historie](../images/deployment.png){ align=right width="90" }
+
 # Deployment Guide
 
 Complete guide for deploying and managing the KNA History application with the unified configuration system.

@@ -71,6 +71,8 @@ nav:
             - Debuggen:
                   - ⚡ Quick start: development/debugging/quick-start.md
                   - 👨‍💻 VSCode gids: development/debugging/vscode-debugging-guide.md
+            - Data:
+                  - 🛢️ KNA Data: development/kna-data.md
       - Deployment:
             - Introductie: deployment/introduction.md
             - Snelle start: deployment/deployment-guide.md

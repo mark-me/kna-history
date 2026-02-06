@@ -1,3 +1,5 @@
+![KNA Historie](../../images/code-ide.png){ align=right width="90" }
+
 # VSCode Development Setup for KNA History
 
 Complete guide to set up a local development environment with debugging for your Flask application.
