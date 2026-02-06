@@ -9,26 +9,26 @@ services:
     environment:
       TZ: Europe/Amsterdam
       # Application environment
-      FLASK_ENV: production
-      KNA_ENV: production
+      FLASK_ENV: ${FLASK_ENV:-production}
+      KNA_ENV: ${KNA_ENV:-production}
 
       # Flask configuration
-      SECRET_KEY: ${SECRET_KEY:-change-this-in-production}
+      SECRET_KEY: ${SECRET_KEY}
 
       # MariaDB connection (KNA data)
-      MARIADB_HOST: mariadb
-      MARIADB_USER: root
-      MARIADB_PASSWORD: kna-toneel
-      MARIADB_DATABASE: kna
+      MARIADB_HOST: ${MARIADB_HOST}
+      MARIADB_USER: ${MARIADB_USER}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+      MARIADB_DATABASE: ${MARIADB_DATABASE}
 
       # Flask-Login users database
-      DATABASE_URL: mysql+mysqldb://root:kna-toneel@mariadb/kna_users
+      DATABASE_URL: ${DATABASE_URL}
 
       # Resources directory
-      DIR_RESOURCES: /data/resources/
+      DIR_RESOURCES: ${DIR_RESOURCES}
 
       # Admin password
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin2026!}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
     volumes:
       - resources:/data/resources
     depends_on:
@@ -129,7 +129,7 @@ volumes:
     driver: local
     driver_opts:
       type: none
-      device: ${DIR_RESOURCES}
+      device: ${DIR_RESOURCES_HOST}
       o: "bind,rw"
   db:
     driver: local
