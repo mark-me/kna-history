@@ -69,8 +69,8 @@ nav:
       - Home: index.md
       - Ontwikkelaars:
             - Debuggen:
-                  - Quick start: development/debugging/quick-start.md
-                  - VSCode gids: development/debugging/vscode-debugging-guide.md
+                  - ⚡ Quick start: development/debugging/quick-start.md
+                  - 👨‍💻 VSCode gids: development/debugging/vscode-debugging-guide.md
       - Deployment:
             - Introductie: deployment/introduction.md
             - Snelle start: deployment/deployment-guide.md
