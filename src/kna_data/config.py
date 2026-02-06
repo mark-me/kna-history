@@ -1,46 +1,102 @@
 """
-KNA Data Package - Configuration
+KNA Data Package - Unified Configuration
 
-Centralized configuration for database connections and paths.
+Centralized configuration for database connections, Flask settings, and paths.
+Supports both Docker and local development environments.
 """
 import os
 from sqlalchemy import create_engine
 
+
 class Config:
-    """Configuration for KNA database and resources"""
+    """Base configuration for KNA application"""
 
-    def __init__(
-        self,
-        db_host: str | None = None,
-        db_user: str | None = None,
-        db_password: str | None = None,
-        db_name: str | None = None,
-        dir_resources: str | None = None,
-    ):
-        # Database configuration
-        self.db_host = db_host or os.getenv("MARIADB_HOST", "mariadb")
-        self.db_user = db_user or os.getenv("MARIADB_USER", "root")
-        self.db_password = db_password or os.getenv("MARIADB_PASSWORD", "kna-toneel")
-        self.db_name = db_name or os.getenv("MARIADB_DATABASE", "kna")
-
-        # Resources directory
-        self.dir_resources = dir_resources or os.getenv("DIR_RESOURCES", "/data/resources/")
-
+    # Flask settings
+    SECRET_KEY = os.getenv("SECRET_KEY", os.urandom(32).hex())
+    MAX_CONTENT_LENGTH = 50 * 1024 * 1024  # 50 MiB
+    
+    # SQLAlchemy settings
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    
+    # Database configuration (MariaDB for data)
+    MARIADB_HOST = os.getenv("MARIADB_HOST", "mariadb")
+    MARIADB_USER = os.getenv("MARIADB_USER", "root")
+    MARIADB_PASSWORD = os.getenv("MARIADB_PASSWORD", "kna-toneel")
+    MARIADB_DATABASE = os.getenv("MARIADB_DATABASE", "kna")
+    
+    # Resources directory
+    DIR_RESOURCES = os.getenv("DIR_RESOURCES", "/data/resources/")
+    
     @property
-    def db_url(self) -> str:
-        """Get SQLAlchemy database URL"""
-        return f"mysql+mysqldb://{self.db_user}:{self.db_password}@{self.db_host}/{self.db_name}"
-
+    def mariadb_url(self) -> str:
+        """Get SQLAlchemy database URL for MariaDB (KNA data)"""
+        return f"mysql+mysqldb://{self.MARIADB_USER}:{self.MARIADB_PASSWORD}@{self.MARIADB_HOST}/{self.MARIADB_DATABASE}"
+    
     def get_engine(self):
-        """Get SQLAlchemy engine"""
-        return create_engine(self.db_url)
+        """Get SQLAlchemy engine for MariaDB (KNA data)"""
+        return create_engine(self.mariadb_url)
+    
+    @property
+    def dir_resources(self) -> str:
+        """Get resources directory path"""
+        return self.DIR_RESOURCES
 
-    @classmethod
-    def for_development(cls):
-        """Development configuration (local database)"""
-        return cls(db_host="127.0.0.1:3306")
 
-    @classmethod
-    def for_production(cls):
-        """Production configuration (container database)"""
-        return cls(db_host="mariadb")
+class DevelopmentConfig(Config):
+    """Development configuration (local database)"""
+    
+    DEBUG = True
+    MARIADB_HOST = "127.0.0.1:3306"
+    
+    # Flask-Login users database (SQLite for development)
+    SQLALCHEMY_DATABASE_URI = os.getenv(
+        "DATABASE_URL", 
+        "sqlite:///dev.db"
+    )
+
+
+class ProductionConfig(Config):
+    """Production configuration (Docker container database)"""
+    
+    DEBUG = False
+    MARIADB_HOST = os.getenv("MARIADB_HOST", "mariadb")
+    
+    # Flask-Login users database (can be same MariaDB or separate)
+    SQLALCHEMY_DATABASE_URI = os.getenv(
+        "DATABASE_URL",
+        f"mysql+mysqldb://{Config.MARIADB_USER}:{Config.MARIADB_PASSWORD}@{os.getenv('MARIADB_HOST', 'mariadb')}/kna_users"
+    )
+
+
+class TestingConfig(Config):
+    """Testing configuration"""
+    
+    TESTING = True
+    MARIADB_HOST = "127.0.0.1:3306"
+    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+
+
+# Configuration dictionary for easy access
+config = {
+    "development": DevelopmentConfig,
+    "production": ProductionConfig,
+    "testing": TestingConfig,
+    "default": ProductionConfig
+}
+
+
+def get_config(env: str = None) -> Config:
+    """
+    Get configuration object based on environment.
+    
+    Args:
+        env: Environment name ('development', 'production', 'testing')
+             If None, uses FLASK_ENV or KNA_ENV environment variable
+    
+    Returns:
+        Configuration object
+    """
+    if env is None:
+        env = os.getenv("FLASK_ENV") or os.getenv("KNA_ENV", "production")
+    
+    return config.get(env, config["default"])()

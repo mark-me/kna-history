@@ -7,12 +7,28 @@ services:
     container_name: kna-historie
     restart: unless-stopped
     environment:
-      - TZ=Europe/Amsterdam
-      - FLASK_SECRET=${FLASK_SECRET}
-      - MARIADB_HOST=${MARIADB_HOST}
-      - MARIADB_DATABASE=${MARIADB_DATABASE}
-      - MARIADB_USER=${MARIADB_USER}
-      - MARIADB_PASSWORD=${MARIADB_PASSWORD}
+      TZ: Europe/Amsterdam
+      # Application environment
+      FLASK_ENV: production
+      KNA_ENV: production
+
+      # Flask configuration
+      SECRET_KEY: ${SECRET_KEY:-change-this-in-production}
+
+      # MariaDB connection (KNA data)
+      MARIADB_HOST: mariadb
+      MARIADB_USER: root
+      MARIADB_PASSWORD: kna-toneel
+      MARIADB_DATABASE: kna
+
+      # Flask-Login users database
+      DATABASE_URL: mysql+mysqldb://root:kna-toneel@mariadb/kna_users
+
+      # Resources directory
+      DIR_RESOURCES: /data/resources/
+
+      # Admin password
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin2026!}
     volumes:
       - resources:/data/resources
     depends_on:
@@ -48,11 +64,9 @@ services:
     networks:
       - internal_network
     healthcheck:
-      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
 
   nginx:
     container_name: nginx
