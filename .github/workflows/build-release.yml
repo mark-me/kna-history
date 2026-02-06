@@ -5,6 +5,11 @@ on:
     tags:
       - 'v*.*.*'  # Triggers on version tags like v1.0.0, v2.1.3, etc.
   workflow_dispatch:  # Allow manual trigger
+    inputs:
+      version:
+        description: 'Version tag (e.g., v1.0.0)'
+        required: true
+        type: string
 
 env:
   REGISTRY: ghcr.io
@@ -33,7 +38,12 @@ jobs:
 
       - name: Extract version from tag
         id: get_version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "VERSION=${{ inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fi
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
@@ -45,13 +55,17 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
             type=raw,value=latest,enable={{is_default_branch}}
+          labels: |
+            org.opencontainers.image.title=KNA History
+            org.opencontainers.image.description=KNA Theatre Group Historical Archive
+            org.opencontainers.image.vendor=KNA Hillegom
 
       - name: Build and push Docker image
         id: build
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./deploy/app/Dockerfile
+          file: ./Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -60,23 +74,78 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64
+          provenance: false  # Disable provenance attestation for compatibility
 
-      - name: Create Release Notes
+      - name: Generate deployment instructions
+        id: deploy_notes
+        run: |
+          cat << EOF > deployment_notes.md
+          ## 🚀 Deployment Instructions
+          
+          ### Pull the new image
+          \`\`\`bash
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.get_version.outputs.VERSION }}
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          \`\`\`
+          
+          ### Update your deployment
+          \`\`\`bash
+          # Using the update script (recommended)
+          cd /path/to/kna-history
+          ./update.sh
+          
+          # Or manually
+          docker compose pull kna-historie
+          docker compose up -d kna-historie
+          \`\`\`
+          
+          ### Verify deployment
+          \`\`\`bash
+          # Check status
+          ./status.sh
+          
+          # Or manually check
+          curl https://your-domain.com/health
+          docker compose logs -f kna-historie
+          \`\`\`
+          
+          ### Rollback (if needed)
+          \`\`\`bash
+          # The update.sh script creates automatic backups
+          docker compose down kna-historie
+          docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:backup-TIMESTAMP ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          docker compose up -d kna-historie
+          \`\`\`
+          
+          ## 📦 Image Details
+          
+          - **Registry**: ${{ env.REGISTRY }}
+          - **Image**: ${{ env.IMAGE_NAME }}
+          - **Version**: ${{ steps.get_version.outputs.VERSION }}
+          - **Digest**: ${{ steps.build.outputs.digest }}
+          - **Platform**: linux/amd64
+          
+          ## 🔍 What's in this release
+          
+          See the changelog below for detailed changes in this version.
+          EOF
+          
+          cat deployment_notes.md >> $GITHUB_STEP_SUMMARY
+
+      - name: Create Release
         uses: softprops/action-gh-release@v1
+        if: github.event_name == 'push'
         with:
           generate_release_notes: true
-          body: |
-            ## Docker Images
+          body_path: deployment_notes.md
+          files: |
+            deploy/env.example
+            deploy/*.sh
 
-            Pull the image:
-            ```bash
-            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.get_version.outputs.VERSION }}
-            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-            ```
-
-            Update your deployment:
-            ```bash
-            cd deploy
-            docker compose pull
-            docker compose up -d
-            ```
+      - name: Summary
+        run: |
+          echo "✅ Successfully built and pushed release image" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version**: ${{ steps.get_version.outputs.VERSION }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Image**: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.get_version.outputs.VERSION }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Digest**: ${{ steps.build.outputs.digest }}" >> $GITHUB_STEP_SUMMARY

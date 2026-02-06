@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - test
+      - develop
+  pull_request:
+    branches:
+      - main
+      - test
   workflow_dispatch:  # Allow manual trigger
 
 env:
@@ -16,6 +21,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      pull-requests: write
 
     steps:
       - name: Checkout repository
@@ -31,6 +37,14 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Generate test version
+        id: test_version
+        run: |
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//-/g')
+          echo "VERSION=test-${BRANCH_NAME}-${SHORT_SHA}" >> $GITHUB_OUTPUT
+          echo "SHORT_SHA=${SHORT_SHA}" >> $GITHUB_OUTPUT
+
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v5
@@ -38,21 +52,118 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=raw,value=test
+            type=raw,value=${{ steps.test_version.outputs.VERSION }}
             type=sha,prefix=test-
+            type=ref,event=pr,prefix=pr-
+          labels: |
+            org.opencontainers.image.title=KNA History (Test)
+            org.opencontainers.image.description=KNA Theatre Group Historical Archive - Test Build
+            org.opencontainers.image.vendor=KNA Hillegom
 
       - name: Build and push Docker image
         id: build
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./deploy/app/Dockerfile
-          push: true
+          file: ./Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            APP_VERSION=test-${{ github.sha }}
+            APP_VERSION=${{ steps.test_version.outputs.VERSION }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          platforms: linux/amd64
+          provenance: false
 
-      - name: Image digest
-        run: echo "Image pushed with digest ${{ steps.build.outputs.digest }}"
+      - name: Test deployment instructions
+        if: github.event_name != 'pull_request'
+        run: |
+          cat << EOF > test_deployment.md
+          ## 🧪 Test Deployment Instructions
+          
+          ### Pull the test image
+          \`\`\`bash
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:test
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.test_version.outputs.VERSION }}
+          \`\`\`
+          
+          ### Deploy to test environment
+          \`\`\`bash
+          # Update docker-compose.yml to use test image
+          cd /path/to/kna-history
+          
+          # Edit docker-compose.yml
+          # Change: image: ghcr.io/mark-me/kna-history:latest
+          # To:     image: ghcr.io/mark-me/kna-history:test
+          
+          # Or use environment variable
+          export KNA_IMAGE_TAG=test
+          
+          # Pull and restart
+          docker compose pull kna-historie
+          docker compose up -d kna-historie
+          \`\`\`
+          
+          ### Verify test deployment
+          \`\`\`bash
+          # Check status
+          ./status.sh
+          
+          # Check version
+          docker exec kna-historie env | grep APP_VERSION
+          
+          # View logs
+          docker compose logs -f kna-historie
+          \`\`\`
+          
+          ## 📦 Test Image Details
+          
+          - **Version**: ${{ steps.test_version.outputs.VERSION }}
+          - **Commit**: ${{ steps.test_version.outputs.SHORT_SHA }}
+          - **Digest**: ${{ steps.build.outputs.digest }}
+          - **Branch**: ${GITHUB_REF#refs/heads/}
+          
+          ## ⚠️ Testing Notes
+          
+          - This is a TEST build - not for production use
+          - Test on a staging environment before promoting to production
+          - Report any issues found during testing
+          EOF
+          
+          cat test_deployment.md >> $GITHUB_STEP_SUMMARY
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const output = `## 🧪 Test Build Summary
+            
+            **Build**: ${context.payload.pull_request.head.sha}
+            **Image**: \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.pull_request.number }}\`
+            **Digest**: \`${{ steps.build.outputs.digest }}\`
+            
+            ### Test locally
+            \`\`\`bash
+            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.pull_request.number }}
+            \`\`\`
+            
+            *This build was not pushed to the registry (PR builds are not published)*
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            });
+
+      - name: Summary
+        if: github.event_name != 'pull_request'
+        run: |
+          echo "✅ Successfully built and pushed test image" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version**: ${{ steps.test_version.outputs.VERSION }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Image**: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:test" >> $GITHUB_STEP_SUMMARY
+          echo "**Digest**: ${{ steps.build.outputs.digest }}" >> $GITHUB_STEP_SUMMARY
