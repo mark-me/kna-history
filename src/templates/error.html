@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="container">
+        <div class="row justify-content-center mt-5">
+            <div class="col-md-8">
+                <div class="alert alert-danger" role="alert">
+                    <h4 class="alert-heading">⚠️ Er is een fout opgetreden</h4>
+                    <p>{{ message }}</p>
+                    <hr>
+                    <p class="mb-0">
+                        <a href="/" class="btn btn-primary">Terug naar home</a>
+                        {% if current_user.is_authenticated and current_user.is_admin %}
+                        <a href="/admin" class="btn btn-secondary">Naar beheer</a>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

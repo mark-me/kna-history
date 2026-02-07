@@ -46,6 +46,14 @@
             <!-- Navbar Right Side -->
             <div class="navbar-nav ms-auto">
               <a class="nav-item nav-link" href="/about">ℹ️ Over</a>
+              {% if current_user.is_authenticated %}
+                {% if current_user.is_admin %}
+                  <a class="nav-item nav-link" href="/admin">🔧 Beheer</a>
+                {% endif %}
+                <a class="nav-item nav-link" href="/auth/logout">🚪 Uitloggen ({{ current_user.username }})</a>
+              {% else %}
+                <a class="nav-item nav-link" href="/auth/login">🔐 Inloggen</a>
+              {% endif %}
             </div>
           </div>
         </div>
