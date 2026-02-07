@@ -11,18 +11,21 @@ Het archief bevat verschillende soorten media:
 ### 📸 Foto's
 
 **Voorstellingsfoto's**
+
 - Scènefoto's tijdens uitvoeringen
 - Groepsfoto's van de cast
 - Detail shots van kostuums en decor
 - Publiek reacties
 
 **Behind-the-Scenes**
+
 - Repetities en voorbereiding
 - Grimeren en aankleden
 - Opbouw decor
 - Team momenten
 
 **Promotie**
+
 - Promotiefoto's voor publiciteit
 - Cast foto's voor programmaboekje
 - Persfoto's
@@ -30,12 +33,14 @@ Het archief bevat verschillende soorten media:
 ### 🎥 Video's
 
 **Registraties**
+
 - Volledige voorstellingen
 - Fragmenten van scènes
 - Interviews met cast
 - Making-of documentaires
 
 **Promo Material**
+
 - Trailers
 - Teasers
 - Social media clips
@@ -43,12 +48,14 @@ Het archief bevat verschillende soorten media:
 ### 📄 Documenten
 
 **Programmaboekjes**
+
 - Volledige programma's als PDF
 - Cast lijst
 - Productieteam
 - Synopsis
 
 **Andere Documenten**
+
 - Posters
 - Flyers
 - Recensies
@@ -61,11 +68,13 @@ Het archief bevat verschillende soorten media:
 Foto's worden getoond in een overzichtelijke galerij:
 
 **Grid Layout**
+
 - Thumbnails in rasterweergave
 - Hover voor korte info
 - Klik voor volledige weergave
 
 **Informatie per Foto**
+
 - 📅 Datum (als bekend)
 - 🎭 Voorstelling
 - 👥 Wie staat erop
@@ -76,6 +85,7 @@ Foto's worden getoond in een overzichtelijke galerij:
 Klik op een foto om deze groter te bekijken:
 
 **Navigatie**
+
 - **←** **→** Pijltjes: Vorige/volgende foto
 - **Esc** toets: Sluit lightbox
 - **Zoom**: Scroll of pinch
@@ -97,18 +107,21 @@ Klik op een foto om deze groter te bekijken:
 Klik op het info-icoon (ℹ️) voor details:
 
 **Metadata**
+
 - Bestandsnaam
 - Upload datum
 - Resolutie
 - Bestandsgrootte
 
 **Context**
+
 - Bij welke voorstelling
 - Welk jaar
 - Wie staat erop
 - Fotograaf (indien bekend)
 
 **Acties**
+
 - Download origineel
 - Bekijk in context van voorstelling
 - Bekijk andere foto's van deze persoon
@@ -121,12 +134,14 @@ Klik op het info-icoon (ℹ️) voor details:
 Video's worden afgespeeld in een ingebouwde speler:
 
 **Standaard Besturing**
+
 - ▶️ **Play/Pause**: Start/stop video
 - 🔊 **Volume**: Geluidsniveau aanpassen
 - ⏩ **Skip**: 10 seconden vooruit/terug
 - ⚙️ **Instellingen**: Kwaliteit en ondertiteling
 
 **Geavanceerde Functies**
+
 - **Playback speed**: 0.5x - 2x snelheid
 - **Kwaliteit**: Auto, 1080p, 720p, 480p
 - **Volledig scherm**: F toets of icoon
@@ -160,11 +175,13 @@ Sommige video's hebben ondertiteling:
 Voor lange video's met meerdere scènes:
 
 **Hoofdstukken**
+
 - Spring naar specifieke scène
 - Zie voorvertoning van moment
 - Bekijk alleen bepaald deel
 
 **Markers**
+
 - 🎭 Scène veranderingen
 - 👥 Belangrijke momenten
 - 📝 Notities van beheerders
@@ -176,12 +193,14 @@ Voor lange video's met meerdere scènes:
 Programmaboekjes en andere PDF's openen in een viewer:
 
 **Navigatie**
+
 - **Scroll** door document
 - **Page nummer** invoeren
 - **Thumbnail** overzicht
 - **Zoeken** in tekst
 
 **Functies**
+
 | Icoon | Functie |
 |-------|---------|
 | 🔍 | Zoeken in document |
@@ -191,6 +210,7 @@ Programmaboekjes en andere PDF's openen in een viewer:
 | 📋 | Tekst kopiëren |
 
 **Zoom Opties**
+
 - **Fit to width**: Breedte van pagina
 - **Fit to page**: Hele pagina zichtbaar
 - **Custom**: 50% - 400%
@@ -200,11 +220,13 @@ Programmaboekjes en andere PDF's openen in een viewer:
 Sommige documenten zijn gescande afbeeldingen:
 
 **OCR Tekst**
+
 - Automatisch herkende tekst
 - Doorzoekbaar
 - Kopieerbaar
 
 **Kwaliteitsverbetering**
+
 - Auto-contrast voor oude scans
 - Scherpte verbetering
 - Rotatie correctie
@@ -238,17 +260,20 @@ Download meerdere bestanden tegelijk:
 
 Kies welke versie je downloadt:
 
-**Origineel**
+**Origineel:**
+
 - Hoogste kwaliteit
 - Grote bestandsgrootte
 - Voor archivering/prints
 
-**Web Optimized**
+**Web Optimized:**
+
 - Kleinere bestandsgrootte
 - Behoud goede kwaliteit
 - Voor online gebruik
 
-**Thumbnail**
+**Thumbnail:**
+
 - Zeer klein
 - Lage resolutie
 - Voor preview doeleinden
@@ -260,16 +285,19 @@ Kies welke versie je downloadt:
 Deel interessante media met anderen:
 
 **Direct Link**
+
 - Kopieer directe link naar media
 - Deel via email/chat
 - Link opent media in lightbox
 
 **Social Media**
+
 - Deel naar Facebook/Twitter
 - Automatische preview
 - Link naar volledige voorstelling
 
 **Embed Code**
+
 - Embed foto/video op eigen website
 - Responsive code
 - Credits automatisch toegevoegd
@@ -285,12 +313,14 @@ Deel interessante media met anderen:
 Op tablets en smartphones:
 
 **Foto's**
+
 - **Tap**: Open in lightbox
 - **Swipe**: Vorige/volgende
 - **Pinch**: Zoom in/uit
 - **Double-tap**: Zoom in
 
 **Video's**
+
 - **Tap**: Play/pause
 - **Swipe up**: Volledig scherm
 - **Volume knoppen**: Geluid
@@ -334,12 +364,14 @@ Markeer favoriete media:
 Organiseer favorieten in collecties:
 
 **Nieuwe Collectie**
+
 - Klik "Nieuwe collectie"
 - Geef naam (bijv. "Jaren '80")
 - Voeg media toe
 - Deel collectie (optioneel)
 
 **Beheer Collecties**
+
 - Hernoem collecties
 - Sorteer items
 - Verwijder items
@@ -362,12 +394,14 @@ Vergelijk meerdere foto's naast elkaar:
 Automatische diavoorstelling:
 
 **Start Slideshow**
+
 - Klik slideshow icoon
 - Stel interval in (3-10 seconden)
 - Volledig scherm (optioneel)
 - Ken/random volgorde
 
 **Tijdens Slideshow**
+
 - **Spatiebalk**: Pauzeer
 - **←** **→**: Handmatig navigeren
 - **Esc**: Stop slideshow
