@@ -1,23 +1,28 @@
 """
-KNA Data Package
+KNA Data Package - Hybrid Structure
 
-A package for managing KNA theatre group historical data:
-- Reading data from the database
-- Loading data from Excel files
-- Validating data integrity
+Public API with minimal exports.
+Internal organization in sub-packages.
 """
 
-from .config import Config
-from .reader import KnaDataReader
-from .loader import KnaDataLoader
-from .models import db, User
+# Infrastructure
+from .config import get_config
+from .database import db, init_databases
 
-__version__ = "1.0.0"
+# Domain models
+from .models import User
 
+# Application services
+from .services import KnaDataLoader, KnaDataReader
+
+# Public API
 __all__ = [
-    "Config",
-    "KnaDataReader",
-    "KnaDataLoader",
-    "db",
-    "User"
+    'get_config',
+    'db',
+    'init_databases',
+    'User',
+    'KnaDataLoader',
+    'KnaDataReader',
 ]
+
+__version__ = '2.0.0'

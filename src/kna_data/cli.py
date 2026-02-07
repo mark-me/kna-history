@@ -6,8 +6,8 @@ Command-line interface for data loading operations.
 import argparse
 import sys
 
-from .config import Config
-from .loader import KnaDataLoader
+from .config import get_config
+from .services import KnaDataLoader
 from logging_kna import logger
 
 
@@ -16,7 +16,8 @@ def load_command(args):
 
     Runs optional validation and then loads data from the given Excel file into the configured database.
     """
-    config = Config.for_development() if args.dev else Config.for_production()
+    config = get_config("development") if args.dev else get_config("production")
+    logger.info(f"Using database URI: {config.SQLALCHEMY_DATABASE_URI}")
     loader = KnaDataLoader(config=config)
 
     logger.info(f"Loading data from: {args.file}")
@@ -77,7 +78,7 @@ def validate_command(args):
 
     Runs validation for the provided Excel file and logs the outcome without modifying any data.
     """
-    config = Config.for_development() if args.dev else Config.for_production()
+    config = get_config("development") if args.dev else get_config("production")
     loader = KnaDataLoader(config=config)
 
     logger.info(f"Validating: {args.file}")
@@ -118,7 +119,7 @@ def _log_validation_failure_and_exit(validation: dict) -> None:
 
 def thumbnails_command(args):
     """Handle the thumbnails command"""
-    config = Config.for_development() if args.dev else Config.for_production()
+    config = get_config("development") if args.dev else get_config("production")
     loader = KnaDataLoader(config=config)
 
     logger.info("Generating thumbnails...")

@@ -22,12 +22,12 @@ source .env
 # Validate required environment variables
 echo "Validating configuration..."
 REQUIRED_VARS=(
-    "SECRET_KEY"
-    "MARIADB_PASSWORD"
-    "MARIADB_ROOT_PASSWORD"
-    "DATABASE_URL"
+    "FLASK_ENV"
+    "FLASK_SECRET"
+    "SQLITE_KNA_PATH"
+    "SQLITE_USERS_PATH"
+    "DIR_RESOURCES"
     "ADMIN_PASSWORD"
-    "DOMAIN_NAME"
 )
 
 MISSING_VARS=()

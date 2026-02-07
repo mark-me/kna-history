@@ -1,35 +1,33 @@
 """
-KNA Data Reader
+KNA Data Reader Service
 
-Reads and formats data from the KNA database for display in the web application.
+Reads and formats data from KNA database for display.
 """
+
 import binascii
 import os
-
 import numpy as np
 import pandas as pd
 
-from .config import Config
+from ..config import BaseConfig
 from logging_kna import logger
 
 
 class KnaDataReader:
     """
-    Data access layer for KNA theatre history database.
+    Data access service for KNA content database.
 
     Provides methods to query and format data for web display.
+    Works exclusively with KNA content database.
     """
 
-    def __init__(self, config: Config | None = None):
-        """
-        Initialize the data reader.
+    def __init__(self, config: BaseConfig):
+        """Initialize with configuration"""
+        self.config = config
+        self.dir_resources = config.DIR_RESOURCES
+        self.engine = config.get_kna_engine()
 
-        Args:
-            config: Configuration object. If None, uses default production config.
-        """
-        self.config = config or Config.for_production()
-        self.dir_resources = self.config.dir_resources
-        self.engine = self.config.get_engine()
+        logger.info(f"KnaDataReader initialized: {config.SQLITE_KNA_PATH}")
 
     def encode(self, folder: str, file: str) -> str:
         """

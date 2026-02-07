@@ -1,43 +1,38 @@
 """
 KNA History Web Application
 
-Flask web application for browsing the KNA theatre group history archive.
+Clean architecture with separated concerns:
+- Configuration: Environment-based config
+- Databases: Users (Flask-SQLAlchemy) + KNA Content (pandas/SQLAlchemy Core)
+- Authentication: Flask-Login with User model
+- Blueprints: Admin, Auth, Data Entry
 """
 
 import os
-
-from flask import (
-    Flask,
-    render_template,
-    send_from_directory,
-)
+from flask import Flask, render_template, send_from_directory
 from flask_login import LoginManager, login_required
 
 from blueprints.admin import admin_bp
 from blueprints.auth import auth_bp
-from blueprints.data_entry import data_entry_bp  # NEW
-from kna_data import KnaDataReader, User, db
-from kna_data.config import get_config
+from blueprints.data_entry import data_entry_bp
+from kna_data import (
+    get_config,
+    init_databases,
+    db,
+    User,
+    KnaDataReader,
+    DatabaseManager,
+)
 from logging_kna import logger
 
-# Login manager
-login_manager = LoginManager()
-login_manager.login_view = "auth.login"
-login_manager.login_message_category = "warning"
 
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
-
-
-def create_app(config_name=None):
+def create_app(env: str = None) -> Flask:
     """
-    Create and configure the Flask application.
+    Create and configure Flask application.
 
     Args:
-        config_name: Configuration environment ('development', 'production', 'testing')
-                    If None, reads from FLASK_ENV or KNA_ENV environment variable
+        env: Environment ('development', 'production', 'testing')
+             If None, uses FLASK_ENV environment variable
 
     Returns:
         Configured Flask application
@@ -45,40 +40,78 @@ def create_app(config_name=None):
     app = Flask(__name__)
 
     # Load configuration
-    config_obj = get_config(config_name)
-    app.config.from_object(config_obj)
+    config = get_config(env)
+    app.config.from_object(config)
 
-    logger.info(f"Starting app with {config_obj.__class__.__name__}")
-    logger.info(f"Database: {config_obj.SQLITE_PATH}")
-    logger.info(f"Resources dir: {config_obj.DIR_RESOURCES}")
+    logger.info("Starting KNA History Archive")
+    logger.info(f"Environment: {config.__class__.__name__}")
+    logger.info(f"Debug: {config.DEBUG}")
 
-    # Initialize extensions
-    db.init_app(app)
-    login_manager.init_app(app)
+    # Initialize databases
+    init_databases(app, config)
+
+    # Initialize authentication
+    _init_authentication(app)
 
     # Register blueprints
+    _register_blueprints(app)
+
+    # Initialize KNA data reader
+    kna_reader = _init_kna_reader(config)
+
+    # Register routes
+    _register_public_routes(app, kna_reader, config)
+    _register_health_routes(app, kna_reader, config)
+
+    # Create default admin user
+    _create_default_admin(app)
+
+    return app
+
+
+def _init_authentication(app: Flask):
+    """Initialize Flask-Login"""
+    login_manager = LoginManager()
+    login_manager.login_view = "auth.login"
+    login_manager.login_message = "Log in om deze pagina te bekijken."
+    login_manager.login_message_category = "warning"
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
+
+    login_manager.init_app(app)
+    logger.info("Authentication initialized")
+
+
+def _register_blueprints(app: Flask):
+    """Register all blueprints"""
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(admin_bp, url_prefix="/admin")
     app.register_blueprint(data_entry_bp, url_prefix="/data-entry")
+    logger.info("Blueprints registered")
 
-    # Initialize database reader - with error handling
+
+def _init_kna_reader(config) -> KnaDataReader | None:
+    """Initialize KNA data reader"""
     try:
-        db_reader = KnaDataReader(config=config_obj)
-        logger.info("Database reader initialized successfully")
+        reader = KnaDataReader(config=config)
+        logger.info("KNA data reader initialized")
+        return reader
     except Exception as e:
-        logger.error(f"Failed to initialize database reader: {e}")
-        db_reader = None
+        logger.error(f"Failed to initialize KNA reader: {e}")
+        return None
 
-    # Determine if routes should require login
-    # Set REQUIRE_LOGIN=true in environment to protect all routes
+
+def _register_public_routes(app: Flask, kna_reader: KnaDataReader | None, config):
+    """Register public-facing routes"""
+
+    # Optional login requirement
     require_login = os.getenv("REQUIRE_LOGIN", "false").lower() == "true"
-    logger.info(f"Route protection: {'enabled' if require_login else 'disabled'}")
 
-    # Decorator to optionally require login
     def optional_login(f):
         return login_required(f) if require_login else f
 
-    # Public routes (home, about, viewer content)
     @app.route("/")
     @app.route("/home")
     def home():
@@ -91,182 +124,199 @@ def create_app(config_name=None):
     @app.route("/cdn/<path:filepath>")
     @optional_login
     def cdn(filepath):
-        """Serve media files via CDN endpoint"""
-        if db_reader is None:
-            return "Database not available", 503
+        """Serve media files"""
+        if not kna_reader:
+            return "Service unavailable", 503
 
-        dir, filename = os.path.split(db_reader.decode(filepath))
-        logger.info(f"Serve media CDN - Directory: {dir} - File: {filename}")
-        return send_from_directory(dir, filename, as_attachment=False)
+        try:
+            dir_path, filename = os.path.split(kna_reader.decode(filepath))
+            return send_from_directory(dir_path, filename, as_attachment=False)
+        except Exception as e:
+            logger.error(f"CDN error: {e}")
+            return "File not found", 404
 
     @app.route("/image/<path_image>")
     @optional_login
     def show_image(path_image: str):
-        """Display image page"""
-        if db_reader is None:
-            return "Database not available", 503
+        if not kna_reader:
+            return _render_error("Database niet beschikbaar"), 503
 
-        logger.info(f"Show image - filepath: {path_image}")
-        dict_image = db_reader.medium(path=path_image)
-        return render_template("image.html", image=dict_image)
+        try:
+            image_data = kna_reader.medium(path=path_image)
+            return render_template("image.html", image=image_data)
+        except Exception as e:
+            logger.error(f"Image error: {e}")
+            return _render_error("Afbeelding niet gevonden"), 404
 
     @app.route("/pdf/<path_pdf>")
     @optional_login
     def show_document(path_pdf: str):
-        """Display PDF document"""
-        if db_reader is None:
-            return "Database not available", 503
+        if not kna_reader:
+            return _render_error("Database niet beschikbaar"), 503
 
-        logger.info(f"Show PDF - {path_pdf}")
         return render_template("pdf.html", file_pdf=path_pdf)
 
     @app.route("/video/<path_video>")
     @optional_login
     def show_movie(path_video: str):
-        """Display video page"""
-        if db_reader is None:
-            return "Database not available", 503
+        if not kna_reader:
+            return _render_error("Database niet beschikbaar"), 503
 
-        logger.info(f"Show video - {path_video}")
-        dict_video = db_reader.medium(path=path_video)
-        return render_template("video.html", video=dict_video)
+        try:
+            video_data = kna_reader.medium(path=path_video)
+            return render_template("video.html", video=video_data)
+        except Exception as e:
+            logger.error(f"Video error: {e}")
+            return _render_error("Video niet gevonden"), 404
 
     @app.route("/leden")
     @optional_login
     def view_leden():
-        """Page for viewing members"""
-        if db_reader is None:
-            return render_template("error.html",
-                                 message="Database is niet beschikbaar. Neem contact op met de beheerder."), 503
+        if not kna_reader:
+            return _render_error("Database niet beschikbaar"), 503
 
         try:
-            lst_leden = db_reader.leden()
-            return render_template("leden.html", leden=lst_leden)
+            leden = kna_reader.leden()
+            return render_template("leden.html", leden=leden)
         except Exception as e:
-            logger.error(f"Error loading members: {e}")
-            return render_template("error.html",
-                                 message="Er is een fout opgetreden bij het laden van de ledenlijst."), 500
+            logger.error(f"Leden error: {e}")
+            return _render_error("Fout bij laden ledenlijst"), 500
 
     @app.route("/voorstellingen")
     @optional_login
     def view_voorstellingen():
-        """Page for viewing performances"""
-        if db_reader is None:
-            return render_template("error.html",
-                                 message="Database is niet beschikbaar. Neem contact op met de beheerder."), 503
+        if not kna_reader:
+            return _render_error("Database niet beschikbaar"), 503
 
         try:
-            lst_voorstelling = db_reader.voorstellingen()
-            return render_template("voorstellingen.html", voorstellingen=lst_voorstelling)
+            voorstellingen = kna_reader.voorstellingen()
+            return render_template("voorstellingen.html", voorstellingen=voorstellingen)
         except Exception as e:
-            logger.error(f"Error loading performances: {e}")
-            return render_template("error.html",
-                                 message="Er is een fout opgetreden bij het laden van de voorstellingen."), 500
+            logger.error(f"Voorstellingen error: {e}")
+            return _render_error("Fout bij laden voorstellingen"), 500
 
     @app.route("/tijdslijn")
     @optional_login
     def view_tijdslijn():
-        """Page for viewing timeline"""
-        if db_reader is None:
-            return render_template("error.html",
-                                 message="Database is niet beschikbaar. Neem contact op met de beheerder."), 503
+        if not kna_reader:
+            return _render_error("Database niet beschikbaar"), 503
 
         try:
-            lst_timeline = db_reader.timeline()
-            return render_template("tijdslijn.html", tijdslijn=lst_timeline)
+            tijdslijn = kna_reader.timeline()
+            return render_template("tijdslijn.html", tijdslijn=tijdslijn)
         except Exception as e:
-            logger.error(f"Error loading timeline: {e}")
-            return render_template("error.html",
-                                 message="Er is een fout opgetreden bij het laden van de tijdslijn."), 500
+            logger.error(f"Tijdslijn error: {e}")
+            return _render_error("Fout bij laden tijdslijn"), 500
 
     @app.route("/lid_media/<lid>")
     @optional_login
     def lid_media(lid: str):
-        """Page for member media"""
-        if db_reader is None:
-            return "Database not available", 503
+        if not kna_reader:
+            return _render_error("Database niet beschikbaar"), 503
 
-        logger.info(f"Leden media voor {lid}")
-        lst_media = db_reader.lid_media(id_lid=lid)
-        dict_lid = db_reader.lid_info(id_lid=lid)
-        return render_template("lid_media.html", lid=dict_lid, media=lst_media)
+        try:
+            media = kna_reader.lid_media(id_lid=lid)
+            lid_info = kna_reader.lid_info(id_lid=lid)
+            return render_template("lid_media.html", lid=lid_info, media=media)
+        except Exception as e:
+            logger.error(f"Lid media error: {e}")
+            return _render_error("Fout bij laden lid media"), 500
 
     @app.route("/voorstelling_media/<voorstelling>")
     @optional_login
     def voorstelling_media(voorstelling: str):
-        """Page for performance media"""
-        if db_reader is None:
-            return "Database not available", 503
+        if not kna_reader:
+            return _render_error("Database niet beschikbaar"), 503
 
-        dict_voorstelling = db_reader.voorstelling_info(voorstelling=voorstelling)
-        lst_media = db_reader.voorstelling_media(voorstelling=voorstelling)
-        logger.info(f"Get media voor voorstelling {voorstelling}")
-        return render_template(
-            "voorstelling_media.html", voorstelling=dict_voorstelling, media=lst_media
-        )
+        try:
+            info = kna_reader.voorstelling_info(voorstelling=voorstelling)
+            media = kna_reader.voorstelling_media(voorstelling=voorstelling)
+            return render_template("voorstelling_media.html", voorstelling=info, media=media)
+        except Exception as e:
+            logger.error(f"Voorstelling media error: {e}")
+            return _render_error("Fout bij laden voorstelling media"), 500
 
     @app.route("/voorstelling_lid_media/<voorstelling>/<lid>")
     @optional_login
     def voorstelling_lid_media(voorstelling: str, lid: str):
-        """Page for member media in a specific performance"""
-        if db_reader is None:
-            return "Database not available", 503
+        if not kna_reader:
+            return _render_error("Database niet beschikbaar"), 503
 
-        dict_voorstelling = db_reader.voorstelling_info(voorstelling=voorstelling)
-        lst_media = db_reader.voorstelling_lid_media(voorstelling=voorstelling, lid=lid)
-        logger.info(f"Get media voor voorstelling {voorstelling} van {lid}")
-        return render_template(
-            "voorstelling_media.html", voorstelling=dict_voorstelling, media=lst_media
-        )
+        try:
+            info = kna_reader.voorstelling_info(voorstelling=voorstelling)
+            media = kna_reader.voorstelling_lid_media(voorstelling=voorstelling, lid=lid)
+            return render_template("voorstelling_media.html", voorstelling=info, media=media)
+        except Exception as e:
+            logger.error(f"Voorstelling lid media error: {e}")
+            return _render_error("Fout bij laden media"), 500
+
+
+def _register_health_routes(app: Flask, kna_reader: KnaDataReader | None, config):
+    """Register health check and monitoring routes"""
 
     @app.route("/health")
     def health():
-        """Health check endpoint"""
-        health_status = {
+        """Comprehensive health check"""
+        status = {
             "status": "healthy",
-            "database_reader": "connected" if db_reader is not None else "not initialized"
+            "users_db": DatabaseManager.check_users_db_health(),
         }
 
-        try:
-            if db_reader is not None:
-                with db_reader.engine.connect() as conn:
-                    conn.execute("SELECT 1")
-                health_status["database_connection"] = "connected"
-            else:
-                health_status["database_connection"] = "not available"
-                health_status["status"] = "degraded"
-        except Exception as e:
-            logger.error(f"Health check failed: {e}")
-            health_status["status"] = "unhealthy"
-            health_status["error"] = str(e)
-            return health_status, 503
+        if kna_reader:
+            kna_engine = config.get_kna_engine()
+            status["kna_db"] = DatabaseManager.check_kna_db_health(kna_engine)
+        else:
+            status["kna_db"] = {"status": "not_initialized"}
 
-        status_code = 200 if health_status["status"] == "healthy" else 503
-        return health_status, status_code
+        # Overall status
+        is_healthy = all(
+            db_status.get("status") == "healthy"
+            for db_status in [status["users_db"], status["kna_db"]]
+        )
+        status["status"] = "healthy" if is_healthy else "degraded"
 
-    # Initialize database tables and create default admin user
+        http_status = 200 if is_healthy else 503
+        return status, http_status
+
+
+def _create_default_admin(app: Flask):
+    """Create default admin user if none exists"""
     with app.app_context():
-        db.create_all()
+        try:
+            if not User.query.filter_by(role="admin").first():
+                admin_password = os.getenv("ADMIN_PASSWORD", "admin2026!")
 
-        # Create default admin user if none exists
-        if not User.query.filter_by(role="admin").first():
-            from werkzeug.security import generate_password_hash
+                admin = User(
+                    username="admin",
+                    email="admin@kna-hillegom.local",
+                    role="admin"
+                )
+                admin.set_password(admin_password)
 
-            admin_password = os.getenv("ADMIN_PASSWORD", "admin2026!")
-            admin = User(
-                username="admin",
-                email="admin@kna-hillegom.local",
-                role="admin"
-            )
-            admin.password_hash = generate_password_hash(admin_password)
-            db.session.add(admin)
-            db.session.commit()
-            logger.info("Created default admin user")
+                db.session.add(admin)
+                db.session.commit()
 
-    return app
+                logger.info("Created default admin user")
+                logger.warning(f"Default admin password is: {admin_password}")
+            else:
+                logger.info("Admin user already exists")
+        except Exception as e:
+            logger.error(f"Failed to create admin user: {e}")
+
+
+def _render_error(message: str) -> str:
+    """Render error template"""
+    try:
+        return render_template("error.html", message=message)
+    except:
+        # Fallback if template doesn't exist
+        return f"<h1>Error</h1><p>{message}</p>"
 
 
 if __name__ == "__main__":
-    # For local development
-    app = create_app("development")
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    app = create_app()
+    app.run(
+        host="0.0.0.0",
+        port=5000,
+        debug=app.config.get("DEBUG", False)
+    )
