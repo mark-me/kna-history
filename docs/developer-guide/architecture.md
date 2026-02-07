@@ -1,8 +1,10 @@
+![Architecture](../images/architecture.png){ align=right width="90" }
+
 # Architecture
 
 This document describes the technical architecture of the KNA History application.
 
-## System Overview
+## 🧭 System Overview
 
 ```mermaid
 graph TB
@@ -10,11 +12,11 @@ graph TB
     Nginx --> Flask[Flask Application]
     Flask --> MariaDB[(MariaDB Database)]
     Flask --> Resources[/File System Resources/]
-    
+
     Admin[Admin User] --> Flask
     CLI[CLI Tools] --> MariaDB
     CLI --> Resources
-    
+
     subgraph "Docker Container"
         Nginx
         Flask
@@ -23,7 +25,7 @@ graph TB
     end
 ```
 
-## Technology Stack
+## 🧰 Technology Stack
 
 ### Backend
 
@@ -62,7 +64,7 @@ graph TB
 | **Certbot** | SSL certificates |
 | **DuckDNS** | Dynamic DNS |
 
-## Application Structure
+## 🏗️ Application Structure
 
 ### Directory Layout
 
@@ -110,7 +112,7 @@ kna-history/
 └── mkdocs.yml                   # Documentation config
 ```
 
-## Architecture Patterns
+## 🧠 Architecture Patterns
 
 ### Application Factory Pattern
 
@@ -120,19 +122,19 @@ The Flask app uses the factory pattern for flexibility:
 def create_app(config_name=None):
     """Create and configure the Flask application"""
     app = Flask(__name__)
-    
+
     # Load configuration
     config_obj = get_config(config_name)
     app.config.from_object(config_obj)
-    
+
     # Initialize extensions
     db.init_app(app)
     login_manager.init_app(app)
-    
+
     # Register blueprints
     app.register_blueprint(auth_bp)
     app.register_blueprint(admin_bp)
-    
+
     return app
 ```
 
@@ -150,7 +152,7 @@ class DevelopmentConfig(Config):
     """Development-specific settings"""
     DEBUG = True
     MARIADB_HOST = "127.0.0.1:3306"
-    
+
 class ProductionConfig(Config):
     """Production-specific settings"""
     DEBUG = False
@@ -174,7 +176,7 @@ Blueprints:
     └── ...
 ```
 
-## Data Flow
+## 🔄 Data Flow
 
 ### Read Operations (User viewing content)
 
@@ -185,14 +187,14 @@ sequenceDiagram
     participant R as KnaDataReader
     participant DB as MariaDB
     participant FS as File System
-    
+
     U->>F: GET /voorstellingen
     F->>R: voorstellingen()
     R->>DB: SELECT * FROM uitvoering
     DB-->>R: Data
     R-->>F: Processed data
     F-->>U: Rendered HTML
-    
+
     U->>F: GET /cdn/photo.jpg
     F->>R: decode(path)
     R->>FS: Read file
@@ -210,13 +212,13 @@ sequenceDiagram
     participant L as KnaDataLoader
     participant DB as MariaDB
     participant FS as File System
-    
+
     A->>F: POST /admin/upload/validate
     F->>L: validate_excel(file)
     L->>L: Check structure
     L-->>F: Validation result
     F-->>A: Show validation
-    
+
     A->>F: POST /admin/upload/load
     F->>L: load_from_excel(file)
     L->>DB: Clear tables
@@ -228,18 +230,20 @@ sequenceDiagram
     F-->>A: Success message
 ```
 
-## Database Architecture
+## 🗄️ Database Architecture
 
 ### Two-Database Design
 
 The application uses **two separate databases**:
 
 **1. KNA Data Database** (MariaDB)
+
 - Historical theatre data
 - Read/written by `KnaDataReader` and `KnaDataLoader`
 - Connection via `config.mariadb_url`
 
 Tables:
+
 - `lid` - Members
 - `uitvoering` - Performances
 - `rol` - Roles
@@ -248,11 +252,13 @@ Tables:
 - `media_type` - Media types
 
 **2. Users Database** (configurable)
+
 - Flask-Login authentication
 - Admin and viewer users
 - Connection via `config.SQLALCHEMY_DATABASE_URI`
 
 Tables:
+
 - `users` - Application users
 
 ### Schema Diagram
@@ -265,14 +271,14 @@ erDiagram
     lid ||--o{ file_leden : tagged_in
     file ||--o{ file_leden : tags
     media_type ||--o{ file : categoriseert
-    
+
     lid {
         int id_lid PK
         string Voornaam
         string Achternaam
         string achternaam_sort
     }
-    
+
     uitvoering {
         string ref_uitvoering PK
         string titel
@@ -282,7 +288,7 @@ erDiagram
         string regie
         int qty_media
     }
-    
+
     rol {
         int id PK
         string ref_uitvoering FK
@@ -290,7 +296,7 @@ erDiagram
         string rol
         int qty_media
     }
-    
+
     file {
         int id PK
         string ref_uitvoering FK
@@ -303,7 +309,7 @@ erDiagram
 
 See [Database Schema](database.md) for complete details.
 
-## Component Interaction
+## 🔗 Component Interaction
 
 ### KnaDataReader
 
@@ -314,13 +320,13 @@ class KnaDataReader:
     def __init__(self, config):
         self.engine = config.get_engine()
         self.dir_resources = config.dir_resources
-    
+
     def leden(self):
         """Get all members"""
-        
+
     def voorstellingen(self):
         """Get all performances"""
-        
+
     def medium(self, path):
         """Get media file details"""
 ```
@@ -333,10 +339,10 @@ Loads data from Excel into database:
 class KnaDataLoader:
     def __init__(self, config):
         self.engine = config.get_engine()
-        
+
     def validate_excel(self, file_path):
         """Validate Excel structure"""
-        
+
     def load_from_excel(self, file_path):
         """Load data from Excel"""
         # ETL process:
@@ -353,13 +359,13 @@ sequenceDiagram
     participant F as Flask
     participant FL as Flask-Login
     participant DB as Users DB
-    
+
     U->>F: GET /admin
     F->>FL: @login_required
     FL->>FL: Check session
     FL-->>F: Not authenticated
     F-->>U: Redirect to /auth/login
-    
+
     U->>F: POST /auth/login
     F->>DB: Query user
     DB-->>F: User data
@@ -372,11 +378,11 @@ sequenceDiagram
     F-->>U: Admin dashboard
 ```
 
-## File Storage
+## 📁 File Storage
 
 ### Media Files Organization
 
-```
+```bash
 /data/resources/
 ├── [voorstelling_folder]/
 │   ├── photo1.jpg
@@ -398,7 +404,7 @@ Automatic thumbnail creation:
 4. Generate 300x300 thumbnails
 5. Save with same filename
 
-## Logging
+## 🪵 Logging
 
 ### Centralized Logging
 
@@ -416,13 +422,13 @@ logger.error("Failed to connect to database")
 
 ### Log Format
 
-```
+```log
 KNA 2026-02-06 22:00:00 INFO app.py:create_app Starting app with ProductionConfig
 KNA 2026-02-06 22:00:01 INFO loader.py:load_from_excel Loading data from file.xlsx
 KNA 2026-02-06 22:00:05 ERROR reader.py:leden Database connection failed
 ```
 
-## Security Architecture
+## 🛡️ Security Architecture
 
 ### Authentication
 
@@ -444,7 +450,7 @@ KNA 2026-02-06 22:00:05 ERROR reader.py:leden Database connection failed
 - **Validation before deployment**
 - **.env files** excluded from git
 
-## Performance Considerations
+## ⚡ Performance Considerations
 
 ### Database
 
@@ -464,16 +470,18 @@ KNA 2026-02-06 22:00:05 ERROR reader.py:leden Database connection failed
 
 Current: No caching implemented
 Future possibilities:
+
 - Redis for session storage
 - Browser caching headers
 - Database query caching
 - Static asset versioning
 
-## Scalability
+## 📈 Scalability
 
 ### Horizontal Scaling
 
 Possible with:
+
 - **Load balancer** in front of multiple Flask instances
 - **Shared database** (MariaDB)
 - **Shared file storage** (NFS, S3)
@@ -486,7 +494,7 @@ Possible with:
 - **Memory** for Pandas operations
 - **CPU** for image processing
 
-## Monitoring & Health
+## 📊 Monitoring & Health
 
 ### Health Check Endpoint
 
@@ -504,6 +512,7 @@ def health():
 ### Metrics
 
 Available metrics:
+
 - Application health
 - Database connection status
 - Disk usage
@@ -511,7 +520,7 @@ Available metrics:
 
 See [status.sh](../../deployment/updates.md#system-monitoring) for monitoring script.
 
-## Next Steps
+## ➡️ Next Steps
 
 - [Development Setup](setup.md) - Set up local environment
 - [Configuration](configuration.md) - Understand configuration system

@@ -4,7 +4,7 @@
 
 Deze pagina legt uit hoe je door het KNA Historie archief navigeert.
 
-## Hoofdmenu
+## 📂 Hoofdmenu
 
 Het hoofdmenu is altijd zichtbaar bovenaan de pagina en biedt toegang tot de belangrijkste secties.
 
@@ -157,7 +157,7 @@ Tijdslijn
 └── Mijlpalen overzicht
 ```
 
-## Media Navigatie
+## 🖼️ Media Navigatie
 
 ### Galerij Weergave
 
@@ -195,7 +195,7 @@ Bij elke foto/video:
 - **Jaar** - Wanneer gemaakt
 - **Download** - Origineel bestand downloaden
 
-## Zoeken
+## 🔍 Zoeken
 
 ### Globale Zoekbalk
 
@@ -229,7 +229,7 @@ Resultaten worden gegroepeerd per type:
     - **Jaar**: Gebruik jaartallen om te filteren: "2020"
     - **Rol**: Zoek op roltype: "regisseur", "hoofdrol"
 
-## Breadcrumbs
+## 🥖 Breadcrumbs
 
 Volg je pad door de applicatie:
 
@@ -239,7 +239,7 @@ Home > Voorstellingen > Annie Get Your Gun > Media
 
 Klik op elk deel om terug te gaan naar die pagina.
 
-## Sneltoetsen
+## ⌨️ Sneltoetsen
 
 | Toets | Actie |
 |-------|-------|
@@ -249,7 +249,7 @@ Klik op elk deel om terug te gaan naar die pagina.
 | `Home` | Scroll naar boven |
 | `End` | Scroll naar beneden |
 
-## Mobile Navigatie
+## 📱 Mobile Navigatie
 
 Op mobiele apparaten:
 
@@ -265,7 +265,7 @@ Op mobiele apparaten:
     - Video's streamen in lagere kwaliteit op mobiele data
     - Gebruik landschap modus voor beste video ervaring
 
-## Volgende Stappen
+## ➡️ Volgende Stappen
 
 - [Leer effectief zoeken](searching.md) in het archief
 - [Ontdek hoe je media bekijkt](viewing-media.md) in verschillende formats

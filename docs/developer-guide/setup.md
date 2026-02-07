@@ -1,8 +1,10 @@
+![Setup](../images/setup.png){ align=right width="90" }
+
 # Development Setup
 
 This guide helps you set up a local development environment for KNA History.
 
-## Prerequisites
+## 📋 Prerequisites
 
 ### Required Software
 
@@ -17,7 +19,7 @@ This guide helps you set up a local development environment for KNA History.
 - **Docker Desktop** (for container testing)
 - **GitHub CLI** (`gh`) for workflow management
 
-## Installation
+## ⚙️ Installation
 
 ### 1. Clone Repository
 
@@ -134,7 +136,7 @@ uv run -m kna_data.cli validate --dev path/to/sample_data.xlsx
 uv run -m kna_data.cli load --dev path/to/sample_data.xlsx
 ```
 
-## Running the Application
+## ▶️ Running the Application
 
 ### Development Server
 
@@ -184,7 +186,7 @@ uv run -m kna_data.cli load --dev --skip-validation data.xlsx
 uv run -m kna_data.cli thumbnails --dev
 ```
 
-## Development Workflow
+## 🔄 Development Workflow
 
 ### Code Style
 
@@ -236,11 +238,11 @@ git push origin feature/my-feature
 # Create pull request on GitHub
 ```
 
-## Project Structure
+## 🗂️ Project Structure
 
 Understanding the codebase:
 
-```
+```bash
 src/
 ├── kna_data/              # Core data package
 │   ├── __init__.py       # Package exports
@@ -271,7 +273,7 @@ src/
 └── logging_kna.py         # Logging setup
 ```
 
-## Configuration
+## 🛠️ Configuration
 
 ### Development vs Production
 
@@ -297,7 +299,7 @@ app = create_app("development")
 
 See [Configuration Guide](configuration.md) for details.
 
-## Database Management
+## 🗄️ Database Management
 
 ### View Database
 
@@ -329,7 +331,7 @@ Currently no migration system (tables are recreated on each load).
 
 Future: Consider Alembic for schema migrations.
 
-## Debugging
+## 🐞 Debugging
 
 ### VS Code
 
@@ -376,7 +378,7 @@ import pdb; pdb.set_trace()
 import IPython; IPython.embed()
 ```
 
-## Testing
+## 🧪 Testing
 
 ### Manual Testing
 
@@ -408,7 +410,7 @@ def test_validate_excel():
     assert result["valid"] == True
 ```
 
-## Common Tasks
+## ✅ Common Tasks
 
 ### Add New Route
 
@@ -461,7 +463,7 @@ def test_validate_excel():
    value = config.NEW_SETTING
    ```
 
-## Troubleshooting
+## 🚑 Troubleshooting
 
 ### Common Issues
 
@@ -507,7 +509,7 @@ chmod -R 755 data/resources
 2. Review [GitHub Issues](https://github.com/mark-me/kna-history/issues)
 3. Create new issue with details
 
-## Next Steps
+## 👣 Next Steps
 
 - [Understand the architecture](architecture.md)
 - [Learn about configuration](configuration.md)

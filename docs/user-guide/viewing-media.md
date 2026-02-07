@@ -4,7 +4,7 @@
 
 Deze pagina legt uit hoe je foto's, video's en documenten bekijkt in het KNA Historie archief.
 
-## Media Types
+## 🖼️ Media Types
 
 Het archief bevat verschillende soorten media:
 
@@ -54,7 +54,7 @@ Het archief bevat verschillende soorten media:
 - Recensies
 - Krantenartikelen
 
-## Foto's Bekijken
+## 📸 Foto's Bekijken
 
 ### Galerij Weergave
 
@@ -114,7 +114,7 @@ Klik op het info-icoon (ℹ️) voor details:
 - Bekijk andere foto's van deze persoon
 - Rapporteer probleem
 
-## Video's Bekijken
+## 🎥 Video's Bekijken
 
 ### Video Player
 
@@ -169,7 +169,7 @@ Voor lange video's met meerdere scènes:
 - 👥 Belangrijke momenten
 - 📝 Notities van beheerders
 
-## Documenten Bekijken
+## 📄 Documenten Bekijken
 
 ### PDF Viewer
 
@@ -209,7 +209,7 @@ Sommige documenten zijn gescande afbeeldingen:
 - Scherpte verbetering
 - Rotatie correctie
 
-## Download Functies
+## ⬇️ Download Functies
 
 ### Enkel Bestand
 
@@ -253,7 +253,7 @@ Kies welke versie je downloadt:
 - Lage resolutie
 - Voor preview doeleinden
 
-## Delen van Media
+## 🔗 Delen van Media
 
 ### Share Functies
 
@@ -278,7 +278,7 @@ Deel interessante media met anderen:
     Alle media is eigendom van KNA Hillegom.
     Delen voor persoonlijk gebruik is toegestaan.
 
-## Mobiele Weergave
+## 📱 Mobiele Weergave
 
 ### Touch Besturing
 
@@ -318,7 +318,7 @@ Sommige content kan offline bekeken worden:
     Offline media neemt opslag in.
     Beheer via instellingen → Offline content.
 
-## Favorieten
+## ⭐ Favorieten
 
 ### Media Opslaan
 
@@ -345,7 +345,7 @@ Organiseer favorieten in collecties:
 - Verwijder items
 - Exporteer als ZIP
 
-## Geavanceerde Functies
+## 🛠️ Geavanceerde Functies
 
 ### Vergelijken
 
@@ -383,7 +383,7 @@ Voor beheerders:
 
 [Meer over admin functies →](admin/maintenance.md)
 
-## Toegankelijkheid
+## ♿ Toegankelijkheid
 
 ### Screen Readers
 
@@ -412,7 +412,7 @@ Video's met ondertiteling:
 - Keuze uit contrastkleuren
 - Positie aanpasbaar
 
-## Problemen Oplossen
+## 🚑 Problemen Oplossen
 
 ### Video Speelt Niet Af
 
@@ -451,7 +451,7 @@ Video's met ondertiteling:
 - Browser blokkeert download
 - Disk vol
 
-## Keyboard Shortcuts
+## ⌨️ Keyboard Shortcuts
 
 Sneltoetsen voor efficiënte bediening:
 
@@ -467,7 +467,7 @@ Sneltoetsen voor efficiënte bediening:
 | `D` | Download |
 | `I` | Info tonen |
 
-## Privacy en Copyright
+## 🔒 Privacy en Copyright
 
 ### Privacybeleid
 
@@ -496,7 +496,7 @@ Herken je jezelf en wil je een foto verwijderd?
 3. Beheerder beoordeelt
 4. Foto wordt verwijderd indien terecht
 
-## Tips voor Beste Ervaring
+## 💡 Tips voor Beste Ervaring
 
 !!! tip "Optimaal Genieten"
     - **Groot scherm**: Gebruik laptop/desktop voor beste ervaring
@@ -506,7 +506,7 @@ Herken je jezelf en wil je een foto verwijderd?
     - **Landschap modus**: Video's beter zichtbaar
     - **Update browser**: Laatste versie voor alle functies
 
-## Volgende Stappen
+## ➡️ Volgende Stappen
 
 - [Leer effectief zoeken](searching.md) naar media
 - [Navigeer door voorstellingen](navigation.md) voor meer context

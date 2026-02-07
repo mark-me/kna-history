@@ -4,7 +4,7 @@
 
 Deze handleiding legt uit hoe je onderhouds taken uitvoert op het KNA Historie archief.
 
-## Overzicht Onderhoudstaken
+## 🧭 Overzicht Onderhoudstaken
 
 | Taak | Frequentie | Duur | Prioriteit |
 |------|------------|------|------------|
@@ -15,7 +15,7 @@ Deze handleiding legt uit hoe je onderhouds taken uitvoert op het KNA Historie a
 | Backup maken | Dagelijks (auto) | 5-15 min | **Hoog** |
 | Disk cleanup | Maandelijks | 5-10 min | Normaal |
 
-## Thumbnails
+## 🖼️ Thumbnails
 
 ### Waarom Thumbnails?
 
@@ -118,7 +118,7 @@ find /data/resources -name "thumbnails" -type d -exec rm -rf {} +
 2. Zie welke mappen incomplete zijn
 3. Klik **Regenereer Ontbrekende**
 
-## Database Onderhoud
+## 🗄️ Database Onderhoud
 
 ### Database Optimaliseren
 
@@ -204,7 +204,7 @@ Verwijder oude/ongebruikte data:
 !!! warning "Voorzichtig"
     Cleanup is permanent! Maak eerst backup.
 
-## Cache Beheer
+## 🧹 Cache Beheer
 
 ### Cache Legen
 
@@ -243,7 +243,7 @@ Zie cache gebruik:
 - Grootte: <500 MB
 - Items: Varieert
 
-## Logs
+## 📝 Logs
 
 ### Log Types
 
@@ -313,7 +313,7 @@ sudo gzip /logs/*.log.20*
 find /logs -name "*.gz" -mtime +90 -delete
 ```
 
-## Backup & Restore
+## 💾 Backup & Restore
 
 ### Automatische Backups
 
@@ -405,7 +405,7 @@ Test backups regelmatig:
 - ✅ Media aanwezig
 - ✅ Applicatie functioneel
 
-## Disk Space Management
+## 💽 Disk Space Management
 
 ### Ruimte Controleren
 
@@ -465,7 +465,7 @@ du -ah /data/resources | sort -rh | head -20
     - Check wat je verwijdert
     - Test na cleanup
 
-## Monitoring
+## 📊 Monitoring
 
 ### Health Checks
 
@@ -549,7 +549,7 @@ KNA History - System Status
 ...
 ```
 
-## Scheduled Tasks
+## ⏰ Scheduled Tasks
 
 ### Cron Jobs
 
@@ -585,7 +585,7 @@ Check of taken zijn uitgevoerd:
 - ⏱️ Duur
 - 📝 Output/errors
 
-## Performance
+## ⚡ Performance
 
 ### Performance Metrics
 
@@ -615,7 +615,7 @@ Check of taken zijn uitgevoerd:
 - Gzip compressie
 - Browser caching headers
 
-## Troubleshooting
+## 🚑 Troubleshooting
 
 ### Veelvoorkomende Problemen
 
@@ -654,7 +654,7 @@ docker stats
 docker exec mariadb mysqloptimize kna
 ```
 
-## Volgende Stappen
+## ➡️ Volgende Stappen
 
 - [Terug naar dashboard](dashboard.md)
 - [Data uploaden](data-upload.md)

@@ -4,7 +4,7 @@
 
 Het admin dashboard geeft beheerders toegang tot alle beheerfuncties van het KNA Historie archief.
 
-## Toegang tot Admin Panel
+## 🔐 Toegang tot Admin Panel
 
 ### Inloggen
 
@@ -28,7 +28,7 @@ Bij een nieuwe installatie:
     Wijzig het standaard admin wachtwoord direct na eerste login!
     Ga naar je profiel en kies een sterk wachtwoord.
 
-## Dashboard Overzicht
+## 📊 Dashboard Overzicht
 
 Het dashboard toont:
 
@@ -59,7 +59,7 @@ Directe toegang tot veelgebruikte functies:
 | 📊 **Statistieken** | Gedetailleerde statistieken |
 | ⚙️ **Instellingen** | Systeem configuratie |
 
-## Hoofdfuncties
+## 🧩 Hoofdfuncties
 
 ### 1. Data Beheer
 
@@ -113,7 +113,7 @@ Directe toegang tot veelgebruikte functies:
 - Database optimaliseren
 - Backup taken
 
-## Navigatie in Admin Panel
+## 🧭 Navigatie in Admin Panel
 
 ### Hoofdmenu
 
@@ -152,7 +152,7 @@ Dashboard > Gebruikers > Gebruiker Bewerken > Jan de Vries
 
 Klik op elk deel om terug te navigeren.
 
-## Rechten en Rollen
+## 👥 Rechten en Rollen
 
 ### Admin Rechten
 
@@ -177,7 +177,7 @@ Viewers kunnen:
 - ❌ **Geen** data wijzigen
 - ❌ **Geen** uploads
 
-## Dashboard Widgets
+## 🧱 Dashboard Widgets
 
 ### Activiteit Widget
 
@@ -222,7 +222,7 @@ Veelgebruikte acties:
 [🖼️ Regenereer Thumbnails]  [💾 Backup Nu]
 ```
 
-## Meldingen
+## 🔔 Meldingen
 
 ### Systeem Meldingen
 
@@ -251,7 +251,7 @@ Toegang via bel-icoon (🔔):
 - **Archief**: Oude meldingen
 - **Instellingen**: Welke meldingen ontvangen
 
-## Shortcuts
+## ⚡ Shortcuts
 
 Sneltoetsen voor admin panel:
 
@@ -263,7 +263,7 @@ Sneltoetsen voor admin panel:
 | `Ctrl+/` | Zoek in admin panel |
 | `Ctrl+Shift+T` | Thumbnails regenereren |
 
-## Beveiliging
+## 🛡️ Beveiliging
 
 ### Sessie Beheer
 
@@ -302,7 +302,7 @@ Beperk toegang tot specifieke IP adressen:
 !!! warning "Let Op"
     Je kunt jezelf buitensluiten! Test eerst met één IP.
 
-## Audit Log
+## 🧾 Audit Log
 
 ### Wijzigingen Traceren
 
@@ -325,7 +325,7 @@ Het systeem logt alle admin acties:
 - Filter op gebruiker, actie, datum
 - Export naar CSV
 
-## Backup & Restore
+## 💾 Backup & Restore
 
 ### Automatische Backups
 
@@ -362,7 +362,7 @@ Herstel uit backup:
     Restore overschrijft huidige data!
     Maak eerst een backup van huidige staat.
 
-## Hulp en Support
+## 🆘 Hulp en Support
 
 ### Help Functies
 
@@ -398,7 +398,7 @@ Herstel uit backup:
 - Controleer bestandspermissies
 - Regenereer handmatig
 
-## Best Practices
+## 📐 Best Practices
 
 ### Dagelijks
 
@@ -428,7 +428,7 @@ Herstel uit backup:
 4. ✅ Test in development eerst
 5. ✅ Maak backup voor grote wijzigingen
 
-## Volgende Stappen
+## ➡️ Volgende Stappen
 
 - [Leer data uploaden](data-upload.md) via Excel
 - [Beheer gebruikers](user-management.md) en rollen

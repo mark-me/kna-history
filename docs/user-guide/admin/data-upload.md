@@ -4,7 +4,7 @@
 
 Deze handleiding legt uit hoe je nieuwe data uploadt naar het KNA Historie archief via Excel bestanden.
 
-## Overzicht Upload Proces
+## 🧭 Overzicht Upload Proces
 
 ```mermaid
 graph LR
@@ -23,7 +23,7 @@ Het upload proces bestaat uit drie stappen:
 2. **Validatie** - Automatische controle op fouten
 3. **Import** - Data daadwerkelijk in database laden
 
-## Excel Bestand Voorbereiden
+## 📊 Excel Bestand Voorbereiden
 
 ### Vereiste Structuur
 
@@ -123,7 +123,7 @@ Media categorieën:
 5. Video
 6. Anders
 
-## Upload Stap voor Stap
+## ⬆️ Upload Stap voor Stap
 
 ### Stap 1: Navigeer naar Upload
 
@@ -252,7 +252,7 @@ Controleer of alles correct is geïmporteerd:
 4. Test zoekfunctie
 5. Bekijk random foto's
 
-## Media Bestanden Koppelen
+## 🔗 Media Bestanden Koppelen
 
 ### Bestandsstructuur
 
@@ -306,7 +306,7 @@ Na het uploaden van media:
 
 [Meer over thumbnails →](maintenance.md#thumbnails)
 
-## CLI Upload
+## 💻 CLI Upload
 
 Voor grote bestanden of geautomatiseerde uploads:
 
@@ -353,7 +353,7 @@ file                :   3421 rows
 thumbnails          :   3298 rows
 ```
 
-## Veelvoorkomende Fouten
+## ⚠️ Veelvoorkomende Fouten
 
 ### Validatie Fouten
 
@@ -419,7 +419,7 @@ sudo chmod -R 755 /data/resources
 - Controleer bestandsnamen (hoofdlettergevoelig!)
 - Check map structuur
 
-## Best Practices
+## 📐 Best Practices
 
 ### Voor Upload
 
@@ -458,7 +458,7 @@ sudo chmod -R 755 /data/resources
 - Document wat je hebt geüpload
 - Bewaar backup voor 30 dagen
 
-## Rollback
+## ⏪ Rollback
 
 Als er iets mis gaat:
 
@@ -485,7 +485,7 @@ docker compose up -d kna-historie
 
 [Meer over backup & restore →](maintenance.md#backup-restore)
 
-## Geavanceerd
+## 🧠 Geavanceerd
 
 ### Incrementele Updates
 
@@ -533,7 +533,7 @@ Gebruik met cron:
 0 2 * * 0 /path/to/upload.sh /path/to/weekly_export.xlsx
 ```
 
-## Volgende Stappen
+## ➡️ Volgende Stappen
 
 - [Leer gebruikers beheren](user-management.md)
 - [Onderhoud taken uitvoeren](maintenance.md)

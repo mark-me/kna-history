@@ -81,6 +81,8 @@ nav:
       - Ontwikkelaars:
             - 🏛️ Architectuur: developer-guide/architecture.md
             - ⚙️ Setup: developer-guide/setup.md
+            - 🔧 Configuratie: developer-guide/configuration.md
+            - 🛢️ Database: developer-guide/database.md
             - Debuggen:
                   - ⚡ Quick start: development/debugging/quick-start.md
                   - 👨‍💻 VSCode gids: development/debugging/vscode-debugging-guide.md

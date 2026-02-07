@@ -4,7 +4,7 @@
 
 Welkom bij het KNA Historie archief! Deze applicatie helpt je om door de rijke geschiedenis van toneelgroep KNA Hillegom te bladeren.
 
-## Wat kun je doen?
+## ❓ Wat kun je doen?
 
 ### 🎭 Voorstellingen Bekijken
 
@@ -50,7 +50,7 @@ Bekijk de rijke mediacollectie:
 
 [Meer over media →](viewing-media.md)
 
-## Navigatie
+## 🧭 Navigatie
 
 De applicatie heeft een duidelijke navigatiestructuur:
 
@@ -80,7 +80,7 @@ Gebruik de zoekbalk bovenaan de pagina om snel te vinden wat je zoekt:
 - Zoek op jaar
 - Filter op rol (acteur, regisseur, etc.)
 
-## Voor Bezoekers
+## 👀 Voor Bezoekers
 
 Als bezoeker kun je:
 
@@ -90,7 +90,7 @@ Als bezoeker kun je:
 - ✅ De tijdlijn verkennen
 - ❌ Geen data wijzigen of uploaden
 
-## Voor Beheerders
+## 🛠️ Voor Beheerders
 
 Als beheerder heb je extra mogelijkheden:
 
@@ -102,7 +102,7 @@ Als beheerder heb je extra mogelijkheden:
 
 [Meer over admin functies →](admin/dashboard.md)
 
-## Systeemvereisten Browser
+## 🌐 Systeemvereisten Browser
 
 Voor een optimale ervaring:
 
@@ -111,14 +111,14 @@ Voor een optimale ervaring:
 - **Cookies** toegestaan (voor inloggen)
 - **Minimale resolutie** 1024x768
 
-## Privacy
+## 🔒 Privacy
 
 - Alleen beheerders kunnen inloggen
 - Alle media is publiek toegankelijk
 - Geen tracking of analytics
 - Self-hosted op eigen server
 
-## Volgende Stappen
+## ➡️ Volgende Stappen
 
 - [Leer navigeren](navigation.md) door de applicatie
 - [Ontdek hoe je zoekt](searching.md) naar content
