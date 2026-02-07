@@ -1,0 +1,100 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>🎭 Rollen Beheren</h2>
+            <h5 class="text-muted">{{ performance.titel }} ({{ performance.jaar }})</h5>
+        </div>
+        <a href="{{ url_for('data_entry.list_performances') }}" class="btn btn-secondary">← Terug naar Voorstellingen</a>
+    </div>
+    
+    <!-- Add Role Form -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">+ Rol Toevoegen</h5>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('data_entry.add_role', ref_uitvoering=performance.ref_uitvoering) }}">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="id_lid" class="form-label">Lid *</label>
+                        <select class="form-select" id="id_lid" name="id_lid" required>
+                            <option value="">Selecteer lid...</option>
+                            {% for member in members %}
+                            <option value="{{ member.id_lid }}">{{ member.Voornaam }} {{ member.Achternaam }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-4 mb-3">
+                        <label for="rol" class="form-label">Rol *</label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="rol" 
+                               name="rol" 
+                               placeholder="bijv. Hamlet, Regie, Decor"
+                               required>
+                    </div>
+                    
+                    <div class="col-md-4 mb-3">
+                        <label for="rol_bijnaam" class="form-label">Bijnaam/Toelichting</label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="rol_bijnaam" 
+                               name="rol_bijnaam"
+                               placeholder="Optioneel">
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Rol Toevoegen</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Existing Roles -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Huidige Bezetting</h5>
+        </div>
+        <div class="card-body">
+            {% if roles %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Naam</th>
+                            <th>Rol</th>
+                            <th>Bijnaam/Toelichting</th>
+                            <th>Acties</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for role in roles %}
+                        <tr>
+                            <td>{{ role.Voornaam }} {{ role.Achternaam }}</td>
+                            <td><strong>{{ role.rol }}</strong></td>
+                            <td>{{ role.rol_bijnaam if role.rol_bijnaam else '-' }}</td>
+                            <td>
+                                <form method="POST" 
+                                      action="{{ url_for('data_entry.delete_role', ref_uitvoering=performance.ref_uitvoering, id_lid=role.id_lid) }}" 
+                                      style="display: inline;"
+                                      onsubmit="return confirm('Weet je zeker dat je deze rol wilt verwijderen?');">
+                                    <input type="hidden" name="rol" value="{{ role.rol }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Verwijderen</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                Nog geen rollen toegevoegd. Voeg hierboven de eerste rol toe.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

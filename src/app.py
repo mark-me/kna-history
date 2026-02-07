@@ -15,6 +15,7 @@ from flask_login import LoginManager, login_required
 
 from blueprints.admin import admin_bp
 from blueprints.auth import auth_bp
+from blueprints.data_entry import data_entry_bp  # NEW
 from kna_data import KnaDataReader, User, db
 from kna_data.config import get_config
 from logging_kna import logger
@@ -48,7 +49,7 @@ def create_app(config_name=None):
     app.config.from_object(config_obj)
 
     logger.info(f"Starting app with {config_obj.__class__.__name__}")
-    logger.info(f"MariaDB host: {config_obj.MARIADB_HOST}")
+    logger.info(f"Database: {config_obj.SQLITE_PATH}")
     logger.info(f"Resources dir: {config_obj.DIR_RESOURCES}")
 
     # Initialize extensions
@@ -58,6 +59,7 @@ def create_app(config_name=None):
     # Register blueprints
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(admin_bp, url_prefix="/admin")
+    app.register_blueprint(data_entry_bp, url_prefix="/data-entry")
 
     # Initialize database reader - with error handling
     try:
@@ -134,62 +136,48 @@ def create_app(config_name=None):
     def view_leden():
         """Page for viewing members"""
         if db_reader is None:
-            return render_template(
-                "error.html",
-                message="Database is niet beschikbaar. Neem contact op met de beheerder.",
-            ), 503
+            return render_template("error.html",
+                                 message="Database is niet beschikbaar. Neem contact op met de beheerder."), 503
 
         try:
             lst_leden = db_reader.leden()
             return render_template("leden.html", leden=lst_leden)
         except Exception as e:
             logger.error(f"Error loading members: {e}")
-            return render_template(
-                "error.html",
-                message="Er is een fout opgetreden bij het laden van de ledenlijst.",
-            ), 500
+            return render_template("error.html",
+                                 message="Er is een fout opgetreden bij het laden van de ledenlijst."), 500
 
     @app.route("/voorstellingen")
     @optional_login
     def view_voorstellingen():
         """Page for viewing performances"""
         if db_reader is None:
-            return render_template(
-                "error.html",
-                message="Database is niet beschikbaar. Neem contact op met de beheerder.",
-            ), 503
+            return render_template("error.html",
+                                 message="Database is niet beschikbaar. Neem contact op met de beheerder."), 503
 
         try:
             lst_voorstelling = db_reader.voorstellingen()
-            return render_template(
-                "voorstellingen.html", voorstellingen=lst_voorstelling
-            )
+            return render_template("voorstellingen.html", voorstellingen=lst_voorstelling)
         except Exception as e:
             logger.error(f"Error loading performances: {e}")
-            return render_template(
-                "error.html",
-                message="Er is een fout opgetreden bij het laden van de voorstellingen.",
-            ), 500
+            return render_template("error.html",
+                                 message="Er is een fout opgetreden bij het laden van de voorstellingen."), 500
 
     @app.route("/tijdslijn")
     @optional_login
     def view_tijdslijn():
         """Page for viewing timeline"""
         if db_reader is None:
-            return render_template(
-                "error.html",
-                message="Database is niet beschikbaar. Neem contact op met de beheerder.",
-            ), 503
+            return render_template("error.html",
+                                 message="Database is niet beschikbaar. Neem contact op met de beheerder."), 503
 
         try:
             lst_timeline = db_reader.timeline()
             return render_template("tijdslijn.html", tijdslijn=lst_timeline)
         except Exception as e:
             logger.error(f"Error loading timeline: {e}")
-            return render_template(
-                "error.html",
-                message="Er is een fout opgetreden bij het laden van de tijdslijn.",
-            ), 500
+            return render_template("error.html",
+                                 message="Er is een fout opgetreden bij het laden van de tijdslijn."), 500
 
     @app.route("/lid_media/<lid>")
     @optional_login
@@ -236,9 +224,7 @@ def create_app(config_name=None):
         """Health check endpoint"""
         health_status = {
             "status": "healthy",
-            "database_reader": "connected"
-            if db_reader is not None
-            else "not initialized",
+            "database_reader": "connected" if db_reader is not None else "not initialized"
         }
 
         try:
@@ -268,7 +254,9 @@ def create_app(config_name=None):
 
             admin_password = os.getenv("ADMIN_PASSWORD", "admin2026!")
             admin = User(
-                username="admin", email="admin@kna-hillegom.local", role="admin"
+                username="admin",
+                email="admin@kna-hillegom.local",
+                role="admin"
             )
             admin.password_hash = generate_password_hash(admin_password)
             db.session.add(admin)

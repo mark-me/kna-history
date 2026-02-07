@@ -1,0 +1,78 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+    <h2>📝 Gegevensinvoer</h2>
+    <p class="text-muted">Beheer leden, voorstellingen, rollen en media</p>
+    
+    <hr>
+    
+    {% if stats %}
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3>{{ stats.members }}</h3>
+                    <p class="text-muted mb-0">Leden</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3>{{ stats.performances }}</h3>
+                    <p class="text-muted mb-0">Voorstellingen</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3>{{ stats.roles }}</h3>
+                    <p class="text-muted mb-0">Rollen</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3>{{ stats.files }}</h3>
+                    <p class="text-muted mb-0">Media</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">👥 Leden</h5>
+                </div>
+                <div class="card-body">
+                    <p>Voeg nieuwe leden toe of bewerk bestaande ledeninformatie.</p>
+                    <a href="{{ url_for('data_entry.list_members') }}" class="btn btn-primary">Leden Beheren</a>
+                    <a href="{{ url_for('data_entry.add_member') }}" class="btn btn-outline-primary">+ Nieuw Lid</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">🎭 Voorstellingen</h5>
+                </div>
+                <div class="card-body">
+                    <p>Beheer voorstellingen, toewijzing van rollen en mediabestanden.</p>
+                    <a href="{{ url_for('data_entry.list_performances') }}" class="btn btn-success">Voorstellingen Beheren</a>
+                    <a href="{{ url_for('data_entry.add_performance') }}" class="btn btn-outline-success">+ Nieuwe Voorstelling</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="alert alert-info">
+        <strong>💡 Tip:</strong> Begin met het toevoegen van leden voordat je voorstellingen en rollen toevoegt.
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,115 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>📸 Media Beheren</h2>
+            <h5 class="text-muted">{{ performance.titel }} ({{ performance.jaar }})</h5>
+        </div>
+        <a href="{{ url_for('data_entry.list_performances') }}" class="btn btn-secondary">← Terug naar Voorstellingen</a>
+    </div>
+    
+    <!-- Upload Media Form -->
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">📤 Media Uploaden</h5>
+        </div>
+        <div class="card-body">
+            <form method="POST" 
+                  action="{{ url_for('data_entry.upload_media', ref_uitvoering=performance.ref_uitvoering) }}" 
+                  enctype="multipart/form-data">
+                
+                <div class="mb-3">
+                    <label for="files" class="form-label">Selecteer Bestanden *</label>
+                    <input type="file" 
+                           class="form-control" 
+                           id="files" 
+                           name="files" 
+                           multiple 
+                           accept=".jpg,.jpeg,.png,.pdf,.mp4"
+                           required>
+                    <small class="form-text text-muted">
+                        Toegestane bestandstypen: JPG, PNG, PDF, MP4. Meerdere bestanden mogelijk.
+                    </small>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="type_media" class="form-label">Type Media *</label>
+                    <select class="form-select" id="type_media" name="type_media" required>
+                        <option value="foto">Foto</option>
+                        <option value="poster">Poster</option>
+                        <option value="kaartje">Kaartje</option>
+                        <option value="programma">Programma</option>
+                        <option value="artikel">Artikel</option>
+                        <option value="video">Video</option>
+                    </select>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Personen in Media (optioneel)</label>
+                    <div style="max-height: 200px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 0.25rem; padding: 0.5rem;">
+                        {% for member in members %}
+                        <div class="form-check">
+                            <input class="form-check-input" 
+                                   type="checkbox" 
+                                   name="members" 
+                                   value="{{ member.id_lid }}" 
+                                   id="member_{{ member.id_lid }}">
+                            <label class="form-check-label" for="member_{{ member.id_lid }}">
+                                {{ member.Voornaam }} {{ member.Achternaam }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <small class="form-text text-muted">
+                        Selecteer leden die in de media voorkomen (voor foto's en video's)
+                    </small>
+                </div>
+                
+                <button type="submit" class="btn btn-info">Uploaden</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Existing Media -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Huidige Media ({{ media_files|length }})</h5>
+        </div>
+        <div class="card-body">
+            {% if media_files %}
+            <div class="table-responsive">
+                <table class="table table-hover table-sm">
+                    <thead>
+                        <tr>
+                            <th>Bestand</th>
+                            <th>Type</th>
+                            <th>Formaat</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for file in media_files %}
+                        <tr>
+                            <td>{{ file.bestand }}</td>
+                            <td>
+                                <span class="badge bg-secondary">{{ file.type_media }}</span>
+                            </td>
+                            <td>{{ file.file_ext|upper }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                Nog geen media toegevoegd. Upload hierboven de eerste bestanden.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="alert alert-warning mt-4">
+        <strong>⚠️ Let op:</strong> Mediabestanden worden opgeslagen in: <code>{{ performance.folder }}</code>
+    </div>
+</div>
+{% endblock %}

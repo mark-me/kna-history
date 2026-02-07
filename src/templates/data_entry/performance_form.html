@@ -1,0 +1,115 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+    <h2>{% if performance %}Voorstelling Bewerken{% else %}Nieuwe Voorstelling Toevoegen{% endif %}</h2>
+    
+    <div class="card mt-4">
+        <div class="card-body">
+            <form method="POST">
+                <div class="mb-3">
+                    <label for="ref_uitvoering" class="form-label">Referentie *</label>
+                    <input type="text" 
+                           class="form-control" 
+                           id="ref_uitvoering" 
+                           name="ref_uitvoering" 
+                           value="{{ performance.ref_uitvoering if performance else '' }}" 
+                           {% if performance %}readonly{% else %}required{% endif %}>
+                    <small class="form-text text-muted">Unieke referentie voor de voorstelling (bijv. "2023_hamlet")</small>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-8 mb-3">
+                        <label for="titel" class="form-label">Titel *</label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="titel" 
+                               name="titel" 
+                               value="{{ performance.titel if performance else '' }}" 
+                               required>
+                    </div>
+                    
+                    <div class="col-md-4 mb-3">
+                        <label for="jaar" class="form-label">Jaar *</label>
+                        <input type="number" 
+                               class="form-control" 
+                               id="jaar" 
+                               name="jaar" 
+                               min="1930" 
+                               max="2100"
+                               value="{{ performance.jaar if performance else '' }}" 
+                               required>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="auteur" class="form-label">Auteur</label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="auteur" 
+                               name="auteur" 
+                               value="{{ performance.auteur if performance else '' }}">
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label for="regie" class="form-label">Regie</label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="regie" 
+                               name="regie" 
+                               value="{{ performance.regie if performance else '' }}">
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="type" class="form-label">Type *</label>
+                    <select class="form-select" id="type" name="type" required>
+                        <option value="Uitvoering" {% if performance and performance.type == 'Uitvoering' %}selected{% endif %}>Uitvoering</option>
+                        <option value="Evenement" {% if performance and performance.type == 'Evenement' %}selected{% endif %}>Evenement</option>
+                        <option value="Festival" {% if performance and performance.type == 'Festival' %}selected{% endif %}>Festival</option>
+                        <option value="Workshop" {% if performance and performance.type == 'Workshop' %}selected{% endif %}>Workshop</option>
+                    </select>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="datum_van" class="form-label">Datum van</label>
+                        <input type="date" 
+                               class="form-control" 
+                               id="datum_van" 
+                               name="datum_van" 
+                               value="{{ performance.datum_van if performance else '' }}">
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label for="datum_tot" class="form-label">Datum tot</label>
+                        <input type="date" 
+                               class="form-control" 
+                               id="datum_tot" 
+                               name="datum_tot" 
+                               value="{{ performance.datum_tot if performance else '' }}">
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="folder" class="form-label">Map *</label>
+                    <input type="text" 
+                           class="form-control" 
+                           id="folder" 
+                           name="folder" 
+                           value="{{ performance.folder if performance else '' }}" 
+                           required>
+                    <small class="form-text text-muted">Mapnaam voor mediabestanden (bijv. "2023-hamlet")</small>
+                </div>
+                
+                <hr>
+                
+                <button type="submit" class="btn btn-primary">
+                    {% if performance %}Opslaan{% else %}Toevoegen{% endif %}
+                </button>
+                <a href="{{ url_for('data_entry.list_performances') }}" class="btn btn-secondary">Annuleren</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

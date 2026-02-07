@@ -1,0 +1,64 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>👥 Leden Beheren</h2>
+        <div>
+            <a href="{{ url_for('data_entry.index') }}" class="btn btn-secondary">← Terug</a>
+            <a href="{{ url_for('data_entry.add_member') }}" class="btn btn-primary">+ Nieuw Lid</a>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Naam</th>
+                            <th>Geboortedatum</th>
+                            <th>Startjaar</th>
+                            <th>GDPR</th>
+                            <th>Acties</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for member in members %}
+                        <tr>
+                            <td>{{ member.id_lid }}</td>
+                            <td>{{ member.Voornaam }} {{ member.Achternaam }}</td>
+                            <td>{{ member.Geboortedatum if member.Geboortedatum else '-' }}</td>
+                            <td>{{ member.Startjaar if member.Startjaar else '-' }}</td>
+                            <td>
+                                {% if member.gdpr_permission %}
+                                <span class="badge bg-success">Ja</span>
+                                {% else %}
+                                <span class="badge bg-warning">Nee</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('data_entry.edit_member', id_lid=member.id_lid) }}" 
+                                   class="btn btn-sm btn-outline-primary">Bewerken</a>
+                                <form method="POST" 
+                                      action="{{ url_for('data_entry.delete_member', id_lid=member.id_lid) }}" 
+                                      style="display: inline;"
+                                      onsubmit="return confirm('Weet je zeker dat je dit lid wilt verwijderen?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Verwijderen</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            {% if not members %}
+            <div class="alert alert-info">
+                Geen leden gevonden. <a href="{{ url_for('data_entry.add_member') }}">Voeg het eerste lid toe</a>.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

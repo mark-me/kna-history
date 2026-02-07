@@ -1,0 +1,76 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>🎭 Voorstellingen Beheren</h2>
+        <div>
+            <a href="{{ url_for('data_entry.index') }}" class="btn btn-secondary">← Terug</a>
+            <a href="{{ url_for('data_entry.add_performance') }}" class="btn btn-primary">+ Nieuwe Voorstelling</a>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Jaar</th>
+                            <th>Titel</th>
+                            <th>Auteur</th>
+                            <th>Type</th>
+                            <th>Regie</th>
+                            <th>Media</th>
+                            <th>Acties</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for performance in performances %}
+                        <tr>
+                            <td>{{ performance.jaar }}</td>
+                            <td><strong>{{ performance.titel }}</strong></td>
+                            <td>{{ performance.auteur if performance.auteur else '-' }}</td>
+                            <td>
+                                <span class="badge bg-secondary">{{ performance.type }}</span>
+                            </td>
+                            <td>{{ performance.regie if performance.regie else '-' }}</td>
+                            <td>{{ performance.qty_media if performance.qty_media else 0 }}</td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{{ url_for('data_entry.edit_performance', ref_uitvoering=performance.ref_uitvoering) }}" 
+                                       class="btn btn-outline-primary" title="Bewerken">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{{ url_for('data_entry.manage_roles', ref_uitvoering=performance.ref_uitvoering) }}" 
+                                       class="btn btn-outline-success" title="Rollen">
+                                        <i class="fas fa-users"></i>
+                                    </a>
+                                    <a href="{{ url_for('data_entry.manage_media', ref_uitvoering=performance.ref_uitvoering) }}" 
+                                       class="btn btn-outline-info" title="Media">
+                                        <i class="fas fa-images"></i>
+                                    </a>
+                                    <form method="POST" 
+                                          action="{{ url_for('data_entry.delete_performance', ref_uitvoering=performance.ref_uitvoering) }}" 
+                                          style="display: inline;"
+                                          onsubmit="return confirm('Weet je zeker dat je deze voorstelling wilt verwijderen?');">
+                                        <button type="submit" class="btn btn-outline-danger" title="Verwijderen">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            {% if not performances %}
+            <div class="alert alert-info">
+                Geen voorstellingen gevonden. <a href="{{ url_for('data_entry.add_performance') }}">Voeg de eerste voorstelling toe</a>.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

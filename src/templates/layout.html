@@ -17,7 +17,7 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
 
-    <!-- Voeg de FontAwesome CSS-link toe -->
+    <!-- FontAwesome CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css">
 
     <!-- Favicon -->
@@ -48,6 +48,7 @@
               <a class="nav-item nav-link" href="/about">ℹ️ Over</a>
               {% if current_user.is_authenticated %}
                 {% if current_user.is_admin %}
+                  <a class="nav-item nav-link" href="/data-entry">📝 Gegevensinvoer</a>
                   <a class="nav-item nav-link" href="/admin">🔧 Beheer</a>
                 {% endif %}
                 <a class="nav-item nav-link" href="/auth/logout">🚪 Uitloggen ({{ current_user.username }})</a>
@@ -65,8 +66,9 @@
           {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
               {% for category, message in messages %}
-              <div class="alert alert-{{ category }}">
+              <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
                 {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
               </div>
               {% endfor%}
             {% endif %}

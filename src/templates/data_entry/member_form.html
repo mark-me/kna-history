@@ -1,0 +1,88 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+    <h2>{% if member %}Lid Bewerken{% else %}Nieuw Lid Toevoegen{% endif %}</h2>
+    
+    <div class="card mt-4">
+        <div class="card-body">
+            <form method="POST">
+                <div class="mb-3">
+                    <label for="id_lid" class="form-label">ID *</label>
+                    <input type="text" 
+                           class="form-control" 
+                           id="id_lid" 
+                           name="id_lid" 
+                           value="{{ member.id_lid if member else '' }}" 
+                           {% if member %}readonly{% else %}required{% endif %}>
+                    <small class="form-text text-muted">Uniek identificatienummer voor het lid</small>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="voornaam" class="form-label">Voornaam *</label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="voornaam" 
+                               name="voornaam" 
+                               value="{{ member.Voornaam if member else '' }}" 
+                               required>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label for="achternaam" class="form-label">Achternaam *</label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="achternaam" 
+                               name="achternaam" 
+                               value="{{ member.Achternaam if member else '' }}" 
+                               required>
+                        <small class="form-text text-muted">Inclusief tussenvoegsel (bijv. "van der Berg")</small>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="geboortedatum" class="form-label">Geboortedatum</label>
+                        <input type="date" 
+                               class="form-control" 
+                               id="geboortedatum" 
+                               name="geboortedatum" 
+                               value="{{ member.Geboortedatum if member else '' }}">
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label for="startjaar" class="form-label">Startjaar</label>
+                        <input type="number" 
+                               class="form-control" 
+                               id="startjaar" 
+                               name="startjaar" 
+                               min="1930" 
+                               max="2100"
+                               value="{{ member.Startjaar if member else '' }}">
+                        <small class="form-text text-muted">Jaar van toetreding tot KNA</small>
+                    </div>
+                </div>
+                
+                <div class="mb-3 form-check">
+                    <input type="checkbox" 
+                           class="form-check-input" 
+                           id="gdpr_permission" 
+                           name="gdpr_permission" 
+                           value="1" 
+                           {% if not member or member.gdpr_permission %}checked{% endif %}>
+                    <label class="form-check-label" for="gdpr_permission">
+                        GDPR Toestemming (lid mag zichtbaar zijn in archief)
+                    </label>
+                </div>
+                
+                <hr>
+                
+                <button type="submit" class="btn btn-primary">
+                    {% if member %}Opslaan{% else %}Toevoegen{% endif %}
+                </button>
+                <a href="{{ url_for('data_entry.list_members') }}" class="btn btn-secondary">Annuleren</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
