@@ -84,13 +84,19 @@ nav:
             - 🔧 Configuratie: developer-guide/configuration.md
             - 🛢️ Database: developer-guide/database.md
             - Debuggen:
-                  - ⚡ Quick start: development/debugging/quick-start.md
-                  - 👨‍💻 VSCode gids: development/debugging/vscode-debugging-guide.md
+                  - ⚡ Quick start: developer-guide/debugging/quick-start.md
+                  - 👨‍💻 VSCode gids: developer-guide/debugging/vscode-debugging-guide.md
             - Data:
-                  - 🛢️ KNA Data: development/kna-data.md
+                  - 🛢️ KNA Data: developer-guide/kna-data.md
+            - 🐍 API Referece: developer-guide/api-reference.md
       - Deployment:
-            - Introductie: deployment/introduction.md
-            - Snelle start: deployment/deployment-guide.md
+            - 📦 Snelle installatie: deployment/quick-start.md
+            - 🏭 Productie: deployment/production.md
+            - ⚙️ Configuratie: deployment/configuration.md
+            - 🔔 Updates: deployment/updates.md
+            - 💾 Back-up: deployment/backup.md
+            - 📈 Monitoring: deployment/monitoring.md
+            - 🩺 Troubleshooting: deployment/troubleshooting.md
 
 plugins:
     - search:
