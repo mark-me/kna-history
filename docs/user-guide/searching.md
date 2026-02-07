@@ -1,3 +1,5 @@
+![Search](../images/search.png){ align=right width="90" }
+
 # Zoeken in het Archief
 
 Deze pagina legt uit hoe je effectief kunt zoeken in het KNA Historie archief.
@@ -44,15 +46,15 @@ Vind foto's en video's via:
     **Specifiek zijn**
     - ✅ "Jan de Vries acteur 2010" - Goede zoekopdracht
     - ❌ "Jan" - Te algemeen
-    
+
     **Deel van naam**
     - "Vries" vindt ook "de Vries" en "van der Vries"
     - "Jansen" vindt "Janssen", "Jansens", etc.
-    
+
     **Jaartallen gebruiken**
     - "2020" toont alles uit 2020
     - "2015-2020" voor een periode
-    
+
     **Rol zoeken**
     - "regisseur" voor alle regisseurs
     - "hoofdrol" voor hoofdrolspelers

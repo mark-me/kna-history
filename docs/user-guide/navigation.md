@@ -1,3 +1,5 @@
+![Navigate](../images/navigate.png){ align=right width="90" }
+
 # Navigatie
 
 Deze pagina legt uit hoe je door het KNA Historie archief navigeert.

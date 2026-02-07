@@ -69,18 +69,18 @@ nav:
       - Home: index.md
 
       - Gebruikershandleiding:
-            - user-guide/introduction.md
-            - user-guide/navigation.md
-            - user-guide/searching.md
-            - user-guide/viewing-media.md
+            - 👋 Introductie: user-guide/introduction.md
+            - 🧭 Wat-is-waar: user-guide/navigation.md
+            - 🔎︎ Zoeken: user-guide/searching.md
+            - 📷 Media bekijken: user-guide/viewing-media.md
             - Beheer:
-                  - user-guide/admin/dashboard.md
-                  - user-guide/admin/data-upload.md
-                  - user-guide/admin/user-management.md
-                  - user-guide/admin/maintenance.md
+                  - 📊 Dashboard: user-guide/admin/dashboard.md
+                  - 📤 Upload: user-guide/admin/data-upload.md
+                  - 👥 Gebruikers management: user-guide/admin/user-management.md
+                  - 🚧 Onderhoud: user-guide/admin/maintenance.md
       - Ontwikkelaars:
-            - developer-guide/architecture.md
-            - developer-guide/setup.md
+            - 🏛️ Architectuur: developer-guide/architecture.md
+            - ⚙️ Setup: developer-guide/setup.md
             - Debuggen:
                   - ⚡ Quick start: development/debugging/quick-start.md
                   - 👨‍💻 VSCode gids: development/debugging/vscode-debugging-guide.md

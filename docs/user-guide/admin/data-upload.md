@@ -1,3 +1,5 @@
+![Upload](../../images/upload.png){ align=right width="90" }
+
 # Data Uploaden
 
 Deze handleiding legt uit hoe je nieuwe data uploadt naar het KNA Historie archief via Excel bestanden.
@@ -163,7 +165,7 @@ Klik op **Valideren**. Het systeem controleert:
 === "✅ Succesvol"
     ```
     ✅ Validatie GESLAAGD
-    
+
     Sheet informatie:
       Leden          : 234 rijen
       Uitvoering     :  89 rijen
@@ -171,31 +173,31 @@ Klik op **Valideren**. Het systeem controleert:
       Bestand        : 3.421 rijen
       Type_Media     :   6 rijen
     ```
-    
+
     Je kunt nu doorgaan naar importeren.
 
 === "❌ Mislukt"
     ```
     ❌ Validatie GEFAALD
-    
+
     Fouten:
       - Sheet 'Leden' mist kolom 'Achternaam'
       - Rij 42: id_lid '999' niet gevonden in Leden
       - Uitvoering 'Faust': geen folder opgegeven
     ```
-    
+
     Corrigeer de fouten en upload opnieuw.
 
 === "⚠️ Waarschuwingen"
     ```
     âœ… Validatie GESLAAGD (met waarschuwingen)
-    
+
     Waarschuwingen:
       - 12 leden zonder email adres
       - 3 voorstellingen zonder beschrijving
       - 45 bestanden zonder getagde personen
     ```
-    
+
     Je kunt importeren, maar bekijk waarschuwingen.
 
 ### Stap 4: Preview

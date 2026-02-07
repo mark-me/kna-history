@@ -1,3 +1,5 @@
+![Introduction](../images/user-guide.png){ align=right width="90" }
+
 # Introductie
 
 Welkom bij het KNA Historie archief! Deze applicatie helpt je om door de rijke geschiedenis van toneelgroep KNA Hillegom te bladeren.

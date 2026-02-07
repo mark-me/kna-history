@@ -1,3 +1,5 @@
+![Onderhoud](../../images/maintenance.png){ align=right width="90" }
+
 # Onderhoud
 
 Deze handleiding legt uit hoe je onderhouds taken uitvoert op het KNA Historie archief.

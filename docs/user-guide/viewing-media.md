@@ -1,3 +1,5 @@
+![View media](../images/view-media.png){ align=right width="90" }
+
 # Media Bekijken
 
 Deze pagina legt uit hoe je foto's, video's en documenten bekijkt in het KNA Historie archief.
@@ -229,7 +231,7 @@ Download meerdere bestanden tegelijk:
 5. Download start automatisch
 
 !!! warning "Grote Downloads"
-    Bij veel bestanden kan het even duren voor de ZIP klaar is. 
+    Bij veel bestanden kan het even duren voor de ZIP klaar is.
     Je krijgt een melding wanneer de download klaar staat.
 
 ### Kwaliteitsopties
@@ -242,7 +244,7 @@ Kies welke versie je downloadt:
 - Voor archivering/prints
 
 **Web Optimized**
-- Kleinere bestandsgrootte  
+- Kleinere bestandsgrootte
 - Behoud goede kwaliteit
 - Voor online gebruik
 
@@ -273,7 +275,7 @@ Deel interessante media met anderen:
 - Credits automatisch toegevoegd
 
 !!! note "Copyright"
-    Alle media is eigendom van KNA Hillegom. 
+    Alle media is eigendom van KNA Hillegom.
     Delen voor persoonlijk gebruik is toegestaan.
 
 ## Mobiele Weergave
@@ -313,7 +315,7 @@ Sommige content kan offline bekeken worden:
 4. Bekijk zonder internet
 
 !!! tip "Storage Beheer"
-    Offline media neemt opslag in. 
+    Offline media neemt opslag in.
     Beheer via instellingen → Offline content.
 
 ## Favorieten

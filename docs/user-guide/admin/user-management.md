@@ -1,3 +1,6 @@
+
+![Upload](../../images/user-management.png){ align=right width="90" }
+
 # Gebruikersbeheer
 
 Deze handleiding legt uit hoe je gebruikers beheert in het KNA Historie archief.
@@ -164,7 +167,7 @@ De nieuwe gebruiker kan direct inloggen met:
 5. Stelt nieuw wachtwoord in
 
 !!! tip "Tijdelijk Wachtwoord"
-    Geef een tijdelijk wachtwoord en vraag gebruiker 
+    Geef een tijdelijk wachtwoord en vraag gebruiker
     om deze bij eerste login te wijzigen.
 
 ### Rol Wijzigen

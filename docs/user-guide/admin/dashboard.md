@@ -1,3 +1,5 @@
+![Dashboard](../../images/dashboard.png){ align=right width="90" }
+
 # Admin Dashboard
 
 Het admin dashboard geeft beheerders toegang tot alle beheerfuncties van het KNA Historie archief.
