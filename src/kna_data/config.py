@@ -1,28 +1,64 @@
 """
 KNA Configuration Module
 
-Centralized configuration with clear separation of concerns:
-- Two databases: KNA content (SQLite) and Users (SQLite)
-- Environment-based configuration
-- DRY principles with base configuration
+Loads configuration from .env files using python-dotenv.
+Environment variables are automatically loaded before reading.
 """
 import os
 from pathlib import Path
 from sqlalchemy import create_engine
+from dotenv import load_dotenv, find_dotenv
+
+
+def _load_environment():
+    """
+    Load environment variables from .env file.
+    
+    Search order:
+    1. .env.{FLASK_ENV} (e.g., .env.development) - if FLASK_ENV is set
+    2. .env (default)
+    3. System environment variables (fallback)
+    
+    Returns:
+        str: Path to loaded .env file, or None if not found
+    """
+    # Check for environment-specific file first
+    env = os.getenv("FLASK_ENV")
+    if env:
+        env_file = f".env.{env}"
+        if os.path.exists(env_file):
+            load_dotenv(env_file, override=True)
+            print(f"✓ Loaded environment from: {env_file}")
+            return env_file
+    
+    # Fall back to default .env file
+    env_file = find_dotenv()
+    if env_file:
+        load_dotenv(env_file)
+        print(f"✓ Loaded environment from: {env_file}")
+        return env_file
+    
+    print("⚠ No .env file found - using system environment variables")
+    return None
+
+
+# Load environment variables from .env file
+# This runs when the module is imported
+_env_file = _load_environment()
 
 
 class BaseConfig:
     """Base configuration with common settings"""
     
-    # Flask settings
+    # Flask settings (loaded from .env)
     SECRET_KEY = os.getenv("FLASK_SECRET", os.urandom(32).hex())
     MAX_CONTENT_LENGTH = 50 * 1024 * 1024  # 50 MiB
     
     # SQLAlchemy settings
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_ECHO = False  # Set to True for SQL debugging
+    SQLALCHEMY_ECHO = os.getenv("SQL_ECHO", "false").lower() == "true"
     
-    # Resources directory
+    # Resources directory (from .env)
     DIR_RESOURCES = os.getenv("DIR_RESOURCES", "./resources/")
     
     # Database paths (to be overridden in subclasses)
@@ -73,12 +109,9 @@ class DevelopmentConfig(BaseConfig):
     DEBUG = True
     TESTING = False
     
-    # Database paths from environment or defaults
+    # Database paths from .env file (loaded above)
     SQLITE_KNA_PATH = os.getenv("SQLITE_KNA_PATH", "kna_dev.db")
     SQLITE_USERS_PATH = os.getenv("SQLITE_USERS_PATH", "users_dev.db")
-    
-    # Enable SQL query logging in development
-    SQLALCHEMY_ECHO = os.getenv("SQL_ECHO", "false").lower() == "true"
 
 
 class ProductionConfig(BaseConfig):
@@ -87,7 +120,7 @@ class ProductionConfig(BaseConfig):
     DEBUG = False
     TESTING = False
     
-    # Database paths from environment (required in production)
+    # Database paths from .env file (required in production)
     SQLITE_KNA_PATH = os.getenv("SQLITE_KNA_PATH")
     SQLITE_USERS_PATH = os.getenv("SQLITE_USERS_PATH")
     
@@ -95,9 +128,15 @@ class ProductionConfig(BaseConfig):
         super().__init__()
         # Validate required environment variables in production
         if not self.SQLITE_KNA_PATH:
-            raise ValueError("SQLITE_KNA_PATH environment variable required in production")
+            raise ValueError(
+                "SQLITE_KNA_PATH environment variable required in production. "
+                "Set it in .env file or environment."
+            )
         if not self.SQLITE_USERS_PATH:
-            raise ValueError("SQLITE_USERS_PATH environment variable required in production")
+            raise ValueError(
+                "SQLITE_USERS_PATH environment variable required in production. "
+                "Set it in .env file or environment."
+            )
 
 
 class TestingConfig(BaseConfig):
@@ -128,22 +167,31 @@ def get_config(env: str = None) -> BaseConfig:
     
     Args:
         env: Environment name ('development', 'production', 'testing')
-             If None, uses FLASK_ENV environment variable
+             If None, uses FLASK_ENV from .env file or environment
     
     Returns:
         Configuration object instance
     
     Example:
-        >>> config = get_config('development')
+        >>> # With .env file containing FLASK_ENV=development
+        >>> config = get_config()
         >>> print(config.SQLITE_KNA_PATH)
         kna_dev.db
+        
+        >>> # Explicit environment
+        >>> config = get_config('production')
+        >>> print(config.DEBUG)
+        False
     """
     if env is None:
         env = os.getenv("FLASK_ENV", "production")
     
     config_class = _config_registry.get(env)
     if not config_class:
-        raise ValueError(f"Unknown environment: {env}. Must be one of {list(_config_registry.keys())}")
+        raise ValueError(
+            f"Unknown environment: {env}. "
+            f"Must be one of {list(_config_registry.keys())}"
+        )
     
     config = config_class()
     config.ensure_directories()

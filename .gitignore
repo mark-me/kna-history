@@ -164,3 +164,19 @@ cython_debug/
 
 # Project dependent
 data/
+
+# Environment files (contains secrets!)
+.env
+.env.local
+.env.*.local
+
+# Keep example files (safe to commit)
+!.env.example
+!.env.development.example
+!.env.production.example
+
+# Database files
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
