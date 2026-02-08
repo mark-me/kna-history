@@ -7,7 +7,7 @@ Internal organization in sub-packages.
 
 # Infrastructure
 from .config import get_config
-from .database import db, init_databases
+from .database import DatabaseManager, db, init_databases
 
 # Domain models
 from .models import User
@@ -17,12 +17,13 @@ from .services import KnaDataLoader, KnaDataReader
 
 # Public API
 __all__ = [
-    'get_config',
-    'db',
-    'init_databases',
-    'User',
-    'KnaDataLoader',
-    'KnaDataReader',
+    "get_config",
+    "db",
+    "init_databases",
+    "DatabaseManager",
+    "User",
+    "KnaDataLoader",
+    "KnaDataReader",
 ]
 
-__version__ = '2.0.0'
+__version__ = "2.0.0"
