@@ -16,7 +16,7 @@ from flask_login import LoginManager, login_required
 from blueprints.admin import admin_bp
 from blueprints.auth import auth_bp
 from blueprints.data_entry import data_entry_bp
-from blueprints.helpers import with_kna_reader
+from blueprints.helpers import with_kna_reader, get_kna_config
 from kna_data import (
     DatabaseManager,
     KnaDataLoader,
@@ -255,8 +255,6 @@ def _register_health_routes(app: Flask):
     @app.route("/health")
     def health():
         """Comprehensive health check"""
-        from blueprints.helpers import get_kna_config, get_kna_reader
-
         status = {
             "status": "healthy",
             "users_db": DatabaseManager.check_users_db_health(),
