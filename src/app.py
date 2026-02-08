@@ -9,20 +9,22 @@ Clean architecture with separated concerns:
 """
 
 import os
+
 from flask import Flask, render_template, send_from_directory
 from flask_login import LoginManager, login_required
 
 from blueprints.admin import admin_bp
 from blueprints.auth import auth_bp
 from blueprints.data_entry import data_entry_bp
+from blueprints.helpers import with_kna_reader
 from kna_data import (
+    DatabaseManager,
+    KnaDataLoader,
+    KnaDataReader,
+    User,
+    db,
     get_config,
     init_databases,
-    db,
-    User,
-    KnaDataReader,
-    KnaDataLoader,
-    DatabaseManager,
 )
 from logging_kna import logger
 
@@ -42,14 +44,12 @@ def create_app(env: str = None) -> Flask:
     """
     app = Flask(__name__)
 
-    # ========================================================================
-    # Step 1: Configuration (ONCE)
-    # ========================================================================
+    # Step 1: Configuration
     config = get_config(env)
     app.config.from_object(config)
 
     # Store config object for blueprints to access
-    app.config['KNA_CONFIG'] = config
+    app.config["KNA_CONFIG"] = config
 
     logger.info("=" * 60)
     logger.info("Starting KNA History Archive")
@@ -59,35 +59,23 @@ def create_app(env: str = None) -> Flask:
     logger.info(f"Users DB: {config.SQLITE_USERS_PATH}")
     logger.info("=" * 60)
 
-    # ========================================================================
-    # Step 2: Database Initialization (ONCE)
-    # ========================================================================
+    # Step 2: Database Initialization
     init_databases(app, config)
 
-    # ========================================================================
-    # Step 3: Initialize KNA Services (ONCE)
-    # ========================================================================
+    # Step 3: Initialize KNA Services
     _init_kna_services(app, config)
 
-    # ========================================================================
     # Step 4: Authentication
-    # ========================================================================
     _init_authentication(app)
 
-    # ========================================================================
     # Step 5: Register Blueprints
-    # ========================================================================
     _register_blueprints(app)
 
-    # ========================================================================
     # Step 6: Register Routes
-    # ========================================================================
     _register_public_routes(app)
     _register_health_routes(app)
 
-    # ========================================================================
     # Step 7: Create Default Admin
-    # ========================================================================
     _create_default_admin(app)
 
     logger.info("Application initialization complete")
@@ -103,19 +91,19 @@ def _init_kna_services(app: Flask, config):
     try:
         # Create reader ONCE
         reader = KnaDataReader(config=config)
-        app.config['KNA_READER'] = reader
+        app.config["KNA_READER"] = reader
         logger.info("✓ KNA Reader initialized")
 
         # Create loader ONCE
         loader = KnaDataLoader(config=config)
-        app.config['KNA_LOADER'] = loader
+        app.config["KNA_LOADER"] = loader
         logger.info("✓ KNA Loader initialized")
 
     except Exception as e:
         logger.error(f"Failed to initialize KNA services: {e}")
         # Store None so blueprints can handle gracefully
-        app.config['KNA_READER'] = None
-        app.config['KNA_LOADER'] = None
+        app.config["KNA_READER"] = None
+        app.config["KNA_LOADER"] = None
         raise
 
 
@@ -148,8 +136,6 @@ def _register_public_routes(app: Flask):
 
     Uses blueprints.helpers to access services (DRY pattern)
     """
-    from blueprints.helpers import get_kna_reader, with_kna_reader
-
     # Optional login requirement
     require_login = os.getenv("REQUIRE_LOGIN", "false").lower() == "true"
 
@@ -247,7 +233,9 @@ def _register_public_routes(app: Flask):
         """View performance media (reader injected)"""
         info = reader.voorstelling_info(voorstelling=voorstelling)
         media = reader.voorstelling_media(voorstelling=voorstelling)
-        return render_template("voorstelling_media.html", voorstelling=info, media=media)
+        return render_template(
+            "voorstelling_media.html", voorstelling=info, media=media
+        )
 
     @app.route("/voorstelling_lid_media/<voorstelling>/<lid>")
     @optional_login
@@ -256,7 +244,9 @@ def _register_public_routes(app: Flask):
         """View member media in performance (reader injected)"""
         info = reader.voorstelling_info(voorstelling=voorstelling)
         media = reader.voorstelling_lid_media(voorstelling=voorstelling, lid=lid)
-        return render_template("voorstelling_media.html", voorstelling=info, media=media)
+        return render_template(
+            "voorstelling_media.html", voorstelling=info, media=media
+        )
 
 
 def _register_health_routes(app: Flask):
@@ -273,7 +263,6 @@ def _register_health_routes(app: Flask):
         }
 
         try:
-            reader = get_kna_reader()
             config = get_kna_config()
             kna_engine = config.get_kna_engine()
             status["kna_db"] = DatabaseManager.check_kna_db_health(kna_engine)
@@ -300,9 +289,7 @@ def _create_default_admin(app: Flask):
                 admin_password = os.getenv("ADMIN_PASSWORD", "admin2026!")
 
                 admin = User(
-                    username="admin",
-                    email="admin@kna-hillegom.local",
-                    role="admin"
+                    username="admin", email="admin@kna-hillegom.local", role="admin"
                 )
                 admin.set_password(admin_password)
 
@@ -310,7 +297,7 @@ def _create_default_admin(app: Flask):
                 db.session.commit()
 
                 logger.info("✓ Created default admin user")
-                if app.config['DEBUG']:
+                if app.config["DEBUG"]:
                     logger.warning(f"Admin password: {admin_password}")
             else:
                 logger.info("✓ Admin user exists")
@@ -328,8 +315,4 @@ def _render_error(message: str) -> str:
 
 if __name__ == "__main__":
     app = create_app()
-    app.run(
-        host="0.0.0.0",
-        port=5000,
-        debug=app.config.get("DEBUG", False)
-    )
+    app.run(host="0.0.0.0", port=5000, debug=app.config.get("DEBUG", False))
