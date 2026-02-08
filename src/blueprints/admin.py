@@ -26,14 +26,9 @@ from werkzeug.utils import secure_filename
 from kna_data import User, db
 from logging_kna import logger
 
-# Import shared helpers (DRY!)
 from .helpers import (
-    admin_required,
     allowed_file,
     get_file_size,
-    get_kna_config,
-    get_kna_loader,
-    get_kna_reader,
     with_kna_loader,
     with_kna_reader,
 )
@@ -61,6 +56,7 @@ def require_login_for_admin():
 # Admin Dashboard
 # ============================================================================
 
+
 @admin_bp.route("/")
 def index():
     """Admin dashboard"""
@@ -70,6 +66,7 @@ def index():
 # ============================================================================
 # Excel Upload (Uses helpers - DRY!)
 # ============================================================================
+
 
 @admin_bp.route("/upload")
 def upload_page():
@@ -92,18 +89,24 @@ def validate_upload(loader):
 
         # Validate file type using helper (DRY!)
         if not allowed_file(file.filename, ALLOWED_EXTENSIONS):
-            return jsonify({
-                "valid": False,
-                "errors": [f"Invalid file type. Allowed: {', '.join(ALLOWED_EXTENSIONS)}"]
-            }), 400
+            return jsonify(
+                {
+                    "valid": False,
+                    "errors": [
+                        f"Invalid file type. Allowed: {', '.join(ALLOWED_EXTENSIONS)}"
+                    ],
+                }
+            ), 400
 
         # Validate file size using helper (DRY!)
         file_size = get_file_size(file)
         if file_size > MAX_FILE_SIZE:
-            return jsonify({
-                "valid": False,
-                "errors": [f"File too large. Max: {MAX_FILE_SIZE / 1024 / 1024}MB"]
-            }), 400
+            return jsonify(
+                {
+                    "valid": False,
+                    "errors": [f"File too large. Max: {MAX_FILE_SIZE / 1024 / 1024}MB"],
+                }
+            ), 400
 
         # Save temporary file
         filename = secure_filename(file.filename)
@@ -127,10 +130,9 @@ def validate_upload(loader):
 
     except Exception as e:
         logger.error(f"Validation error: {e}", exc_info=True)
-        return jsonify({
-            "valid": False,
-            "errors": [f"Validation failed: {str(e)}"]
-        }), 500
+        return jsonify(
+            {"valid": False, "errors": [f"Validation failed: {str(e)}"]}
+        ), 500
 
 
 @admin_bp.route("/upload/load", methods=["POST"])
@@ -140,19 +142,23 @@ def load_data(loader):
     try:
         # Check session
         if "temp_file_path" not in session:
-            return jsonify({
-                "success": False,
-                "error": "No validated file found. Please validate first."
-            }), 400
+            return jsonify(
+                {
+                    "success": False,
+                    "error": "No validated file found. Please validate first.",
+                }
+            ), 400
 
         temp_path = session.get("temp_file_path")
         filename = session.get("temp_file_name")
 
         if not os.path.exists(temp_path):
-            return jsonify({
-                "success": False,
-                "error": "Validated file no longer exists. Please re-upload."
-            }), 400
+            return jsonify(
+                {
+                    "success": False,
+                    "error": "Validated file no longer exists. Please re-upload.",
+                }
+            ), 400
 
         # Load data (loader already injected!)
         logger.info(f"Loading data from {temp_path}")
@@ -165,11 +171,13 @@ def load_data(loader):
 
         logger.info(f"Data loaded successfully: {stats}")
 
-        return jsonify({
-            "success": True,
-            "message": f"Data loaded successfully from {filename}",
-            "stats": stats,
-        })
+        return jsonify(
+            {
+                "success": True,
+                "message": f"Data loaded successfully from {filename}",
+                "stats": stats,
+            }
+        )
 
     except Exception as e:
         logger.error(f"Load error: {e}", exc_info=True)
@@ -209,17 +217,15 @@ def cancel_upload():
 # Database Statistics (Uses helpers - DRY!)
 # ============================================================================
 
+
 @admin_bp.route("/data/stats")
 @with_kna_reader  # Reader injected automatically!
 def data_stats(reader):
     """Get database statistics (reader injected by decorator)"""
     try:
-        stats = {}
-
         # All queries use the same reader instance (efficient!)
         df = pd.read_sql("SELECT COUNT(*) as count FROM lid", con=reader.engine)
-        stats["members"] = int(df.iloc[0]["count"])
-
+        stats = {"members": int(df.iloc[0]["count"])}
         df = pd.read_sql(
             "SELECT COUNT(*) as count FROM uitvoering WHERE type='Uitvoering'",
             con=reader.engine,
@@ -252,11 +258,13 @@ def regenerate_thumbnails(loader):
     try:
         count = loader._generate_thumbnails()
 
-        return jsonify({
-            "success": True,
-            "message": f"Generated {count} thumbnails",
-            "count": count,
-        })
+        return jsonify(
+            {
+                "success": True,
+                "message": f"Generated {count} thumbnails",
+                "count": count,
+            }
+        )
 
     except Exception as e:
         logger.error(f"Thumbnail error: {e}", exc_info=True)
@@ -266,6 +274,7 @@ def regenerate_thumbnails(loader):
 # ============================================================================
 # User Management
 # ============================================================================
+
 
 @admin_bp.route("/users")
 def list_users():
@@ -277,29 +286,26 @@ def list_users():
 @admin_bp.route("/users/create", methods=["GET", "POST"])
 def create_user():
     """Create new user"""
-    if request.method == "POST":
-        username = request.form.get("username")
-        email = request.form.get("email")
-        password = request.form.get("password")
-        role = request.form.get("role", "viewer")
+    if request.method != "POST":
+        return render_template(
+            "admin/user_form.html", user=None, form_action=url_for("admin.create_user")
+        )
+    username = request.form.get("username")
+    email = request.form.get("email")
+    password = request.form.get("password")
+    role = request.form.get("role", "viewer")
 
-        if User.query.filter_by(username=username).first():
-            flash("Deze gebruikersnaam is al in gebruik.", "danger")
-            return redirect(url_for("admin.create_user"))
+    if User.query.filter_by(username=username).first():
+        flash("Deze gebruikersnaam is al in gebruik.", "danger")
+        return redirect(url_for("admin.create_user"))
 
-        user = User(username=username, email=email, role=role)
-        user.set_password(password)
-        db.session.add(user)
-        db.session.commit()
+    user = User(username=username, email=email, role=role)
+    user.set_password(password)
+    db.session.add(user)
+    db.session.commit()
 
-        flash(f"Gebruiker {username} succesvol aangemaakt.", "success")
-        return redirect(url_for("admin.list_users"))
-
-    return render_template(
-        "admin/user_form.html",
-        user=None,
-        form_action=url_for("admin.create_user")
-    )
+    flash(f"Gebruiker {username} succesvol aangemaakt.", "success")
+    return redirect(url_for("admin.list_users"))
 
 
 @admin_bp.route("/users/edit/<int:user_id>", methods=["GET", "POST"])
@@ -312,8 +318,7 @@ def edit_user(user_id):
         user.email = request.form.get("email")
         user.role = request.form.get("role", user.role)
 
-        password = request.form.get("password")
-        if password:
+        if password := request.form.get("password"):
             user.set_password(password)
 
         db.session.commit()
@@ -323,7 +328,7 @@ def edit_user(user_id):
     return render_template(
         "admin/user_form.html",
         user=user,
-        form_action=url_for("admin.edit_user", user_id=user_id)
+        form_action=url_for("admin.edit_user", user_id=user_id),
     )
 
 
@@ -345,10 +350,13 @@ def delete_user(user_id):
 # Error Handlers
 # ============================================================================
 
+
 @admin_bp.errorhandler(413)
 def too_large(e):
     """Handle file too large error"""
-    return jsonify({
-        "valid": False,
-        "errors": [f"File too large. Maximum: {MAX_FILE_SIZE / 1024 / 1024}MB"]
-    }), 413
+    return jsonify(
+        {
+            "valid": False,
+            "errors": [f"File too large. Maximum: {MAX_FILE_SIZE / 1024 / 1024}MB"],
+        }
+    ), 413
