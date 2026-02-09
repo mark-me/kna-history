@@ -28,11 +28,7 @@ class MediaMentionService:
             str
         ] = None,  # article / video / podcast / photo / mention / obituary / ...
         description: Optional[str] = None,
-        notes: Optional[str] = None,
-        # Optional links to entities (many-to-many is possible later via association table)
-        member_ids: Optional[List[str]] = None,
-        activity_ids: Optional[List[str]] = None,
-        media_item_ids: Optional[List[int]] = None,
+        notes: Optional[str] = None
     ) -> MediaMention:
         """
         Create a new media mention record.
@@ -52,28 +48,6 @@ class MediaMentionService:
         )
         session.add(mention)
         session.flush()  # so we can use mention.id_mention immediately
-
-        # Optional: link to members / activities / media items
-        # (you can later extract this to a separate association method if needed)
-        if member_ids:
-            for mid in member_ids:
-                member = session.get(Member, mid.strip())
-                if member:
-                    # TODO: In real app you might use an association table instead of direct append
-                    # For now we skip actual linking unless you add a many-to-many table
-                    pass  # placeholder
-
-        if activity_ids:
-            for aid in activity_ids:
-                act = session.get(Activity, aid.strip())
-                if act:
-                    pass  # placeholder
-
-        if media_item_ids:
-            for mid in media_item_ids:
-                item = session.get(MediaItem, mid)
-                if item:
-                    pass  # placeholder
 
         return mention
 
