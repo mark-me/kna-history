@@ -3,7 +3,10 @@ KNA Database Module
 
 Centralized database initialization and management.
 Separates concerns between Users DB and KNA Content DB.
+
+IMPORTANT: Ensures database directories exist before creating databases.
 """
+from pathlib import Path
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text, inspect
 from logging_kna import logger
@@ -17,6 +20,7 @@ class DatabaseManager:
     Manages database initialization and health checks.
     
     Responsibilities:
+    - Ensure database directories exist
     - Initialize Flask-SQLAlchemy (users DB)
     - Create tables if they don't exist
     - Provide health check utilities
@@ -31,6 +35,9 @@ class DatabaseManager:
             app: Flask application instance
             config: Configuration object with database settings
         """
+        # CRITICAL: Ensure database directories exist FIRST
+        DatabaseManager._ensure_database_directories(config)
+        
         # Configure Flask-SQLAlchemy for users database
         app.config['SQLALCHEMY_DATABASE_URI'] = config.users_database_uri
         app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = config.SQLALCHEMY_TRACK_MODIFICATIONS
@@ -45,11 +52,51 @@ class DatabaseManager:
             DatabaseManager._log_database_info(config)
     
     @staticmethod
+    def _ensure_database_directories(config):
+        """
+        Ensure database directories exist before creating databases.
+        
+        This is CRITICAL - SQLite cannot create files in non-existent directories.
+        
+        Args:
+            config: Configuration object with database paths
+        """
+        for db_path in [config.SQLITE_KNA_PATH, config.SQLITE_USERS_PATH]:
+            if db_path and db_path != ":memory:":
+                # Get parent directory
+                db_file = Path(db_path)
+                db_dir = db_file.parent
+                
+                # Create directory if it doesn't exist
+                if not db_dir.exists():
+                    logger.info(f"Creating database directory: {db_dir}")
+                    db_dir.mkdir(parents=True, exist_ok=True)
+                
+                # Verify directory is writable
+                if not db_dir.exists() or not db_dir.is_dir():
+                    raise RuntimeError(
+                        f"Database directory does not exist or is not a directory: {db_dir}"
+                    )
+                
+                # Check write permissions
+                test_file = db_dir / '.write_test'
+                try:
+                    test_file.touch()
+                    test_file.unlink()
+                except Exception as e:
+                    raise RuntimeError(
+                        f"Database directory is not writable: {db_dir}\n"
+                        f"Error: {e}"
+                    )
+                
+                logger.info(f"✓ Database directory ready: {db_dir}")
+    
+    @staticmethod
     def _create_users_tables():
         """Create users database tables if they don't exist"""
         try:
             db.create_all()
-            logger.info("Users database tables initialized")
+            logger.info("✓ Users database tables initialized")
         except Exception as e:
             logger.error(f"Failed to create users tables: {e}")
             raise
@@ -148,6 +195,8 @@ class DatabaseManager:
 def init_databases(app, config):
     """
     Convenience function to initialize all databases.
+    
+    Ensures directories exist before database initialization.
     
     Args:
         app: Flask application

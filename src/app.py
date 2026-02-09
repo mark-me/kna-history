@@ -41,8 +41,8 @@ def create_app(env: str = None) -> Flask:
     - Clean separation (all routes in blueprints)
 
     Args:
-        env: Environment ('development', 'production', 'testing')
-             If None, uses FLASK_ENV environment variable
+        env (str): Environment ('development', 'production', 'testing')
+            If None, uses FLASK_ENV environment variable
 
     Returns:
         Configured Flask application ready to run
