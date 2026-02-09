@@ -8,7 +8,7 @@ import sys
 
 from .config import get_config
 from .services import KnaDataLoader
-from logging_kna import logger
+from logging import logger
 
 
 def load_command(args):

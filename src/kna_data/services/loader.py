@@ -11,7 +11,7 @@ import pandas as pd
 from PIL import Image
 
 from ..config import BaseConfig
-from logging_kna import logger
+from logging import logger
 
 
 class KnaDataLoader:

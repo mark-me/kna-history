@@ -16,7 +16,7 @@ from flask import Blueprint, render_template, send_from_directory
 from flask_login import login_required
 
 from kna_data import DatabaseManager
-from logging_kna import logger
+from logging import logger
 
 # Import shared helpers
 from .helpers import get_kna_config, with_kna_reader

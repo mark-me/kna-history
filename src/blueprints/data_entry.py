@@ -25,7 +25,7 @@ from flask_login import login_required
 from sqlalchemy import text
 from werkzeug.utils import secure_filename
 
-from logging_kna import logger
+from logging import logger
 
 # Import shared helpers (DRY!)
 from .helpers import (

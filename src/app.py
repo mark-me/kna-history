@@ -28,7 +28,7 @@ from kna_data import (
     get_config,
     init_databases,
 )
-from logging_kna import logger
+from logging import logger
 
 
 def create_app(env: str = None) -> Flask:

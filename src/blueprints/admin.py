@@ -24,7 +24,7 @@ from flask_login import current_user, login_required
 from werkzeug.utils import secure_filename
 
 from kna_data import User, db
-from logging_kna import logger
+from logging import logger
 
 from .helpers import (
     allowed_file,
