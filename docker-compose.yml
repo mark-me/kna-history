@@ -71,7 +71,7 @@ services:
         - PGID=1000
         - TZ=Europe/Amsterdam
         - SUBDOMAINS=kna-historie
-        - TOKEN=11afd534-1ff8-4779-989d-1bf4f25561f3
+        - TOKEN=xxxxx-xxxx-xxxx-xxxx-xxxxxxxxx
         - LOG_FILE=false
       networks:
         - internal_network
